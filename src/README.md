@@ -1,6 +1,6 @@
 # Macintosh Quadra 800 ROM Reverse Engineering & Reconstructed Source
 
-This directory contains the decompiled and reconstructed C and Motorola 68040 assembly source code for the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`), based on reverse engineering with REA, Ghidra, and official Apple technical documentation.
+This repository contains the decompiled and reconstructed C and Motorola 68040 assembly source code for the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`), based on reverse engineering with REA, Ghidra, and official Apple technical documentation.
 
 ---
 
@@ -76,6 +76,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 src/
 ├── include/
 │   ├── mac_types.h        - Standard Macintosh data types (Point, Rect, GrafPort, Handle, Ptr, OSErr)
+│   ├── string.h           - Freestanding memory & string routines (memcpy, memset, strcmp) for bare-metal builds
 │   ├── lowmem.h           - Complete definitions of low-memory globals ($0000 - $2000)
 │   ├── lowmem.inc         - Assembly equates for low-memory globals
 │   ├── traps.h            - Decoded A-Trap equates ($A000-$AFFF) with ROM routine addresses
@@ -102,28 +103,95 @@ src/
 ├── declrom/
 │   ├── declrom_quadra.c/.h- Quadra 800 Declaration ROM structures (Motherboard and Video sResources)
 │   └── video_dafb.c / .h  - DAFB / ViSC onboard video controller driver interface
+├── tools/
+│   ├── rom_checksum.py    - Classic Macintosh 16-bit word addition checksum calculator & patcher
+│   └── build_rom.py       - 1MB ROM image packager (overlay & standalone modes)
+├── rom.ld                 - Bare-metal GNU ld linker script for 1MB ROM mapped at 0x40800000
 ├── main.c                 - Verification and analysis harness
-└── Makefile               - Host and bare-metal m68k compilation build system
+└── Makefile               - Unified build system (host verification, bare-metal cross-build, ROM generation)
 ```
 
 ---
 
-## 4. Building and Running
+## 4. Building the ROM
 
-### Host Verification Harness (Linux GCC)
-To compile and run the ROM analysis and verification harness against `QUADRA800.ROM`:
+### Prerequisites
+* **Host C Compiler**: `gcc` / `clang` (for the analysis harness and host testing).
+* **Motorola 68000 Cross-Toolchain**: `m68k-suse-linux-gcc`, `m68k-elf-gcc`, or `m68k-linux-gnu-gcc` with GNU `as` and `ld`.
+* **Python 3**: For checksum validation and ROM binary composition.
+* **Emulator** (Optional for testing): `qemu-system-m68k` (with `q800` machine support) or `BasiliskII`.
 
-```bash
-cd src
-make
-make run
-```
-
-### Bare-Metal Motorola 68040 Build (using m68k-elf-gcc)
-If an m68k cross-toolchain is installed:
+### 1. Build the Entire Project & 1MB ROM
+From the `src/` directory, simply run:
 
 ```bash
-cd src
-make m68k
+make -C src rom
 ```
-This assembles `boot/reset.s` and `traps/trap_dispatcher.s` directly targeting the Motorola 68040 processor.
+
+This single command automatically:
+1. Compiles all C modules (`boot/`, `traps/`, `toolbox/`, `declrom/`) with the m68040 cross-compiler.
+2. Assembles `boot/reset.s` and `traps/trap_dispatcher.s`.
+3. Links all bare-metal objects using [`src/rom.ld`](file:///home/eder/Downloads/_IA_/REA/q800rom/src/rom.ld) into `build/q800_rom.elf`.
+4. Invokes [`src/tools/build_rom.py`](file:///home/eder/Downloads/_IA_/REA/q800rom/src/tools/build_rom.py) to package both:
+   * **`build/QUADRA800_REBUILT.ROM`**: A 1,048,576 byte (1MB) composite ROM injecting our recompiled 68040 CPU detect, cache/MMU setup, and fast A-line trap dispatcher into the Quadra 800 layout.
+   * **`build/QUADRA800_STANDALONE.ROM`**: A 1,048,576 byte (1MB) pure standalone ROM built from ELF sections and NuBus Format Block.
+5. Computes and stamps the classic 16-bit word addition checksum at offset `0x00000000` and validates the result.
+
+```text
+[*] Building Standalone 1MB ROM from ELF: ../build/q800_rom.elf
+    -> Computed Checksum: 0x174B0787
+[+] Successfully generated: ../build/QUADRA800_STANDALONE.ROM (1048576 bytes)
+[*] Building Overlay ROM from template: ../QUADRA800.ROM
+    -> Injected _early_cpu_detect (80 bytes) at offset 0x00004052
+    -> Injected _trap_dispatcher (120 bytes) at offset 0x000099B0
+    -> Verified NuBus Declaration ROM Format Block at 0x0FFFEC
+    -> Computed Checksum: 0xF1AF0BAE written to offset 0x00000000
+[+] Successfully generated: ../build/QUADRA800_REBUILT.ROM (1048576 bytes)
+ROM File:          ../build/QUADRA800_REBUILT.ROM (1048576 bytes)
+Stored Checksum:   0xF1AF0BAE
+Computed Checksum: 0xF1AF0BAE
+Status:            VALID
+```
+
+---
+
+## 5. Testing the Built ROM
+
+### A. Testing in QEMU (Virtual Machine)
+To test the rebuilt ROM in QEMU's `q800` machine:
+
+```bash
+make -C src test-qemu
+```
+Or run QEMU directly:
+```bash
+qemu-system-m68k -M q800 -bios build/QUADRA800_REBUILT.ROM -m 64M
+```
+
+The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`, executes our recompiled `_early_cpu_detect` routine at `0x40804052`, configures 68040 caches, sets up transparent translation registers `DTT0`/`DTT1`, and proceeds with system initialization.
+
+### B. Testing in Basilisk II
+1. Open or edit your `~/.basilisk_ii_prefs`:
+   ```text
+   rom /path/to/q800rom/build/QUADRA800_REBUILT.ROM
+   ```
+2. Start the emulator:
+   ```bash
+   BasiliskII
+   ```
+
+### C. Testing on Real Hardware (Macintosh Quadra 800)
+* The binary `build/QUADRA800_REBUILT.ROM` is exactly 1,048,576 bytes ($100000).
+* It can be written directly to a standard programmable Macintosh 64-pin ROM SIMM, or split across 4 $\times$ 256KB 8-bit / 2 $\times$ 512KB 16-bit EPROMs.
+* The hardware POST verifies the 16-bit word addition checksum at offset `0x00000000` during cold startup; our automated build process ensures this checksum is verified and matches.
+
+---
+
+## 6. Host Verification Harness
+
+To verify the decompiled structures, test the trap table unpacker, and inspect NuBus Declaration ROM tables locally on Linux without an m68k toolchain:
+
+```bash
+make -C src run
+```
+This builds and executes `quadra_rom_harness` on `QUADRA800.ROM`.

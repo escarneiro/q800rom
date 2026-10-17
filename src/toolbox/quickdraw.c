@@ -20,7 +20,7 @@ void MacInitGraf(Ptr global_ptr) {
         ".short 0xA86E" /* _InitGraf */
         :
         : "r" (a0_glob)
-        : "d0", "d1", "d2", "a0", "a1", "memory"
+        : "d0", "d1", "d2", "a1", "memory"
     );
 }
 

@@ -33,7 +33,7 @@ _toolbox_trap:
 
     /* Standard Toolbox Trap ($A800 - $ABFF): */
     /* Target routine address = ToolboxTable[$0E00] + (trap_num & 0x03FF) * 4 */
-    movel   0x1E00(,%d2:w:4), 8(%sp)/* Place routine entry address onto stack */
+    movel   @(0x1E00,%d2:w:4), 8(%sp)/* Place routine entry address onto stack */
     movel   %a2, 12(%sp)            /* Update return PC on stack */
     movel   (%sp)+, %d2             /* Restore registers */
     moveal  (%sp)+, %a2
@@ -41,7 +41,7 @@ _toolbox_trap:
 
 _toolbox_autopop:
     /* Auto-pop Toolbox Trap ($AC00 - $AFFF): */
-    movel   0x0E00(,%d2:w:4), 8(%sp)
+    movel   @(0x0E00,%d2:w:4), 8(%sp)
     movel   (%sp)+, %d2
     moveal  (%sp)+, %a2
     rtd     #4                      /* Pop 4-byte return address from stack */
@@ -60,7 +60,7 @@ _os_trap:
     /* Standard OS Trap with register saving: */
     moveb   %d1, %d2                /* Extract 8-bit trap index */
     movel   %a0, -(%sp)             /* Preserve a0 parameter block pointer */
-    jsr     0x0400(,%d2:w:4)        /* Call routine through OSTable ($0400) */
+    jsr     @(0x0400,%d2:w:4)@(0)   /* Call routine through OSTable ($0400) */
     moveal  (%sp)+, %a0             /* Restore a0 */
     moveal  (%sp)+, %a1             /* Restore a1 */
     movel   (%sp)+, %d1             /* Restore d1 */
@@ -72,7 +72,7 @@ _os_trap:
 
 _os_trap_fast:
     moveb   %d1, %d2
-    jsr     0x0400(,%d2:w:4)        /* Call routine without saving a0 */
+    jsr     @(0x0400,%d2:w:4)@(0)   /* Call routine without saving a0 */
     moveal  (%sp)+, %a1
     movel   (%sp)+, %d1
     movel   (%sp)+, %d2
