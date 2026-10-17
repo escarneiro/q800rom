@@ -13,8 +13,11 @@
 
 #include "mem_manager.h"
 #include "lowmem.h"
-#include <stdlib.h>
 #include <string.h>
+
+#if !defined(__m68k__)
+#include <stdlib.h>
+#endif
 
 #if defined(__m68k__)
 

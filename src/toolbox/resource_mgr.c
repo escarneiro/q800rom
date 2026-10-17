@@ -28,7 +28,7 @@ Handle MacGetResource(ResType the_type, int16_t the_id) {
         "movel  (%%sp)+, %0"
         : "=r" (a0_res)
         : "r" (d0_type), "r" (d1_id)
-        : "d0", "d1", "a1", "memory"
+        : "a1", "memory"
     );
     return a0_res;
 }
@@ -40,7 +40,7 @@ void MacReleaseResource(Handle the_resource) {
         ".short 0xA9A3" /* _ReleaseResource */
         :
         : "r" (a0_res)
-        : "d0", "d1", "a0", "a1", "memory"
+        : "d0", "d1", "a1", "memory"
     );
 }
 
