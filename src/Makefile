@@ -34,14 +34,17 @@ run: $(TARGET)
 	./$(TARGET) ../QUADRA800.ROM
 
 # Cross-compilation for m68k if m68k-elf-gcc is installed
-M68K_CC = m68k-elf-gcc
-M68K_AS = m68k-elf-as
-M68K_CFLAGS = -m68040 -m32 -nostdlib -Iinclude -Iboot -Itraps -Itoolbox -Ideclrom -O2
+#M68K_CC = m68k-elf-gcc
+#M68K_AS = m68k-elf-as
+
+M68K_CC = /usr/bin/m68k-suse-linux-gcc
+M68K_AS = /usr/m68k-suse-linux/bin/as
+M68K_CFLAGS = -m68030 -m32 -nostdlib -Iinclude -Iboot -Itraps -Itoolbox -Ideclrom -O2
 
 m68k:
 	@which $(M68K_CC) >/dev/null 2>&1 || (echo "Note: $(M68K_CC) not found in PATH; skipping bare-metal m68k build." && exit 0)
-	$(M68K_AS) -m68040 boot/reset.s -o boot/reset.o
-	$(M68K_AS) -m68040 traps/trap_dispatcher.s -o traps/trap_dispatcher.o
+	$(M68K_AS) -m68030 boot/reset.s -o boot/reset.o
+	$(M68K_AS) -m68030 traps/trap_dispatcher.s -o traps/trap_dispatcher.o
 	@echo "Bare-metal 68040 assembly objects built successfully."
 
 clean:

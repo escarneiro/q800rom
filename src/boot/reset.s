@@ -54,8 +54,8 @@ _warm_reset:
     andi.w  #0xFEFE, %d0            /* Clear Cache Enable bits */
     movec   %d0, %cacr
     lea     _tc_disable(%pc), %a2
-    pmove   (%a2), %tc              /* Disable 68030 MMU if present */
-    pflusha
+    .word   0xF012, 0x4000          /* pmove (%a2), %tc: Disable 68030 MMU if present */
+    .word   0xF000, 0x2400          /* pflusha */
     ori.w   #0x0808, %d1
     movec   %d1, %cacr
     jmp     (%a1)                   /* Resume execution */
@@ -118,13 +118,13 @@ _early_cpu_detect:
     .word   0xF4D8                  /* cinva bc: Invalidate both I-cache and D-cache */
     sub.l   %d0, %d0
     movec   %d0, %cacr              /* Disable caches during boot */
-    movec   %d0, %tc                /* Disable MMU Translation Control */
+    .word   0x4E7B, 0x0003          /* movec %d0, %tc: Disable 68040 MMU Translation Control */
 
     /* Setup Data Transparent Translation Registers */
     move.l  #0x807FC040, %d0        /* DTT0: $80000000-$FFFFFFFF Serialized Cache-Inhibit */
-    movec   %d0, %dtt0
+    .word   0x4E7B, 0x0006          /* movec %d0, %dtt0 */
     move.l  #0x500FC040, %d0        /* DTT1: $50000000-$50FFFFFF I/O Space Cache-Inhibit */
-    movec   %d0, %dtt1
+    .word   0x4E7B, 0x0007          /* movec %d0, %dtt1 */
     bra.s   _cpu_detect_done
 
 _cpu_is_68030:
@@ -134,7 +134,7 @@ _cpu_is_68030:
     tst.l   %d0
     beq.s   _cpu_detect_done
     lea     _tc_zero(%pc), %a0
-    pmove   (%a0), %tc              /* Disable 68030 MMU */
+    .word   0xF010, 0x4000          /* pmove (%a0), %tc: Disable 68030 MMU */
 
 _cpu_detect_done:
     jmp     (%fp)                   /* Return using %fp link register */
