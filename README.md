@@ -28,9 +28,7 @@ REA's output:
   │ Displayed as code block. Widen terminal to view inline.
 
     flowchart TD
-        A["Power-on Reset (Vector 0/1)<br/>PC = 0x0000002A -> 0x4080008C"] --> B["68040 Detection & Setup<br/>cinva bc, clear TC & CACR<br/>DTT0: 0x807FC040, DTT1:
-  0x500FC040"]
-  
+        A["Power-on Reset (Vector 0/1)<br/>PC = 0x0000002A -> 0x4080008C"] --> B["68040 Detection & Setup<br/>cinva bc, clear TC & CACR<br/>DTT0: 0x807FC040, DTT1:  0x500FC040"]  
         B --> C["Hardware Reset & Early VBR<br/>reset pulse, %sp = 0x2600, VBR = 0x40803D08"]
         C --> D["Motherboard Probing & RAM Sizing<br/>Disable ROM overlay via VIA1, size RAM banks"]
         D --> E["Initialize Low-Memory Globals<br/>CPUFlag=4, MMUFlags=1, MemTop, BufPtr, ROMBase"]
