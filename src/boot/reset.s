@@ -70,6 +70,7 @@ _reset_startup:
     move.w  #0x2700, %sr            /* Supervisor mode, all interrupts masked */
     lea     _post_cpu_detect(%pc), %fp
     bra.w   _early_cpu_detect       /* Test and initialize 68040 cache/MMU */
+    .word   0x0000, 0x0000
 
 _post_cpu_detect:
     reset                           /* Assert external RESET line to clear hardware */
@@ -77,31 +78,66 @@ _post_cpu_detect:
     jmp     _setup_early_vbr        /* Configure temporary VBR and early stack */
 
 _post_early_vbr:
+    lea     _post_hw_trampoline(%pc), %fp
+    lea     0x4088AB56, %a0
+    jmp     (%a0)
+
+_post_hw_trampoline:
+    .word   0x6000, 0x082A          /* bra.w 0x408008E0 */
+
+_hw_probe_entry:
+    moveq   #0, %d2
+    moveml  %d5-%d7/%a5-%fp, -(%sp) /* Save preserved registers across hardware lookup */
     lea     _post_hw_ident(%pc), %fp
     jmp     _hw_lookup              /* Probe machine ID and motherboard hardware */
 
 _post_hw_ident:
-    /* Restore registers saved during memory sizing */
+    moveal  8(%a0), %a4             /* a4 points to hardware configuration descriptor */
+    moveq   #64, %d4
+    andb    (%a4), %d4
+    lea     _post_diag_check(%pc), %fp
+    jmp     0x40802E8C
+
+_post_diag_check:
+    cmpib   #5, %d2
+    bne.s   _skip_diag_flag
+    moveq   #-65, %d3
+    andb    (%a4), %d3
+    orb     %d4, %d3
+    moveb   %d3, (%a4)
+
+_skip_diag_flag:
+    moveml  %d0-%d2/%a0-%a3, -(%sp) /* Save registers across memory sizing */
+    lea     _post_mem_size(%pc), %fp
+    lea     0x4080B190, %a5
+    jmp     (%a5)                   /* Execute memory sizing & RAM bank test */
+
+_post_mem_size:
+    /* Restore registers after memory sizing */
     moveml  (%sp)+, %d0-%d2/%a0-%a3
     moveml  (%sp)+, %d5-%d7/%a5-%fp
 
-    /* Set up low-memory system configuration variables */
-    move.b  %d7, 0x012F             /* Set CPUFlag ($012F): 4 = 68040 */
-    swap    %d7
-    move.b  %d7, 0x0CB3             /* Set MMUFlags ($0CB3) */
-    move.l  %fp, 0x0108             /* Set MemTop ($0108): End of physical RAM */
-    move.l  %a5, 0x010C             /* Set BufPtr ($010C): Top of usable application RAM */
-    move.l  %a4, 0x0DDC             /* Set ROMBase shadow copy ($0DDC) */
+    /* Initialize low memory globals from descriptor */
+    .word   0x6100, 0x06C0          /* bsr.w 0x408007C0: Init memory management tables */
+    .word   0x6100, 0x06EC          /* bsr.w 0x408007F0: Disable ROM overlay (VIA1 Port B bit 4) */
+    .word   0x6100, 0x0968          /* bsr.w 0x40800A70: Calibrate VIA timer */
+    .word   0x6100, 0x11F4          /* bsr.w 0x40801300: Set up RAM exception vectors */
 
-    /* Initialize Trap Dispatcher and unpack ROM trap tables */
-    jsr     0x40809A88              /* Call InitTrapDispatcher */
-
-    /* Switch to 32-bit addressing mode */
-    moveq   #0, %d0
-    .short  0xA05D                  /* _SwapMMUMode */
-
-    /* Proceed to Toolbox and Resource initialization */
-    bra.w   _kernel_launch
+    moveal  -20(%a4), %fp           /* Top of RAM (MemTop) */
+    moveal  %a4, %a5                /* Usable RAM */
+    addal   -12(%a4), %a5           /* BufPtr (bottom of screen/sound buffer) */
+    movel   %d0, 0x0DD0             /* System configuration record */
+    movel   %d1, 0x0DD4
+    movel   %a1, 0x0DD8
+    swap    %d2
+    move.w  %d2, 0x0B22             /* BoxFlag */
+    swap    %d2
+    .word   0x6100, 0x07E2          /* bsr.w 0x40800910: Finalize lowmem configuration */
+    .word   0x61FF, 0x0000, 0x40FE  /* bsr.l 0x40804230: Launch system bootstrap */
+    nop
+    nop
+    nop
+    rts
 
 /* -------------------------------------------------------------------------
  * 68040 CPU Detection & MMU/Cache Configuration (Offset 0x00004052)

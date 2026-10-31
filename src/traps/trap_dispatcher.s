@@ -39,6 +39,9 @@ _toolbox_trap:
     moveal  (%sp)+, %a2
     rts                             /* Jump directly into Toolbox routine */
 
+    /* 8 bytes of padding / alignment in Quadra 800 ROM */
+    .space  8, 0
+
 _toolbox_autopop:
     /* Auto-pop Toolbox Trap ($AC00 - $AFFF): */
     movel   @(0x0E00,%d2:w:4), 8(%sp)
@@ -70,9 +73,12 @@ _os_trap:
     addqw   #4, %sp                 /* Pop exception frame */
     rts
 
+    /* 6 bytes of padding / alignment in Quadra 800 ROM */
+    .space  6, 0
+
 _os_trap_fast:
-    moveb   %d1, %d2
-    jsr     @(0x0400,%d2:w:4)@(0)   /* Call routine without saving a0 */
+    moveb   %d1, %d2                /* Copy trap index; bit 8 is 1, so %d2.w * 4 = $0400 + index*4 */
+    .word   0x4EB0, 0x2591          /* jsr @(0,%d2:w:4)@(0): base suppressed; jumps to OSTable */
     moveal  (%sp)+, %a1
     movel   (%sp)+, %d1
     movel   (%sp)+, %d2

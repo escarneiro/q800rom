@@ -36,6 +36,25 @@ def extract_section_bytes(elf_or_obj: str, section: str = ".text") -> bytes:
         return data
     return b""
 
+def get_symbol_range(obj_file: str, sym_name: str, end_sym: str = None) -> tuple:
+    """Finds byte range of a symbol in an object file using nm."""
+    res = subprocess.run(["/usr/m68k-suse-linux/bin/nm", "-n", obj_file], capture_output=True, text=True)
+    if res.returncode != 0:
+        return None, None
+    symbols = []
+    for line in res.stdout.splitlines():
+        parts = line.split()
+        if len(parts) >= 3:
+            symbols.append((int(parts[0], 16), parts[2]))
+    for i, (addr, name) in enumerate(symbols):
+        if name == sym_name:
+            if end_sym:
+                for j in range(i + 1, len(symbols)):
+                    if symbols[j][1] == end_sym:
+                        return addr, symbols[j][0]
+            return addr, symbols[i + 1][0] if i + 1 < len(symbols) else None
+    return None, None
+
 def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
     """Builds a bootable composite ROM by overlaying reconstructed modules."""
     print(f"[*] Building Overlay ROM from template: {template_path}")
@@ -54,26 +73,28 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
     reset_obj = os.path.join(obj_dir, "boot", "reset.o")
     if os.path.exists(reset_obj):
         reset_bin = extract_section_bytes(reset_obj, ".text")
-        if reset_bin and len(reset_bin) >= 0x122:
-            cpu_detect_code = reset_bin[0xD2:0x122]
+        s, e = get_symbol_range(reset_obj, "_early_cpu_detect", "_cpu_detect_done")
+        if reset_bin and s is not None and e is not None and e > s:
+            cpu_detect_code = reset_bin[s:e]
             dest_off = 0x00004052
             rom[dest_off:dest_off + len(cpu_detect_code)] = cpu_detect_code
-            print(f"    -> Injected _early_cpu_detect ({len(cpu_detect_code)} bytes) at offset 0x{dest_off:08X}")
+            print(f"    -> Injected _early_cpu_detect ({len(cpu_detect_code)} bytes from {hex(s)}..{hex(e)}) at offset 0x{dest_off:08X}")
 
     # 2. Overlay trap_dispatcher.o
     trap_obj = os.path.join(obj_dir, "traps", "trap_dispatcher.o")
     if os.path.exists(trap_obj):
         trap_bin = extract_section_bytes(trap_obj, ".text")
-        if trap_bin:
-            disp_code = trap_bin[:0x78]
+        s, e = get_symbol_range(trap_obj, "_trap_dispatcher", "_unimplemented_trap_handler")
+        if trap_bin and s is not None and e is not None and e > s:
+            disp_code = trap_bin[s:e]
             dest_off = 0x000099B0
             rom[dest_off:dest_off + len(disp_code)] = disp_code
-            print(f"    -> Injected _trap_dispatcher ({len(disp_code)} bytes) at offset 0x{dest_off:08X}")
+            print(f"    -> Injected _trap_dispatcher ({len(disp_code)} bytes from {hex(s)}..{hex(e)}) at offset 0x{dest_off:08X}")
 
     # 3. Ensure NuBus Declaration ROM Format Block is present at 0x0FFFEC
     fmt_offset = 0x0FFFEC
     # Format block structure:
-    # int32_t directoryOffset (-54088 = 0xFF2CB8 -> points to 0x0F2CA4)
+    # uint32_t directoryOffset (0x00FF2CB8 -> 24-bit offset to 0x0F2CA4)
     # uint32_t length (0)
     # uint32_t crc (0)
     # uint8_t revision (1)
@@ -81,8 +102,8 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
     # uint32_t testPattern (0x5A932BC7)
     # uint8_t reserved (0)
     # uint8_t byteLanes (0x0F)
-    struct.pack_into(">iiiBBIBB", rom, fmt_offset,
-                     -54088, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
+    struct.pack_into(">IIIBBIBB", rom, fmt_offset,
+                     0x00FF2CB8, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
     print(f"    -> Verified NuBus Declaration ROM Format Block at 0x{fmt_offset:06X}")
 
     # 4. Compute and write new 32-bit checksum at offset 0
@@ -122,8 +143,8 @@ def build_standalone_rom(elf_path: str, out_path: str):
 
     # Ensure format block at 0x0FFFEC
     fmt_offset = 0x0FFFEC
-    struct.pack_into(">iiiBBIBB", rom, fmt_offset,
-                     -54088, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
+    struct.pack_into(">IIIBBIBB", rom, fmt_offset,
+                     0x00FF2CB8, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
 
     # Compute checksum
     csum = calc_mac_checksum(rom)
