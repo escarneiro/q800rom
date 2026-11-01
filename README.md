@@ -155,6 +155,11 @@ Mac OS 8.1 to the Finder.
   trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources, `sub_XXXXXXXX` for other
   functions, `loc_`/`dat_` for branch and data targets (the hex number is the address in
   the original ROM; it does not change when code moves).
+* Apple's own names from the MPW 3.5 ROM map for this ROM (`analysis/Quadra800ROM.lst`,
+  2,672 labels such as `GETRESOURCE`, `SETPORT`, `WAITFORINTNOTIME`) are used wherever
+  they apply: 1,099 `sub_`/`loc_`/`dat_` names are replaced by them, 1,148 are added as
+  aliases next to existing names (`trap_NewHandle:` + `NWHANDLE:`), and 425 label
+  addresses that had no label before.
 * Branches to labels are written as `jbra`/`jbsr`/`jbeq`…, so the assembler picks the
   size; where Apple's assembler used a longer form than needed, the explicit size is kept.
 * A-line trap calls are written as macros (`_GetResource`), defined in `romsrc/include/traps_gas.inc`.

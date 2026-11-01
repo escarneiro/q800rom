@@ -10,7 +10,8 @@
 #   3. rom_disasm.py  labelled GNU as source, verified to rebuild the ROM byte for byte;
 #                     tools/rom_reloc.py turns addresses/offsets into label expressions and
 #                     writes code locations found in ROM tables to analysis/code_hints.txt
-#                     (used as extra seeds by the next run of this script)
+#                     (used as extra seeds by the next run of this script); labels from
+#                     Apple's MPW ROM map (analysis/Quadra800ROM.lst) name their addresses
 #
 # The QEMU evidence in analysis/ (trap_tables_runtime.txt, executed_pcs.txt) was captured
 # by booting the original ROM with "-d in_asm" (to the desktop and into Mac OS 8.1).
@@ -48,4 +49,5 @@ grep -E "Q800(Seed|ATraps|Export)\.java> Q800[A-Za-z]*: [0-9]" "$WORK/ghidra.log
 fi
 
 python3 "$SRC/tools/rom_disasm.py" "$ROM" "$AN/ghidra_codemap.txt,$AN/ghidra_atraps.txt" \
-    "$AN/ghidra_seeds.txt" "$SRC/traps/trap_table.c" "$SRC/romsrc"
+    "$AN/ghidra_seeds.txt" "$SRC/traps/trap_table.c" "$SRC/romsrc" \
+    --rom-map "$AN/Quadra800ROM.lst"

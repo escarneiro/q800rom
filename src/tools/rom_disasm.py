@@ -10,6 +10,10 @@ Turns the ROM into labelled 68040 assembly that GNU as rebuilds byte for byte:
     PC-relative targets inside the ROM become labels, so code can be edited.
   * Trap handlers are named after their traps (trap_GetResource, ...), other
     functions sub_XXXXXXXX, branch targets loc_XXXXXXXX, data targets dat_XXXXXXXX.
+  * With --rom-map, Apple's own labels (MPW ROM map, analysis/Quadra800ROM.lst) name
+    their addresses: they replace sub_/loc_/dat_ names, are added as aliases next to
+    other names (trap_NewHandle: NWHANDLE:), and label addresses nothing referenced.
+    They are applied after the relocation analysis, so they only change names.
   * A-line trap words are written with trap macros (include/traps_gas.inc).
   * Every instruction is verified by assembling it at its exact offset. If GNU as
     picks a different encoding, alternative spellings are tried (abs.w/abs.l
@@ -18,6 +22,7 @@ Turns the ROM into labelled 68040 assembly that GNU as rebuilds byte for byte:
 
 Usage:
   rom_disasm.py <rom> <codemap[,codemap2...]> <seeds.txt> <trap_table.c> <out_dir>
+                [--rom-map <Apple ROM.List .lst>]
   (codemaps: Q800Export.java "I/F/S" lines and Q800ATraps.java "A" lines)
 """
 
@@ -87,6 +92,19 @@ def load_seed_names(path):
         if len(p) > 2 and p[1] in "CXL":
             names[int(p[0], 16) - ROM_BASE] = p[2]
     return names
+
+
+def load_rom_map(path):
+    """Apple MPW ROM map ("ROM.List" .lst): [(offset, name)] in file order."""
+    out = []
+    for line in open(path, errors="replace"):
+        m = re.match(r"^(\S+)\s+Main\s+\$[0-9A-F]+,\$([0-9A-F]+)", line)
+        if m and 0 <= int(m.group(2), 16) < ROM_SIZE:
+            out.append((int(m.group(2), 16), m.group(1)))
+    return out
+
+
+GENERIC_RE = re.compile(r"\b(?:sub|loc|dat)_[0-9A-F]{8}\b")
 
 
 def load_data_ranges(path):
@@ -280,6 +298,8 @@ class RomSource:
         self.trap_table_range = None
         self.post_relocs = []     # "s24 <loc> <target>" lines for tools/rom_postlink.py
         self.labels = {}
+        self.aliases = {}         # off -> [extra label names at the same address]
+        self.rename = {}          # generic name (sub_/loc_/dat_) -> Apple ROM map name
         for a, n in funcs.items():
             self.labels[a] = n if not n.startswith("FUN_") else f"sub_{ROM_BASE + a:08X}"
         for a, n in seed_names.items():
@@ -435,6 +455,7 @@ class RomSource:
                 if is_func:
                     out.append("")
                 out.append(f"{name}:")
+                out += [f"{a}:" for a in self.aliases.get(c, ())]
             if c in self.insns:
                 ins = self.insns[c]
                 if verify:
@@ -458,8 +479,41 @@ class RomSource:
         parts.append((part, out, linemap))
         for off, base in sorted(self.inside.items()):
             if off in self.labels:
-                sets.append(f"    .set    {self.labels[off]}, {self.labels.get(base) or f'.Lmid_{base:X}'} + {off - base}")
+                for n in [self.labels[off]] + self.aliases.get(off, []):
+                    sets.append(f"    .set    {n}, {self.labels.get(base) or f'.Lmid_{base:X}'} + {off - base}")
+        if self.rename:
+            parts = [(p, [self.rn(l) for l in lines], lm) for p, lines, lm in parts]
+            sets = [self.rn(l) for l in sets]
         return parts, sets
+
+    def apply_rom_map(self, entries):
+        """Name addresses with Apple's labels. Run after the relocation analysis: the
+        label set it saw is unchanged, references keep their (renamed) targets."""
+        used = set(self.labels.values())
+        stats = {"renamed": 0, "aliases": 0, "new": 0}
+        for off, name in entries:
+            if name in used:
+                name = f"{name}_{ROM_BASE + off:08X}"
+                if name in used:
+                    continue
+            used.add(name)
+            cur = self.labels.get(off)
+            if cur is None:
+                self.labels[off] = name
+                stats["new"] += 1
+            elif GENERIC_RE.fullmatch(cur) and cur not in self.rename:
+                self.rename[cur] = name
+                stats["renamed"] += 1
+            else:
+                self.aliases.setdefault(off, []).append(name)
+                stats["aliases"] += 1
+        return stats
+
+    def rn(self, text):
+        """Apply the Apple-name renames to emitted text."""
+        if not self.rename:
+            return text
+        return GENERIC_RE.sub(lambda m: self.rename.get(m.group(0), m.group(0)), text)
 
     def compute_inside(self):
         self.inside = {}
@@ -531,6 +585,9 @@ def main():
         print(__doc__)
         sys.exit(1)
     rom_path, codemap, seeds, trapc, out_dir = sys.argv[1:6]
+    rom_map = None
+    if "--rom-map" in sys.argv[6:]:
+        rom_map = sys.argv[sys.argv.index("--rom-map") + 1]
     rom = open(rom_path, "rb").read()
     assert len(rom) == ROM_SIZE
 
@@ -574,6 +631,10 @@ def main():
     # strings overlapping symbolized data are dropped
     src.strings = {a: n for a, n in src.strings.items()
                    if not any(x in src.data_cover for x in range(a, a + n))}
+    if rom_map:
+        st = src.apply_rom_map(load_rom_map(rom_map))
+        print(f"[*] Apple ROM map names: {st['renamed']} replace generated names, "
+              f"{st['aliases']} aliases, {st['new']} new labels")
     src.compute_inside()
     src.mid_anchor_labels()
     src.compute_inside()
@@ -683,11 +744,11 @@ def main():
     with open(os.path.join(out_dir, "traptable.lst"), "w") as f:
         f.write("# Packed trap dispatch table at label trap_dispatch_table: one entry per line\n"
                 "# w/b/l <target label> = word/byte/long encoded entry, u = unimplemented, end\n")
-        f.write("\n".join(getattr(src, "trap_table_list", [])) + "\n")
+        f.write(src.rn("\n".join(getattr(src, "trap_table_list", []))) + "\n")
     with open(os.path.join(out_dir, "relocs.lst"), "w") as f:
         f.write("# Post-link relocations applied by tools/rom_postlink.py\n"
                 "# s24 <loc> <target>: byte loc+1..3 = 24-bit (target - loc) (NuBus sResource entry)\n")
-        f.write("\n".join(src.post_relocs) + "\n")
+        f.write(src.rn("\n".join(src.post_relocs)) + "\n")
     with open(os.path.join(out_dir, "q800rom.sha256"), "w") as f:
         f.write(f"{digest}  QUADRA800_BASE.ROM\n")
 

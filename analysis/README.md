@@ -11,6 +11,7 @@ into the assembler source in `src/romsrc/`.
 | `ghidra_codemap.txt` | Instructions, functions and strings found by Ghidra | `analyzeHeadless` + `Q800Seed.java` (aggressive instruction finder) + `Q800Export.java` |
 | `code_hints.txt` | Code entry points found in ROM tables (Universal primitives, ROMBase offset tables, NuBus init blocks) | Written by `src/tools/rom_disasm.py`; fed back to Ghidra as seeds on the next regeneration |
 | `ghidra_atraps.txt` | A-line trap call sites | `Q800ATraps.java` (Ghidra can't decode A-line words, so it stops at every trap call; this script resumes after them) |
+| `Quadra800ROM.lst` | Apple's symbol map of this ROM (2,672 labels; Apple used it for the Quadra 800 and Centris 610/650) | MPW 3.5 GM `ROM Maps/ROM.List`, via [cy384/68k-mac-rom-maps](https://github.com/cy384/68k-mac-rom-maps); line endings converted to LF. Gives `trap_table.c` its names and `src/romsrc/` its Apple labels |
 | `qemu_macos81_boot_*.png` | Mac OS 8.1 Finder screenshots with the original and the rebuilt ROM | QEMU `screendump` (local only, not in git) |
 
 ## Findings worth knowing
@@ -24,9 +25,12 @@ into the assembler source in `src/romsrc/`.
   matches); the trap-table builder that actually runs starts at `0x40809A96` (`0x40809A88` only
   stores the A-line vector); the video driver is the `.Display_Video_Apple_ViSC` DRVR at
   `0x4089BCC4` (`0x4089A2EA` is its driver directory); `$A0A0`–`$A0A2` are installed in RAM.
-* **Trap names in `trap_table.c` are still partly wrong.** 45 names are used for two trap
-  numbers (e.g. `$A916` is `_HideWindow`, not `_InitMenus`), and 597 traps only have placeholder
-  names (`_ToolboxTrap_A833`). The disassembly labels in `src/romsrc/` inherit these names.
+* **Trap names come from Apple.** `src/traps/trap_table.c` used to have 114 wrong names
+  (several ranges shifted by one or more slots, e.g. `$A916` is `_HideWindow`, not
+  `_InitMenus`) and 597 placeholders. Names now come from Apple's `Traps.h`, checked against
+  `Quadra800ROM.lst`: 1275 of the 1280 handler addresses carry an Apple label, and it agrees
+  with the `Traps.h` name for every trap that has both. Private traps carry Apple's label
+  (`_VBTOPEN`, `_BITBLT`); only 210 unused or RAM-installed slots keep placeholders.
 * **Packed trap table format.** Decoded by the ROM at `0x40809A96`. A byte with bit 7 set:
   `0x80` = unimplemented, `0xFF` + long = absolute ROM offset, otherwise `(b & 0x7F) * 2` bytes
   forward. A byte with bit 7 clear starts a word `w`; the delta is `sign_extend16((w * 2) & 0xFFFF)`.

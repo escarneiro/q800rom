@@ -112,7 +112,7 @@ def main():
                 if m and m.group(1) in addr_of:
                     ad = addr_of[m.group(1)]
                     if ad >= at and ad - ROM_BASE < FIXED and re.match(
-                            r"^(rts|rte|rtd|jmp|j?bra[swl]?)\b", prev) and re.match(r"^(sub_|trap_|rsrc_)", m.group(1)) and (best is None or ad < best[0]):
+                            r"^(rts|rte|rtd|jmp|j?bra[swl]?)\b", prev) and re.match(r"^(sub_|trap_|rsrc_|[A-Z][A-Z0-9_]*$)", m.group(1)) and (best is None or ad < best[0]):
                         best = (ad, fn, i, m.group(1))
                     continue
                 t = l.split("|")[0].strip()
@@ -123,6 +123,9 @@ def main():
         ins_at, fn, idx, name = best
         p = os.path.join(shifted, fn)
         lines = open(p).read().split("\n")
+        # insert in front of all labels of that address (aliases follow the first one)
+        while idx > 0 and re.match(r"^\w+:$", lines[idx - 1]):
+            idx -= 1
         # ILLEGAL instructions: a stale reference into the padding traps instead of
         # sliding through it (zero bytes would decode as harmless ori.b #0,d0)
         pad = f"    .fill   0x{n // 2:X}, 2, 0x4AFC" if n >= 2 else ""
