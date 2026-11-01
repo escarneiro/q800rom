@@ -200,15 +200,29 @@ Results:
 
 ### 4. Regenerating `romsrc/` (needs an original ROM)
 
+`src/romsrc/` is not in git. On a fresh clone, generate it from your own ROM:
+
 ```bash
 make -C src romsrc-regen ORIG_ROM=/path/to/QUADRA800.ROM
+make -C src rom
 ```
 
-`tools/regen_romsrc.sh` runs: `tools/rom_seeds.py` (entry points from the QEMU evidence in
-`analysis/`, the ROM resource list, verified symbols and code found in ROM tables by the
-previous run) → Ghidra headless analysis (`tools/ghidra/Q800Seed.java`, `Q800ATraps.java`,
-`Q800Export.java`) → `tools/rom_disasm.py` + `tools/rom_reloc.py` (source generation,
-symbolization and per-instruction verification). See `analysis/README.md`.
+This uses the analysis committed in `analysis/` and is deterministic: it produces exactly
+the tested source (it does not need Ghidra; it takes about 3 minutes).
+
+To improve the disassembly (new QEMU traces, more code coverage), re-run the full analysis:
+
+```bash
+make -C src romsrc-reanalyze ORIG_ROM=/path/to/QUADRA800.ROM
+```
+
+`tools/regen_romsrc.sh --reanalyze` runs: `tools/rom_seeds.py` (entry points from the QEMU
+evidence in `analysis/`, the ROM resource list, verified symbols and code found in ROM
+tables by the previous run) → Ghidra headless analysis (`tools/ghidra/Q800Seed.java`,
+`Q800ATraps.java`, `Q800Export.java`) → `tools/rom_disasm.py` + `tools/rom_reloc.py`
+(source generation, symbolization and per-instruction verification). A new code map
+changes the generated source, so run `make -C src test-shift` with several `SHIFT_AT`
+values before committing the updated `analysis/` files. See `analysis/README.md`.
 
 `src/romsrc/` is listed in `.gitignore` because it contains Apple's ROM content.
 

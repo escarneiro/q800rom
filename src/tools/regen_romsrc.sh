@@ -15,14 +15,23 @@
 # The QEMU evidence in analysis/ (trap_tables_runtime.txt, executed_pcs.txt) was captured
 # by booting the original ROM with "-d in_asm" (to the desktop and into Mac OS 8.1).
 #
-# Usage (from src/): tools/regen_romsrc.sh ../QUADRA800.ROM
+# Usage (from src/):
+#   tools/regen_romsrc.sh ../QUADRA800.ROM               step 3 only, from the committed
+#                                                        Ghidra code map (deterministic:
+#                                                        gives the tested source; no Ghidra)
+#   tools/regen_romsrc.sh --reanalyze ../QUADRA800.ROM   steps 1-3 (needs Ghidra). The new
+#                                                        code map changes the source: re-run
+#                                                        "make test-shift" before committing.
 set -e
+REANALYZE=0
+if [ "$1" = "--reanalyze" ]; then REANALYZE=1; shift; fi
 ROM=$(realpath "${1:-../QUADRA800.ROM}")
 SRC=$(cd "$(dirname "$0")/.." && pwd)
 AN=$(cd "$SRC/../analysis" && pwd)
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
+if [ $REANALYZE = 1 ]; then
 python3 "$SRC/tools/rom_seeds.py" "$ROM" "$AN/ghidra_seeds.txt" \
     --traps "$AN/trap_tables_runtime.txt" --trace "$AN/executed_pcs.txt" \
     --names "$SRC/traps/trap_table.c" --symbols "$SRC/include/rom_symbols.h" \
@@ -36,6 +45,7 @@ analyzeHeadless "$WORK" q800 -import "$ROM" \
     -postScript Q800Export.java "$AN/ghidra_codemap.txt" > "$WORK/ghidra.log" 2>&1 \
     || { tail -30 "$WORK/ghidra.log"; exit 1; }
 grep -E "Q800(Seed|ATraps|Export)\.java> Q800[A-Za-z]*: [0-9]" "$WORK/ghidra.log" | sed 's/^.*> /    /' | tail -3
+fi
 
 python3 "$SRC/tools/rom_disasm.py" "$ROM" "$AN/ghidra_codemap.txt,$AN/ghidra_atraps.txt" \
     "$AN/ghidra_seeds.txt" "$SRC/traps/trap_table.c" "$SRC/romsrc"

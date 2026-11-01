@@ -56,7 +56,7 @@ M68K_C_SRCS = boot/cpu68040.c \
 
 M68K_C_OBJS = $(patsubst %.c,$(BUILD_DIR)/%_m68k.o,$(M68K_C_SRCS))
 
-.PHONY: all clean run m68k rom test-qemu test-boot test-shift romsrc-regen
+.PHONY: all clean run m68k rom test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
 
 all: $(TARGET) rom
 
@@ -107,11 +107,16 @@ $(BASE_ROM): $(ROMSRC_ELF) romsrc/q800rom.sha256 romsrc/traptable.lst
 		&& echo "Base ROM image $@ is identical to the original ROM") \
 		|| echo "Base ROM image $@ differs from the original ROM (modified source)"
 
-# Regenerate romsrc/ from an original ROM (needs Ghidra's analyzeHeadless;
-# QEMU traces in ../analysis are reused). Only needed to improve the disassembly.
+# Regenerate romsrc/ from an original ROM, using the committed analysis in ../analysis
+# (deterministic: produces the tested source; does not need Ghidra).
 ORIG_ROM ?= ../QUADRA800.ROM
 romsrc-regen:
 	tools/regen_romsrc.sh $(ORIG_ROM)
+
+# Full re-analysis with Ghidra (analyzeHeadless) to improve coverage. This changes the
+# generated source: run "make test-shift" (several SHIFT_AT values) before committing.
+romsrc-reanalyze:
+	tools/regen_romsrc.sh --reanalyze $(ORIG_ROM)
 
 # Build complete 1MB ROM images and compute checksums
 rom: $(ELF_TARGET) $(BASE_ROM)
