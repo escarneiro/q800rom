@@ -148,7 +148,7 @@ make -C src test-qemu    # interactive QEMU window
 ```
 
 `build/QUADRA800_REBUILT.ROM` boots QEMU's q800 machine to the desktop and boots
-Mac OS 8.1 to the Finder (`analysis/qemu_macos81_boot_rebuilt_rom.png`).
+Mac OS 8.1 to the Finder.
 
 ### 3. The disassembled source (`src/romsrc/`)
 

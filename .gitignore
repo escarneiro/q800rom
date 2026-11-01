@@ -19,6 +19,6 @@ scripts/
 quadra_rom_harness
 build/
 src/romsrc/
-analysis/
+analysis/*.png
 build_process.odf
 screen_boot_rebuilt.png
