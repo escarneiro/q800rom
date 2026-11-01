@@ -76,19 +76,18 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 src/
 ├── include/
 │   ├── mac_types.h        - Standard Macintosh data types (Point, Rect, GrafPort, Handle, Ptr, OSErr)
-│   ├── string.h           - Freestanding memory & string routines (memcpy, memset, strcmp) for bare-metal builds
 │   ├── lowmem.h           - Complete definitions of low-memory globals ($0000 - $2000)
 │   ├── traps.h            - Decoded A-Trap equates ($A000-$AFFF) with ROM routine addresses
 │   ├── hw_quadra.h        - Hardware register definitions (VIA1, VIA2, SCC, SCSI, DAFB, 68040 CACR/TC/DTT)
 │   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
 │   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
 ├── boot/
-│   ├── reset.s            - 68040 assembly for power-on reset sequence (ROM header, MMU/cache, overlay disable)
+│   ├── reset.s            - 68040 early CPU detection and MMU/cache setup (copied into the rebuilt ROM at 0x40804052)
 │   ├── cpu68040.c / .h    - 68040 processor detection, cache invalidation, and transparent translation setup
 │   ├── hwinit.c / .h      - VIA1 timer calibration, RAM sizing, and machine identification
 │   └── lowmem_init.c / .h - Initialization of low-memory globals and vector table
 ├── traps/
-│   ├── trap_dispatcher.s  - A-Line Trap Dispatcher (vector 10, $0028) decompiled from 0x408099B0
+│   ├── trap_dispatcher.s  - A-Line Trap Dispatcher (vector 10, $0028), copied into the rebuilt ROM at 0x408099B0
 │   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A96
 │   └── trap_table.c / .h  - Complete table of all 1,024 Toolbox Traps and 256 OS Traps
 ├── toolbox/
@@ -102,10 +101,9 @@ src/
 │   └── video_dafb.c / .h  - DAFB / ViSC onboard video controller driver interface
 ├── tools/
 │   ├── rom_checksum.py    - Classic Macintosh 16-bit word addition checksum calculator & patcher
-│   └── build_rom.py       - 1MB ROM image packager (overlay & standalone modes)
-├── rom.ld                 - Bare-metal GNU ld linker script for 1MB ROM mapped at 0x40800000
+│   └── build_rom.py       - 1MB ROM image packager (overlay of reset.s / trap_dispatcher.s, checksums)
 ├── main.c                 - Verification and analysis harness
-└── Makefile               - Unified build system (host verification, bare-metal cross-build, ROM generation)
+└── Makefile               - Unified build system (host verification harness, ROM generation, tests)
 ```
 
 ---
@@ -117,8 +115,8 @@ The build no longer needs the original `QUADRA800.ROM`. The whole ROM exists as
 and checked to rebuild it **byte for byte**.
 
 ### Prerequisites
-* **Motorola 68000 Cross-Toolchain**: `m68k-suse-linux-gcc` with GNU `as`, `ld`, `objcopy`.
-* **Host C Compiler**: `gcc` (analysis harness only).
+* **Motorola 68000 cross binutils**: GNU `as`, `ld`, `objcopy`, `nm`, `objdump` (`m68k-suse-linux-*`).
+* **Host C Compiler**: `gcc` (analysis harness only; the C modules are host models, not ROM code).
 * **Python 3**: ROM packaging, checksum, tests.
 * **Optional**: `qemu-system-m68k` (boot tests); Ghidra `analyzeHeadless` (only to regenerate `romsrc/`).
 
@@ -130,10 +128,7 @@ make -C src rom
 
 1. Assembles `src/romsrc/q800rom.s` (which includes `part_00.s` … `part_0F.s`) into
    `build/QUADRA800_BASE.ROM` and checks it against `romsrc/q800rom.sha256`.
-2. Compiles and links the reconstructed C/assembly modules (`boot/`, `traps/`,
-   `toolbox/`, `declrom/`) into `build/q800_rom.elf` and `build/QUADRA800_STANDALONE.ROM`
-   (experimental; this image does not boot yet).
-3. Overlays the reconstructed `_early_cpu_detect` and `_trap_dispatcher` on the base image,
+2. Assembles `boot/reset.s` and `traps/trap_dispatcher.s`, then overlays the reconstructed `_early_cpu_detect` and `_trap_dispatcher` on the base image,
    stamps the checksum and writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently
    identical to the original ROM, checksum `0xF1ACAD13`).
 

@@ -11,7 +11,7 @@
 
     .text
     .globl _trap_dispatcher
-    .globl _unimplemented_trap_handler
+    .globl _trap_dispatcher_end
 
 /* -------------------------------------------------------------------------
  * A-Line Trap Dispatcher Entry Point (0x408099B0)
@@ -87,10 +87,6 @@ _os_trap_fast:
     addqw   #4, %sp
     rts
 
-/* -------------------------------------------------------------------------
- * Unimplemented Trap Handler (0x40809AE6)
- * ------------------------------------------------------------------------- */
-_unimplemented_trap_handler:
-    moveml  %d0-%sp, 0x0C30         /* Save all CPU registers into low-memory DSAlertTab */
-    moveq   #12, %d0                /* System Error ID 12: Unimplemented Core Routine */
-    jmp     0x40802726              /* Branch to System Error Alert display */
+/* End of the range that tools/build_rom.py copies into the rebuilt ROM. The ROM's
+ * unimplemented-trap handler (0x40809AE6) follows here; it comes from romsrc/. */
+_trap_dispatcher_end:

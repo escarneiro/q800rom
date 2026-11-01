@@ -11,83 +11,6 @@
 #include "lowmem.h"
 #include <string.h>
 
-#if defined(__m68k__)
-
-void MacInitGraf(Ptr global_ptr) {
-    register Ptr a0_glob __asm__("a0") = global_ptr;
-    __asm__ __volatile__ (
-        "movel  %0, -(%%sp)\n\t"
-        ".short 0xA86E" /* _InitGraf */
-        :
-        : "r" (a0_glob)
-        : "d0", "d1", "d2", "a1", "memory"
-    );
-}
-
-void MacInitCursor(void) {
-    __asm__ __volatile__ (
-        ".short 0xA850" /* _InitCursor */
-        ::: "d0", "d1", "a0", "a1", "memory"
-    );
-}
-
-void MacSetPort(GrafPtr port) {
-    register GrafPtr a0_port __asm__("a0") = port;
-    __asm__ __volatile__ (
-        "movel  %0, -(%%sp)\n\t"
-        ".short 0xA880" /* _SetPort */
-        :
-        : "r" (a0_port)
-        : "memory"
-    );
-}
-
-void MacGetPort(GrafPtr *port) {
-    register GrafPtr *a0_port __asm__("a0") = port;
-    __asm__ __volatile__ (
-        "movel  %0, -(%%sp)\n\t"
-        ".short 0xA881" /* _GetPort */
-        :
-        : "r" (a0_port)
-        : "memory"
-    );
-}
-
-void MacMoveTo(int16_t h, int16_t v) {
-    __asm__ __volatile__ (
-        "movew  %0, -(%%sp)\n\t"
-        "movew  %1, -(%%sp)\n\t"
-        ".short 0xA896" /* _MoveTo */
-        :
-        : "r" (h), "r" (v)
-        : "memory"
-    );
-}
-
-void MacLineTo(int16_t h, int16_t v) {
-    __asm__ __volatile__ (
-        "movew  %0, -(%%sp)\n\t"
-        "movew  %1, -(%%sp)\n\t"
-        ".short 0xA898" /* _LineTo */
-        :
-        : "r" (h), "r" (v)
-        : "memory"
-    );
-}
-
-void MacPaintRect(const Rect *r) {
-    register const Rect *a0_r __asm__("a0") = r;
-    __asm__ __volatile__ (
-        "movel  %0, -(%%sp)\n\t"
-        ".short 0xA8A1" /* _PaintRect */
-        :
-        : "r" (a0_r)
-        : "memory"
-    );
-}
-
-#else
-
 /* Portable / Host Reconstructed QuickDraw Graphics Engine */
 
 static GrafPtr s_current_port = NULL;
@@ -140,4 +63,3 @@ void MacPaintRect(const Rect *r) {
     (void)r;
 }
 
-#endif

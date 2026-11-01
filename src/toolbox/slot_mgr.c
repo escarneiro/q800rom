@@ -22,10 +22,6 @@ OSErr MacSGetFormatBlock(uint8_t slot, NuBusFormatBlock *fb_out) {
     uint32_t slot_top = QUADRA_NUBUS_SLOT_BASE(slot) + 0x00FFFFFFU;
     const uint8_t *fb_bytes = (const uint8_t *)(uintptr_t)(slot_top - sizeof(NuBusFormatBlock) + 1);
 
-#if defined(__m68k__)
-    /* Probe bus memory: if bus error occurs, slot is empty */
-#endif
-
     /* In Quadra 800 ROM, Motherboard Declaration ROM is located at 0x40800000 + 0x0FFFEC */
     if (slot == 0) {
         fb_bytes = (const uint8_t *)(QUADRA_ROM_BASE + QUADRA_ROM_SIZE - 20);

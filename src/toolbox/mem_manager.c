@@ -15,90 +15,7 @@
 #include "lowmem.h"
 #include <string.h>
 
-#if !defined(__m68k__)
 #include <stdlib.h>
-#endif
-
-#if defined(__m68k__)
-
-Ptr MacNewPtr(int32_t logical_size) {
-    register int32_t d0_size __asm__("d0") = logical_size;
-    register Ptr a0_result __asm__("a0");
-    __asm__ __volatile__ (
-        ".short 0xA11E" /* _NewPtr */
-        : "=r" (a0_result), "+r" (d0_size)
-        :
-        : "d1", "a1", "memory"
-    );
-    return a0_result;
-}
-
-OSErr MacDisposPtr(Ptr p) {
-    register Ptr a0_ptr __asm__("a0") = p;
-    register int16_t d0_err __asm__("d0");
-    __asm__ __volatile__ (
-        ".short 0xA01F" /* _DisposPtr */
-        : "=r" (d0_err), "+r" (a0_ptr)
-        :
-        : "d1", "a1", "memory"
-    );
-    return d0_err;
-}
-
-Handle MacNewHandle(int32_t logical_size) {
-    register int32_t d0_size __asm__("d0") = logical_size;
-    register Handle a0_result __asm__("a0");
-    __asm__ __volatile__ (
-        ".short 0xA122" /* _NewHandle */
-        : "=r" (a0_result), "+r" (d0_size)
-        :
-        : "d1", "a1", "memory"
-    );
-    return a0_result;
-}
-
-OSErr MacDisposHandle(Handle h) {
-    register Handle a0_handle __asm__("a0") = h;
-    register int16_t d0_err __asm__("d0");
-    __asm__ __volatile__ (
-        ".short 0xA023" /* _DisposHandle */
-        : "=r" (d0_err), "+r" (a0_handle)
-        :
-        : "d1", "a1", "memory"
-    );
-    return d0_err;
-}
-
-void MacHLock(Handle h) {
-    register Handle a0_handle __asm__("a0") = h;
-    __asm__ __volatile__ (
-        ".short 0xA029" /* _HLock */
-        : "+r" (a0_handle)
-        :
-        : "d0", "d1", "a1", "memory"
-    );
-}
-
-void MacHUnlock(Handle h) {
-    register Handle a0_handle __asm__("a0") = h;
-    __asm__ __volatile__ (
-        ".short 0xA02A" /* _HUnlock */
-        : "+r" (a0_handle)
-        :
-        : "d0", "d1", "a1", "memory"
-    );
-}
-
-void MacInitZone(THz zone, Ptr limit_ptr, int16_t master_count) {
-    if (!zone || !limit_ptr) return;
-    memset(zone, 0, sizeof(Zone));
-    zone->bkLim = limit_ptr;
-    zone->hFstFree = (Ptr)(zone + 1);
-    zone->zcbFree = (int32_t)(limit_ptr - (Ptr)zone->hFstFree);
-    zone->moreMast = master_count;
-}
-
-#else
 
 /* Portable / Host Reconstructed Memory Manager Implementation */
 
@@ -166,4 +83,3 @@ void MacInitZone(THz zone, Ptr limit_ptr, int16_t master_count) {
     zone->moreMast = master_count;
 }
 
-#endif

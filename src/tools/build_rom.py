@@ -2,11 +2,11 @@
 """
 build_rom.py - Macintosh Quadra 800 ROM Binary Builder
 
-Produces 1,048,576 byte (1MB) Macintosh ROM images:
-1. 'standalone': Pure reconstructed ROM built from compiled bare-metal 68040 objects.
-2. 'overlay': Injects reconstructed modules (reset startup, 68040 MMU/cache,
-   fast trap dispatcher, decompiled managers) into the Quadra 800 ROM layout,
-   recomputing the exact 16-bit word addition checksum.
+Produces the 1,048,576 byte (1MB) rebuilt Macintosh ROM image ('overlay' mode):
+copies the hand-written 68040 routines (boot/reset.s: early CPU detection and
+MMU/cache setup; traps/trap_dispatcher.s: A-line trap dispatcher) over the base
+image assembled from romsrc/, writes the NuBus format block and recomputes the
+byte-lane sums and the 32-bit checksum.
 """
 
 import sys
@@ -116,7 +116,7 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str, base_elf:
     trap_obj = os.path.join(obj_dir, "traps", "trap_dispatcher.o")
     if os.path.exists(trap_obj):
         trap_bin = extract_section_bytes(trap_obj, ".text")
-        s, e = get_symbol_range(trap_obj, "_trap_dispatcher", "_unimplemented_trap_handler")
+        s, e = get_symbol_range(trap_obj, "_trap_dispatcher", "_trap_dispatcher_end")
         if trap_bin and s is not None and e is not None and e > s:
             disp_code = trap_bin[s:e]
             dest_off = symbol_offset(base_elf, "trap_dispatcher")
@@ -150,48 +150,9 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str, base_elf:
 
     print(f"[+] Successfully generated: {out_path} ({len(rom)} bytes)")
 
-def build_standalone_rom(elf_path: str, out_path: str):
-    """Builds a standalone 1MB ROM binary from linked ELF."""
-    print(f"[*] Building Standalone 1MB ROM from ELF: {elf_path}")
-    if not os.path.exists(elf_path):
-        print(f"Error: ELF file '{elf_path}' not found!")
-        sys.exit(1)
-
-    raw_bin = "/tmp/raw_rom.bin"
-    cmd = ["/usr/bin/m68k-suse-linux-objcopy", "-O", "binary", elf_path, raw_bin]
-    res = subprocess.run(cmd, capture_output=True)
-    if res.returncode != 0:
-        print(f"Error extracting binary from ELF: {res.stderr.decode()}")
-        sys.exit(1)
-
-    with open(raw_bin, "rb") as f:
-        data = bytearray(f.read())
-    if os.path.exists(raw_bin):
-        os.remove(raw_bin)
-
-    # Pad or create 1MB image
-    rom = bytearray(ROM_SIZE)
-    copy_len = min(len(data), ROM_SIZE)
-    rom[0:copy_len] = data[0:copy_len]
-
-    # Ensure format block at 0x0FFFEC
-    fmt_offset = 0x0FFFEC
-    struct.pack_into(">IIIBBIBB", rom, fmt_offset,
-                     0x00FF2CB8, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
-
-    # Compute checksums
-    csum = fix_checksums(rom)
-    print(f"    -> Computed Checksum: 0x{csum:08X}")
-
-    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
-    with open(out_path, "wb") as f:
-        f.write(rom)
-
-    print(f"[+] Successfully generated: {out_path} ({len(rom)} bytes)")
-
 def main():
     if len(sys.argv) < 3:
-        print("Usage: build_rom.py <mode: overlay|standalone> <output_rom> [template_rom_or_elf] [obj_dir] [base_elf]")
+        print("Usage: build_rom.py overlay <output_rom> [template_rom] [obj_dir] [base_elf]")
         sys.exit(1)
 
     mode = sys.argv[1]
@@ -202,9 +163,6 @@ def main():
         obj_dir = sys.argv[4] if len(sys.argv) > 4 else "src"
         base_elf = sys.argv[5] if len(sys.argv) > 5 else None
         build_overlay_rom(template, out_path, obj_dir, base_elf)
-    elif mode == "standalone":
-        elf_path = sys.argv[3] if len(sys.argv) > 3 else "build/q800_rom.elf"
-        build_standalone_rom(elf_path, out_path)
     else:
         print(f"Unknown mode: {mode}")
         sys.exit(1)

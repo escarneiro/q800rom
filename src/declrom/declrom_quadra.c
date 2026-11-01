@@ -11,9 +11,7 @@
 
 #include "declrom_quadra.h"
 
-#if !defined(__m68k__)
 #include <stdio.h>
-#endif
 
 const NuBusFormatBlock g_quadra_motherboard_format_block = {
     .directoryOffset = -54088,             /* 0xFF2CB8 -> Points to 0x0F2CA4 */
@@ -41,7 +39,6 @@ const QuadraVideoMode g_quadra_video_modes[5] = {
     { 640, 480, 16, 1280, 0xF9000000U }   /* 16-bit Thousands of Colors (with 1MB VRAM) */
 };
 
-#if !defined(__m68k__)
 void DumpQuadraDeclRomInfo(void) {
     printf("=== Macintosh Quadra 800 Declaration ROM ===\n");
     printf("Test Pattern:    0x%08X (Valid: %s)\n",
@@ -54,4 +51,3 @@ void DumpQuadraDeclRomInfo(void) {
     printf("Hardware ID:     DrHWViSC (0x%04X)\n", g_quadra_video_type.drHW);
     printf("Supported Modes: 1-bit, 4-bit, 8-bit, 16-bit (DAFB Controller)\n");
 }
-#endif
