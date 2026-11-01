@@ -35,7 +35,8 @@ def main():
         sys.exit(2)
     rom = os.path.abspath(sys.argv[1])
     secs = float(sys.argv[2]) if len(sys.argv) > 2 else 12.0
-    tmp = tempfile.mkdtemp(prefix="q800boot_")
+    tmpobj = tempfile.TemporaryDirectory(prefix="q800boot_")
+    tmp = tmpobj.name
     shot = os.path.abspath(sys.argv[3]) if len(sys.argv) > 3 else os.path.join(tmp, "screen.ppm")
     mon = os.path.join(tmp, "mon.sock")
 
@@ -81,7 +82,7 @@ def main():
         colours[c] = colours.get(c, 0) + 1
     nonblack = sum(n for c, n in colours.items() if c != b"\x00\x00\x00")
     total = sum(colours.values())
-    print(f"Screenshot {shot}: {w}x{h}, {len(colours)} distinct colours, "
+    print(f"Screenshot{' ' + shot if len(sys.argv) > 3 else ''}: {w}x{h}, {len(colours)} distinct colours, "
           f"{100.0 * nonblack / total:.1f}% non-black")
     # The grey desktop is a 50% black/white dither; a dead ROM gives one solid colour.
     ok = len(colours) >= 2 and nonblack >= total * 0.2

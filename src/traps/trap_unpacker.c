@@ -6,7 +6,8 @@
  *
  * The Quadra 800 ROM stores its 1,280 system traps in a highly optimized
  * variable-length compressed stream at ROM offset 0x0D3370:
- * - Bit 7 = 0: 2-byte word signed delta from previous routine address.
+ * - Bit 7 = 0: 2-byte word w; delta = sign_extend16((w * 2) & 0xFFFF) bytes
+ *   from the previous routine address (as computed by the ROM at 0x40809AB4).
  * - Bit 7 = 1, byte == 0x80: Unimplemented trap (pointer to 0x40809AE6).
  * - Bit 7 = 1, byte == 0xFF: Full 32-bit absolute offset from ROMBase.
  * - Bit 7 = 1, 0x81..0xFE: Small positive delta (byte & 0x7F) * 2.
@@ -47,9 +48,11 @@ bool UnpackRomTrapTable(const uint8_t *rom_bytes,
         uint8_t b0 = *stream++;
         if ((b0 & 0x80) == 0) {
             uint8_t b1 = *stream++;
-            int16_t delta16 = (int16_t)(((uint16_t)b0 << 8) | b1);
+            /* The ROM doubles the word in 16 bits (addw d1,d1) and adds it sign-extended
+             * (addaw d1,a2): words >= 0x4000 are negative deltas. */
+            uint16_t delta16 = (uint16_t)((((uint16_t)b0 << 8) | b1) * 2u);
             if (delta16 == 0) break; /* Terminator */
-            current_routine += (int32_t)(delta16 * 2);
+            current_routine += (int32_t)(int16_t)delta16;
             tb_table[i] = current_routine;
         } else {
             uint8_t code = b0 & 0x7F;
@@ -75,9 +78,9 @@ bool UnpackRomTrapTable(const uint8_t *rom_bytes,
         uint8_t b0 = *stream++;
         if ((b0 & 0x80) == 0) {
             uint8_t b1 = *stream++;
-            int16_t delta16 = (int16_t)(((uint16_t)b0 << 8) | b1);
+            uint16_t delta16 = (uint16_t)((((uint16_t)b0 << 8) | b1) * 2u);
             if (delta16 == 0) break;
-            current_routine += (int32_t)(delta16 * 2);
+            current_routine += (int32_t)(int16_t)delta16;
             os_table[i] = current_routine;
         } else {
             uint8_t code = b0 & 0x7F;

@@ -25,6 +25,36 @@ def calc_mac_checksum(rom: bytes) -> int:
         csum = (csum + word) & 0xFFFFFFFF
     return csum
 
+def fix_checksums(rom: bytearray) -> int:
+    """Recomputes the ROM header checksums.
+
+    0x30..0x3F: four byte-lane sums (sum of the bytes at offset % 4 == lane, excluding
+    0x00..0x03 and 0x30..0x3F). 0x00: 32-bit sum of all 16-bit words from offset 4.
+    Both formulas reproduce the original Quadra 800 ROM header.
+    """
+    lanes = [0, 0, 0, 0]
+    for i, b in enumerate(rom):
+        lanes[i & 3] += b
+    for i in list(range(0, 4)) + list(range(0x30, 0x40)):
+        lanes[i & 3] -= rom[i]
+    struct.pack_into(">4I", rom, 0x30, *[x & 0xFFFFFFFF for x in lanes])
+    csum = calc_mac_checksum(rom)
+    struct.pack_into(">I", rom, 0, csum)
+    return csum
+
+
+def symbol_offset(elf: str, name: str):
+    """ROM offset of a symbol in the linked base image (None if absent)."""
+    if not elf or not os.path.exists(elf):
+        return None
+    res = subprocess.run(["/usr/m68k-suse-linux/bin/nm", elf], capture_output=True, text=True)
+    for line in res.stdout.splitlines():
+        p = line.split()
+        if len(p) == 3 and p[2] == name:
+            return int(p[0], 16) - 0x40800000
+    return None
+
+
 def extract_section_bytes(elf_or_obj: str, section: str = ".text") -> bytes:
     """Extracts raw binary bytes of a section from an ELF/object file."""
     cmd = ["/usr/bin/m68k-suse-linux-objcopy", "-O", "binary", f"--only-section={section}", elf_or_obj, "/tmp/sec.bin"]
@@ -55,7 +85,7 @@ def get_symbol_range(obj_file: str, sym_name: str, end_sym: str = None) -> tuple
             return addr, symbols[i + 1][0] if i + 1 < len(symbols) else None
     return None, None
 
-def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
+def build_overlay_rom(template_path: str, out_path: str, obj_dir: str, base_elf: str = None):
     """Builds a bootable composite ROM by overlaying reconstructed modules."""
     print(f"[*] Building Overlay ROM from template: {template_path}")
     if not os.path.exists(template_path):
@@ -76,7 +106,9 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
         s, e = get_symbol_range(reset_obj, "_early_cpu_detect", "_cpu_detect_done")
         if reset_bin and s is not None and e is not None and e > s:
             cpu_detect_code = reset_bin[s:e]
-            dest_off = 0x00004052
+            dest_off = symbol_offset(base_elf, "early_cpu_detect")
+            if dest_off is None:
+                dest_off = 0x00004052
             rom[dest_off:dest_off + len(cpu_detect_code)] = cpu_detect_code
             print(f"    -> Injected _early_cpu_detect ({len(cpu_detect_code)} bytes from {hex(s)}..{hex(e)}) at offset 0x{dest_off:08X}")
 
@@ -87,7 +119,9 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
         s, e = get_symbol_range(trap_obj, "_trap_dispatcher", "_unimplemented_trap_handler")
         if trap_bin and s is not None and e is not None and e > s:
             disp_code = trap_bin[s:e]
-            dest_off = 0x000099B0
+            dest_off = symbol_offset(base_elf, "trap_dispatcher")
+            if dest_off is None:
+                dest_off = 0x000099B0
             rom[dest_off:dest_off + len(disp_code)] = disp_code
             print(f"    -> Injected _trap_dispatcher ({len(disp_code)} bytes from {hex(s)}..{hex(e)}) at offset 0x{dest_off:08X}")
 
@@ -106,9 +140,8 @@ def build_overlay_rom(template_path: str, out_path: str, obj_dir: str):
                      0x00FF2CB8, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
     print(f"    -> Verified NuBus Declaration ROM Format Block at 0x{fmt_offset:06X}")
 
-    # 4. Compute and write new 32-bit checksum at offset 0
-    csum = calc_mac_checksum(rom)
-    struct.pack_into(">I", rom, 0, csum)
+    # 4. Recompute the byte-lane sums (0x30) and the 32-bit checksum (0x00)
+    csum = fix_checksums(rom)
     print(f"    -> Computed Checksum: 0x{csum:08X} written to offset 0x00000000")
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
@@ -146,9 +179,8 @@ def build_standalone_rom(elf_path: str, out_path: str):
     struct.pack_into(">IIIBBIBB", rom, fmt_offset,
                      0x00FF2CB8, 0, 0, 1, 1, NUBUS_TEST_PATTERN, 0, 0x0F)
 
-    # Compute checksum
-    csum = calc_mac_checksum(rom)
-    struct.pack_into(">I", rom, 0, csum)
+    # Compute checksums
+    csum = fix_checksums(rom)
     print(f"    -> Computed Checksum: 0x{csum:08X}")
 
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
@@ -159,7 +191,7 @@ def build_standalone_rom(elf_path: str, out_path: str):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: build_rom.py <mode: overlay|standalone> <output_rom> [template_rom_or_elf] [obj_dir]")
+        print("Usage: build_rom.py <mode: overlay|standalone> <output_rom> [template_rom_or_elf] [obj_dir] [base_elf]")
         sys.exit(1)
 
     mode = sys.argv[1]
@@ -168,7 +200,8 @@ def main():
     if mode == "overlay":
         template = sys.argv[3] if len(sys.argv) > 3 else "build/QUADRA800_BASE.ROM"
         obj_dir = sys.argv[4] if len(sys.argv) > 4 else "src"
-        build_overlay_rom(template, out_path, obj_dir)
+        base_elf = sys.argv[5] if len(sys.argv) > 5 else None
+        build_overlay_rom(template, out_path, obj_dir, base_elf)
     elif mode == "standalone":
         elf_path = sys.argv[3] if len(sys.argv) > 3 else "build/q800_rom.elf"
         build_standalone_rom(elf_path, out_path)

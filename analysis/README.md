@@ -9,6 +9,7 @@ into the assembler source in `src/romsrc/`.
 | `executed_pcs.txt` | 30,551 ROM addresses that were actually executed | QEMU `-d in_asm,nochain` traces: boot to the desktop with no disk, plus a full Mac OS 8.1 boot to the Finder (`-snapshot`, read-only disk) |
 | `ghidra_seeds.txt` | Code entry points, names and known data ranges | `src/tools/rom_seeds.py` (the files above + ROM resource list + verified `rom_symbols.h` entries) |
 | `ghidra_codemap.txt` | Instructions, functions and strings found by Ghidra | `analyzeHeadless` + `Q800Seed.java` (aggressive instruction finder) + `Q800Export.java` |
+| `code_hints.txt` | Code entry points found in ROM tables (Universal primitives, ROMBase offset tables, NuBus init blocks) | Written by `src/tools/rom_disasm.py`; fed back to Ghidra as seeds on the next regeneration |
 | `ghidra_atraps.txt` | A-line trap call sites | `Q800ATraps.java` (Ghidra can't decode A-line words, so it stops at every trap call; this script resumes after them) |
 | `qemu_macos81_boot_*.png` | Mac OS 8.1 Finder screenshots with the original and the rebuilt ROM | QEMU `screendump` (local only, not in git) |
 
@@ -26,6 +27,19 @@ into the assembler source in `src/romsrc/`.
 * **Trap names in `trap_table.c` are still partly wrong.** 45 names are used for two trap
   numbers (e.g. `$A916` is `_HideWindow`, not `_InitMenus`), and 597 traps only have placeholder
   names (`_ToolboxTrap_A833`). The disassembly labels in `src/romsrc/` inherit these names.
+* **Packed trap table format.** Decoded by the ROM at `0x40809A96`. A byte with bit 7 set:
+  `0x80` = unimplemented, `0xFF` + long = absolute ROM offset, otherwise `(b & 0x7F) * 2` bytes
+  forward. A byte with bit 7 clear starts a word `w`; the delta is `sign_extend16((w * 2) & 0xFFFF)`.
+  Toolbox entries come first, then OS entries; a zero delta ends the table. `src/traps/trap_unpacker.c`
+  used plain `w * 2`, which is why only 558 entries were right; it is fixed (1264/1280 now match;
+  the other 16 are installed later at boot).
+* **Where the ROM keeps addresses** (all symbolized in `src/romsrc/`, see `src/tools/rom_reloc.py`):
+  Universal ROM ProductInfo records (0x40 bytes, offsets relative to the record), the machine
+  list at `0x4080322C` (self-relative longs), "primitives" routine tables (offsets relative to the
+  table), the Memory Manager vector tables at `0x4080CB20` (ROMBase-relative, copied to
+  `$1E00`/`$1F00`), device records such as `0x40846040` (offsets relative to the table), NuBus
+  sResources (24-bit self-relative), the packed trap table, the resource map, and many
+  `lea N,%a0; jmp %pc@(here,%a0:l)` long calls.
 * The motherboard NuBus declaration ROM at the top of the image is only a stub
   ("Unknown Macintosh") with no code.
 * `0xC0000–0xCFFFF` is mostly 8-bit sound sample data. Most of `0xF0000–0xFFFFF` is filler:
@@ -33,9 +47,9 @@ into the assembler source in `src/romsrc/`.
 
 ## Coverage of the generated source
 
-* 137,079 instructions = 415,912 bytes (about 40% of the ROM) are emitted as instructions,
-  including 3,008 A-trap call sites. 1,418 of them are written as raw words with the
-  disassembly as a comment.
+* 139,052 instructions = 422,334 bytes (about 40% of the ROM) are emitted as instructions,
+  including about 3,000 A-trap call sites. About 1,600 of them are written as raw words
+  with the disassembly as a comment.
 * About 23% is ROM resource data and 14% is padding. The rest is data tables plus code that
   no trace or analysis reached; it is emitted as `.long` data. More traces (running
   applications, AppleTalk, serial, floppy) add more code: append them to `executed_pcs.txt`

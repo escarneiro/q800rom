@@ -45,10 +45,21 @@ def patch_checksum(file_path: str) -> int:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: rom_checksum.py <rom_file> [--patch | --verify]")
+        print("Usage: rom_checksum.py <rom_file> [--patch | --verify | --fix-all]")
         sys.exit(1)
 
     file_path = sys.argv[1]
+    if "--fix-all" in sys.argv:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from build_rom import fix_checksums
+        with open(file_path, "rb") as f:
+            rom = bytearray(f.read())
+        csum = fix_checksums(rom)
+        with open(file_path, "wb") as f:
+            f.write(rom)
+        print(f"Byte-lane sums and checksum 0x{csum:08X} written to {file_path}")
+        return
+
     patch = "--patch" in sys.argv
     verify = "--verify" in sys.argv or not patch
 

@@ -144,6 +144,7 @@ make -C src rom
 
 ```bash
 make -C src test-boot    # headless QEMU: must reach the grey desktop with the cursor
+make -C src test-shift   # relocatability: move code, rebuild, boot (SHIFT_AT=, SHIFT_BYTES=)
 make -C src test-qemu    # interactive QEMU window
 ```
 
@@ -155,13 +156,47 @@ Mac OS 8.1 to the Finder.
 * Real instructions (MIT syntax, GNU as) with labels for every branch and PC-relative
   target: `trap_GetResource`, `trap_InitGraf`, … for trap handlers (named from the live
   trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources, `sub_XXXXXXXX` for other
-  functions, `loc_`/`dat_` for branch and data targets.
+  functions, `loc_`/`dat_` for branch and data targets (the hex number is the address in
+  the original ROM; it does not change when code moves).
+* Branches to labels are written as `jbra`/`jbsr`/`jbeq`…, so the assembler picks the
+  size; where Apple's assembler used a longer form than needed, the explicit size is kept.
 * A-line trap calls are written as macros (`_GetResource`), defined in `romsrc/include/traps_gas.inc`.
 * Data (resources, fonts, sounds, tables, padding) is written as `.long`/`.short`/`.ascii`/`.fill`.
 * About 1% of instructions (mostly Apple's `jsr ([vector])` memory-indirect form, which uses an
   encoding GNU as cannot produce) are written as raw `.short` words with the disassembly as a comment.
-* Absolute addresses and offset tables are still numbers. **Changing the size of code
-  is not safe yet**; same-size edits are.
+
+#### Relocatable: code can grow and shrink
+
+Hard-coded addresses and offsets are written as label expressions (`tools/rom_reloc.py`,
+about 4,800 of them, plus some 26,000 branches the assembler now sizes itself): ROM pointers, jump tables, the ROM header, the resource map, the
+Universal ROM hardware tables (ProductInfo records, machine list, primitives tables),
+long-range relative calls (`lea (target-here):l,%a0; jmp %pc@(here,%a0:l)`), the
+Memory Manager vector tables and other ROMBase-relative offset tables. Two structures need
+arithmetic GNU as cannot do across relaxable code; they are written with their original
+bytes and re-encoded after linking by `tools/rom_postlink.py`:
+
+* the packed trap dispatch table (`romsrc/traptable.lst`),
+* 24-bit self-relative offsets in the NuBus declaration data (`romsrc/relocs.lst`).
+
+The post-link step also recomputes the header checksums (32-bit sum at `0x00` and the
+four byte-lane sums at `0x30`). Everything from `0x408F0000` to the end of the ROM
+(declaration ROM, format block) stays at a fixed address; the padding before it absorbs
+size changes (up to `0xF42` bytes of growth).
+
+Tested with `make -C src test-shift` (`tools/shift_test.py`): bytes are inserted in front
+of a function, filled with `ILLEGAL` instructions so that any stale reference traps, and
+the rebuilt ROM is booted headless in QEMU. With `--trace`, original and shifted ROM are
+run with deterministic timing and the first point where execution differs is reported.
+Results:
+
+* Inserting 2, 6, 0x10, 0x40, 0x82, 0x400 or 0xF00 bytes at points from `0x40801000` to
+  `0x408E0000` (moving up to the whole ROM below `0x408F0000`): boots to the desktop.
+* Mac OS 8.1 boots normally with the change at `0x40880000` or `0x408E0000` (the points tested
+  in that range). With changes at `0x40840000` or lower
+  Mac OS fails during startup (bus error after "Welcome to Mac OS", or a Sad
+  Mac). The most likely reason: the System file's patches for this ROM version use fixed
+  ROM addresses. Not proven; a remaining unsymbolized reference that only Mac OS uses is
+  also possible.
 
 ### 4. Regenerating `romsrc/` (needs an original ROM)
 
@@ -170,9 +205,10 @@ make -C src romsrc-regen ORIG_ROM=/path/to/QUADRA800.ROM
 ```
 
 `tools/regen_romsrc.sh` runs: `tools/rom_seeds.py` (entry points from the QEMU evidence in
-`analysis/`, the ROM resource list and verified symbols) → Ghidra headless analysis
-(`tools/ghidra/Q800Seed.java`, `Q800ATraps.java`, `Q800Export.java`) → `tools/rom_disasm.py`
-(source generation and per-instruction verification). See `analysis/README.md`.
+`analysis/`, the ROM resource list, verified symbols and code found in ROM tables by the
+previous run) → Ghidra headless analysis (`tools/ghidra/Q800Seed.java`, `Q800ATraps.java`,
+`Q800Export.java`) → `tools/rom_disasm.py` + `tools/rom_reloc.py` (source generation,
+symbolization and per-instruction verification). See `analysis/README.md`.
 
 `src/romsrc/` is listed in `.gitignore` because it contains Apple's ROM content.
 

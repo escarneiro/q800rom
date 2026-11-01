@@ -29,6 +29,8 @@ import subprocess
 import sys
 import tempfile
 
+from rom_reloc import Relocator
+
 ROM_BASE = 0x40800000
 ROM_SIZE = 0x100000
 PART_SIZE = 0x10000
@@ -37,11 +39,17 @@ RUN_MIN = 64
 OBJDUMP = os.environ.get("M68K_OBJDUMP", "/usr/bin/m68k-suse-linux-objdump")
 AS = os.environ.get("M68K_AS", "/usr/m68k-suse-linux/bin/as")
 NM = os.environ.get("M68K_NM", "/usr/m68k-suse-linux/bin/nm")
+LD = os.environ.get("M68K_LD", "/usr/m68k-suse-linux/bin/ld")
+# Padding that ends at these offsets is written as ".org": everything from here to the
+# end of the ROM (declaration ROM, format block) stays at a fixed address and the
+# padding before it absorbs size changes of the code and data above.
+ANCHORS = (0xF0000,)
 OBJCOPY = os.environ.get("M68K_OBJCOPY", "/usr/bin/m68k-suse-linux-objcopy")
 
 CC = "(?:t|f|hi|ls|cc|cs|ne|eq|vc|vs|pl|mi|ge|lt|gt|le|hs|lo)"
 BRANCH_RE = re.compile(rf"^(?:b(?:ra|sr|{CC})[swl]?|db(?:ra|{CC})|fb\w+|fdb\w+|jbsr|jbra)$")
 HEX_RE = re.compile(r"0x[0-9a-fA-F]+")
+RELAX_RE = re.compile(rf"^b(ra|sr|{CC})[swl] ([A-Za-z_][\w.$]*)$")
 
 
 # --------------------------------------------------------------------------- inputs
@@ -263,6 +271,14 @@ class RomSource:
         self.strings = strings
         self.traps = traps
         self.trap_macros = {}
+        self.data_expr = {}       # off -> (size, expr, note)
+        self.data_block = {}      # off -> (size, [lines], note)
+        self.data_cover = set()
+        self.ins_override = {}    # off -> symbolic instruction text
+        self.override_failed = set()
+        self.relax_failed = set()  # branches that must keep their explicit size
+        self.trap_table_range = None
+        self.post_relocs = []     # "s24 <loc> <target>" lines for tools/rom_postlink.py
         self.labels = {}
         for a, n in funcs.items():
             self.labels[a] = n if not n.startswith("FUN_") else f"sub_{ROM_BASE + a:08X}"
@@ -299,6 +315,8 @@ class RomSource:
                                  for i in range(0, ins.size, 2))
                 return f".short  {vals}\t| {ins.text}"
             return ".byte   " + ", ".join(f"0x{b:02X}" for b in words) + f"\t| {ins.text}"
+        if ins.off in self.ins_override and ins.off not in self.override_failed:
+            return self.ins_override[ins.off]
         text = ins.cands[ins.ci] if ins.cands else ins.text
         if text.endswith("\x00NUM"):
             return text[:-4]
@@ -318,6 +336,11 @@ class RomSource:
                     return f".short  0x{w:04X}\t| {base}{note}"
         for s, e, addr in sorted(pcrel_targets(text), reverse=True):
             text = text[:s] + self.labels[addr - ROM_BASE] + text[e:]
+        if ins.off not in self.relax_failed:
+            m = RELAX_RE.match(text)
+            if m:
+                # size-choosing branch: GNU as picks the shortest form that reaches
+                return f"jb{m.group(1)} {m.group(2)}"
         return text
 
     def trap_name(self, w):
@@ -333,6 +356,8 @@ class RomSource:
         n = self.traps.get(num)
         if not n or not re.match(r"^_[A-Za-z]\w*$", n) or "Unknown" in n or "Trap_" in n:
             return None
+        if list(self.traps.values()).count(n) > 1:
+            return None                  # name used for several trap numbers: ambiguous
         return n
 
     # ---- data emission
@@ -348,6 +373,10 @@ class RomSource:
             j = i
             while j < end and rom[j] == rom[i]:
                 j += 1
+            if j in ANCHORS and j == end:
+                out.append(f"    .org    0x{j:06X}, 0x{rom[i]:02X}\t| padding up to a fixed address")
+                i = j
+                continue
             if j - i >= RUN_MIN:
                 out.append(f"    .fill   0x{j - i:X}, 1, 0x{rom[i]:02X}")
                 i = j
@@ -378,9 +407,12 @@ class RomSource:
     # ---- whole-source emission; verify=True puts .org before every instruction
     def emit(self, verify=False, part_size=PART_SIZE):
         """Returns list of (part_index, lines, line_to_insn)."""
-        cuts = set(self.labels) | set(self.insns) | set(self.strings)
+        cuts = set(self.labels) | set(self.insns) | set(self.strings) | set(ANCHORS)
         for ins in self.insns.values():
             cuts.add(ins.off + ins.size)
+        for off, (size, *_rest) in list(self.data_expr.items()) + list(self.data_block.items()):
+            cuts.add(off)
+            cuts.add(off + size)
         cuts |= {p * part_size for p in range(ROM_SIZE // part_size + 1)}
         cuts = sorted(c for c in cuts if c not in self.inside and c <= ROM_SIZE)
         parts = []
@@ -394,8 +426,8 @@ class RomSource:
                 if out:
                     parts.append((part, out, linemap))
                 part = c // part_size
-                out, linemap = [f"| ROM 0x{ROM_BASE + c:08X}..0x{ROM_BASE + c + part_size - 1:08X}",
-                                f"    .org    0x{c:06X}"], {}
+                out, linemap = [f"| ROM 0x{ROM_BASE + c:08X}..0x{ROM_BASE + c + part_size - 1:08X}"
+                                f" (addresses in comments are those of the original ROM)"], {}
             nxt = cuts[idx + 1]
             if c in self.labels:
                 name = self.labels[c]
@@ -409,6 +441,18 @@ class RomSource:
                     out.append(f"__v_{c:X}:")
                 linemap[len(out) + 1] = ins
                 out.append(f"    {self.render(ins)}")
+            elif c in self.data_block:
+                size, lines, note = self.data_block[c]
+                out.append(f"| {note}")
+                out += [l if l.endswith(":") else f"    {l}" for l in lines]
+            elif c in self.data_expr:
+                size, expr, note = self.data_expr[c]
+                if expr is None:              # patched after linking: original bytes here
+                    raw = ", ".join(f"0x{b:02X}" for b in self.rom[c:c + size])
+                    out.append(f"    .byte   {raw}\t| {ROM_BASE + c:08X} {note}")
+                else:
+                    d = {1: ".byte ", 2: ".short", 4: ".long "}[size]
+                    out.append(f"    {d}  {expr}\t| {ROM_BASE + c:08X}{(' ' + note) if note else ''}")
             else:
                 self.emit_data(out, c, nxt)
         parts.append((part, out, linemap))
@@ -417,18 +461,38 @@ class RomSource:
                 sets.append(f"    .set    {self.labels[off]}, {self.labels.get(base) or f'.Lmid_{base:X}'} + {off - base}")
         return parts, sets
 
+    def compute_inside(self):
+        self.inside = {}
+        for ins in self.insns.values():
+            for k in range(1, ins.size):
+                self.inside[ins.off + k] = ins.off
+        for off, (size, *_rest) in list(self.data_expr.items()) + list(self.data_block.items()):
+            for k in range(1, size):
+                self.inside[off + k] = off
+
     def mid_anchor_labels(self):
         """Instructions that contain a label must have a label themselves."""
         for off, base in self.inside.items():
             if off in self.labels and base not in self.labels:
-                self.labels[base] = f"loc_{ROM_BASE + base:08X}"
+                kind = "loc" if base in self.insns else "dat"
+                self.labels[base] = f"{kind}_{ROM_BASE + base:08X}"
 
 
 # --------------------------------------------------------------------------- assemble + verify
 
+def link(obj, elf, binf):
+    r = subprocess.run([LD, f"-Ttext=0x{ROM_BASE:X}", "-e", f"0x{ROM_BASE:X}", "--no-warn-rwx-segments",
+                        "-o", elf, obj], capture_output=True, text=True)
+    if r.returncode != 0:
+        return r.stderr
+    subprocess.run([OBJCOPY, "-O", "binary", "--only-section=.text", elf, binf], check=True)
+    return None
+
+
 def assemble(src_text, inc_dir, workdir):
     s = os.path.join(workdir, "v.s")
     o = os.path.join(workdir, "v.o")
+    e = os.path.join(workdir, "v.elf")
     b = os.path.join(workdir, "v.bin")
     with open(s, "w") as f:
         f.write(src_text)
@@ -439,14 +503,18 @@ def assemble(src_text, inc_dir, workdir):
         if m and m.group(2) == "Error":
             errs[int(m.group(1))] = m.group(3)
     if r.returncode != 0:
+        if not errs:
+            sys.exit("Assembly failed:\n" + r.stderr[:3000])
         return None, errs
-    subprocess.run([OBJCOPY, "-O", "binary", "--only-section=.text", o, b], check=True)
+    err = link(o, e, b)
+    if err:
+        sys.exit("Link failed:\n" + err[:3000])
     marks = {}
-    nm = subprocess.run([NM, o], capture_output=True, text=True).stdout
+    nm = subprocess.run([NM, e], capture_output=True, text=True).stdout
     for line in nm.splitlines():
         p = line.split()
         if len(p) == 3 and p[2].startswith("__v_"):
-            marks[int(p[2][4:], 16)] = int(p[0], 16)
+            marks[int(p[2][4:], 16)] = int(p[0], 16) - ROM_BASE
     return (open(b, "rb").read(), marks), errs
 
 
@@ -491,16 +559,30 @@ def main():
                if not any(a <= x < a + n for x in range(a, a + n) if x in clean)}
 
     src = RomSource(rom, clean, funcs, load_seed_names(seeds), strings, load_trap_names(trapc))
+    src.funcs = funcs
+    relocator = Relocator(src)
+    stats = relocator.run()
+    # code locations found through tables (fed back to the next Ghidra run as seeds)
+    hints_path = os.path.join(os.path.dirname(os.path.abspath(codemap.split(",")[0])), "code_hints.txt")
+    with open(hints_path, "w") as f:
+        f.write("# Code entry points found in ROM tables by tools/rom_reloc.py (C = code seed)\n")
+        for o in sorted(relocator.code_hints | relocator.exec_code):
+            if o not in src.insns:
+                f.write(f"{ROM_BASE + o:08X} C\n")
+    for k, v in sorted(stats.items()):
+        print(f"[*] symbolized: {k}: {v}")
+    # strings overlapping symbolized data are dropped
+    src.strings = {a: n for a, n in src.strings.items()
+                   if not any(x in src.data_cover for x in range(a, a + n))}
+    src.compute_inside()
     src.mid_anchor_labels()
-    src.inside = {}
-    for ins in src.insns.values():
-        for k in range(1, ins.size):
-            src.inside[ins.off + k] = ins.off
+    src.compute_inside()
     print(f"[*] {len(src.insns)} instructions, {len(src.labels)} labels, {len(strings)} strings")
 
     inc_dir = os.path.join(out_dir, "include")
     os.makedirs(inc_dir, exist_ok=True)
-    work = tempfile.mkdtemp(prefix="q800dis_")
+    workobj = tempfile.TemporaryDirectory(prefix="q800dis_")
+    work = workobj.name
 
     # ---- verification loop: whole ROM in one file, .org before every instruction
     for it in range(12):
@@ -510,7 +592,7 @@ def main():
         body = "\n".join(lines)
         with open(os.path.join(inc_dir, "traps_gas.inc"), "w") as f:
             f.write(trap_macro_file(src.trap_macros))
-        hdr = "    .include \"traps_gas.inc\"\n    .text\n"
+        hdr = "    .include \"traps_gas.inc\"\n    .text\n" + ("" if src.labels.get(0) == "rom_start" else "rom_start:\n")
         text = hdr + body + "\n" + "\n".join(sets) + "\n"
         shift = hdr.count("\n")
         binary, errs = assemble(text, inc_dir, work)
@@ -536,11 +618,33 @@ def main():
                 for ins in src.insns.values():
                     if binary[ins.off:ins.off + ins.size] != rom[ins.off:ins.off + ins.size]:
                         bad.add(ins)
-        print(f"    pass {it}: {len(bad)} instructions need another spelling "
-              f"({sum(1 for i in src.insns.values() if i.raw)} raw so far)")
+            if not bad:
+                dropped = 0
+                for off, (size, *_r) in list(src.data_expr.items()) + list(src.data_block.items()):
+                    if binary[off:off + size] != rom[off:off + size]:
+                        d = next(i for i in range(size) if binary[off + i] != rom[off + i])
+                        print(f"    dropped expression at 0x{ROM_BASE + off:08X} (size {size}): first "
+                              f"difference at +0x{d:X}: built {binary[off + d:off + d + 4].hex()} "
+                              f"original {rom[off + d:off + d + 4].hex()}")
+                        src.data_expr.pop(off, None)
+                        src.data_block.pop(off, None)
+                        dropped += 1
+                if dropped:
+                    print(f"    pass {it}: {dropped} data expressions did not reproduce the ROM; kept as numbers")
+                    src.compute_inside()
+                    continue
+                if binary[:ROM_SIZE] != rom:
+                    first = next(i for i in range(ROM_SIZE) if binary[i] != rom[i])
+                    sys.exit(f"Data mismatch at 0x{first:06X} not explained by any rewrite")
         if not bad:
             break
         for ins in bad:
+            if ins.off in src.ins_override and ins.off not in src.override_failed:
+                src.override_failed.add(ins.off)
+                continue
+            if ins.off not in src.relax_failed and src.render(ins).startswith("jb"):
+                src.relax_failed.add(ins.off)
+                continue
             if ins.cands is None:
                 ins.cands = [ins.text] + abs_candidates(ins.text) + pcrel_numeric(ins)
                 ins.ci = 0
@@ -570,10 +674,20 @@ def main():
            "",
            "    .include \"traps_gas.inc\"",
            "    .text"]
+    if src.labels.get(0) != "rom_start":
+        top.append("rom_start:")
     top += [f"    .include \"part_{p:02X}.s\"" for p, _, _ in parts]
     top += ["", "| Labels that point inside an instruction"] + sets + [""]
     with open(os.path.join(out_dir, "q800rom.s"), "w") as f:
         f.write("\n".join(top))
+    with open(os.path.join(out_dir, "traptable.lst"), "w") as f:
+        f.write("# Packed trap dispatch table at label trap_dispatch_table: one entry per line\n"
+                "# w/b/l <target label> = word/byte/long encoded entry, u = unimplemented, end\n")
+        f.write("\n".join(getattr(src, "trap_table_list", [])) + "\n")
+    with open(os.path.join(out_dir, "relocs.lst"), "w") as f:
+        f.write("# Post-link relocations applied by tools/rom_postlink.py\n"
+                "# s24 <loc> <target>: byte loc+1..3 = 24-bit (target - loc) (NuBus sResource entry)\n")
+        f.write("\n".join(src.post_relocs) + "\n")
     with open(os.path.join(out_dir, "q800rom.sha256"), "w") as f:
         f.write(f"{digest}  QUADRA800_BASE.ROM\n")
 
@@ -582,8 +696,9 @@ def main():
                         "-o", os.path.join(work, "f.o")], capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit("Final assembly failed:\n" + r.stderr[:3000])
-    subprocess.run([OBJCOPY, "-O", "binary", "--only-section=.text", os.path.join(work, "f.o"),
-                    os.path.join(work, "f.bin")], check=True)
+    err = link(os.path.join(work, "f.o"), os.path.join(work, "f.elf"), os.path.join(work, "f.bin"))
+    if err:
+        sys.exit("Final link failed:\n" + err[:3000])
     final = open(os.path.join(work, "f.bin"), "rb").read()
     raw = sum(1 for i in src.insns.values() if i.raw)
     code_bytes = sum(i.size for i in src.insns.values())

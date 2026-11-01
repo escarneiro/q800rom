@@ -155,6 +155,7 @@ def main():
     ap.add_argument("--trace", action="append", default=[])
     ap.add_argument("--names")
     ap.add_argument("--symbols")
+    ap.add_argument("--hints", help="code_hints.txt from rom_disasm.py (code found in ROM tables)")
     a = ap.parse_args()
     r = open(a.rom, "rb").read()
     seeds = Seeds()
@@ -199,6 +200,16 @@ def main():
         if u16(r, o) == 0x4EFA:
             seeds.add(o, "C", n)
 
+    nhints = 0
+    if a.hints:
+        import os
+        if os.path.exists(a.hints):
+            for line in open(a.hints):
+                p = line.split()
+                if p and not p[0].startswith("#"):
+                    seeds.add(int(p[0], 16) - ROM_BASE, "C")
+                    nhints += 1
+
     nres = rom_resources(r, seeds)
     ndecl = decl_rom(r, seeds)
 
@@ -213,7 +224,8 @@ def main():
     for k, _ in seeds.d.values():
         kinds[k] = kinds.get(k, 0) + 1
     print(f"[+] {len(seeds.d)} seeds {kinds}: {len(executed)} executed PCs, "
-          f"{len(trapaddrs)} trap handlers, {nres} resources, {ndecl} decl-ROM code entries")
+          f"{len(trapaddrs)} trap handlers, {nres} resources, {ndecl} decl-ROM code entries, "
+          f"{nhints} table hints")
 
 
 if __name__ == "__main__":

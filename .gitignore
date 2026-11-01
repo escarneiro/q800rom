@@ -23,3 +23,4 @@ analysis/*.png
 build_process.odf
 screen_boot_rebuilt.png
 *.kate-swp
+__pycache__/

@@ -7,7 +7,10 @@
 #   2. Ghidra         headless auto-analysis (+ Aggressive Instruction Finder), seeded by 1;
 #                     Q800ATraps.java follows code across A-line trap calls;
 #                     Q800Export.java writes the code map
-#   3. rom_disasm.py  labelled GNU as source, verified to rebuild the ROM byte for byte
+#   3. rom_disasm.py  labelled GNU as source, verified to rebuild the ROM byte for byte;
+#                     tools/rom_reloc.py turns addresses/offsets into label expressions and
+#                     writes code locations found in ROM tables to analysis/code_hints.txt
+#                     (used as extra seeds by the next run of this script)
 #
 # The QEMU evidence in analysis/ (trap_tables_runtime.txt, executed_pcs.txt) was captured
 # by booting the original ROM with "-d in_asm" (to the desktop and into Mac OS 8.1).
@@ -22,7 +25,8 @@ trap 'rm -rf "$WORK"' EXIT
 
 python3 "$SRC/tools/rom_seeds.py" "$ROM" "$AN/ghidra_seeds.txt" \
     --traps "$AN/trap_tables_runtime.txt" --trace "$AN/executed_pcs.txt" \
-    --names "$SRC/traps/trap_table.c" --symbols "$SRC/include/rom_symbols.h"
+    --names "$SRC/traps/trap_table.c" --symbols "$SRC/include/rom_symbols.h" \
+    --hints "$AN/code_hints.txt"
 
 analyzeHeadless "$WORK" q800 -import "$ROM" \
     -processor 68000:BE:32:default -loader BinaryLoader -loader-baseAddr 0x40800000 \
