@@ -78,11 +78,8 @@ src/
 │   ├── mac_types.h        - Standard Macintosh data types (Point, Rect, GrafPort, Handle, Ptr, OSErr)
 │   ├── string.h           - Freestanding memory & string routines (memcpy, memset, strcmp) for bare-metal builds
 │   ├── lowmem.h           - Complete definitions of low-memory globals ($0000 - $2000)
-│   ├── lowmem.inc         - Assembly equates for low-memory globals
 │   ├── traps.h            - Decoded A-Trap equates ($A000-$AFFF) with ROM routine addresses
-│   ├── traps.inc          - Assembly trap equates
 │   ├── hw_quadra.h        - Hardware register definitions (VIA1, VIA2, SCC, SCSI, DAFB, 68040 CACR/TC/DTT)
-│   ├── hw_quadra.inc      - Assembly hardware equates
 │   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
 │   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
 ├── boot/
