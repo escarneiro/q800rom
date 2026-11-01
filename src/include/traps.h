@@ -2,7 +2,7 @@
  * @file traps.h
  * @brief Macintosh Quadra 800 ROM A-Trap Equates and Tables
  *
- * Decompiled and reconstructed from QUADRA800.ROM.
+ * Decompiled and reconstructed from QUADRA800.ROM. Trap names: see trap_table.c.
  */
 
 #ifndef MAC_TRAPS_H
@@ -40,14 +40,14 @@ extern "C" {
 #define TRAP_FlushVol                0xA013U /* ROM: 0x4080FEBE */
 #define TRAP_GetVol                  0xA014U /* ROM: 0x40810358 */
 #define TRAP_SetVol                  0xA015U /* ROM: 0x408103A0 */
-#define TRAP_InitQueue               0xA016U /* ROM: 0x4080F166 */
+#define TRAP_FInitQueue              0xA016U /* ROM: 0x4080F166 */
 #define TRAP_Eject                   0xA017U /* ROM: 0x4080FD3E */
 #define TRAP_GetFPos                 0xA018U /* ROM: 0x40811834 */
 #define TRAP_InitZone                0xA019U /* ROM: 0x4080CF08 */
-#define TRAP_OSTrap_A01A             0xA01AU /* ROM: 0x4080D068 */
+#define TRAP_GetZone                 0xA01AU /* ROM: 0x4080D068 */
 #define TRAP_SetZone                 0xA01BU /* ROM: 0x4080D07A */
 #define TRAP_FreeMem                 0xA01CU /* ROM: 0x4080D174 */
-#define TRAP_OSTrap_A01D             0xA01DU /* ROM: 0x4080D1D2 */
+#define TRAP_MaxMem                  0xA01DU /* ROM: 0x4080D1D2 */
 #define TRAP_NewPtr                  0xA01EU /* ROM: 0x4080D360 */
 #define TRAP_DisposPtr               0xA01FU /* ROM: 0x4080D3A0 */
 #define TRAP_SetPtrSize              0xA020U /* ROM: 0x4080D3E4 */
@@ -56,9 +56,9 @@ extern "C" {
 #define TRAP_DisposHandle            0xA023U /* ROM: 0x4080D484 */
 #define TRAP_SetHandleSize           0xA024U /* ROM: 0x4080D4D0 */
 #define TRAP_GetHandleSize           0xA025U /* ROM: 0x4080D4B4 */
-#define TRAP_OSTrap_A026             0xA026U /* ROM: 0x4080D4F2 */
+#define TRAP_HandleZone              0xA026U /* ROM: 0x4080D4F2 */
 #define TRAP_ReallocHandle           0xA027U /* ROM: 0x4080D59A */
-#define TRAP_OSTrap_A028             0xA028U /* ROM: 0x4080D504 */
+#define TRAP_RecoverHandle           0xA028U /* ROM: 0x4080D504 */
 #define TRAP_HLock                   0xA029U /* ROM: 0x4080D628 */
 #define TRAP_HUnlock                 0xA02AU /* ROM: 0x4080D64E */
 #define TRAP_EmptyHandle             0xA02BU /* ROM: 0x4080D574 */
@@ -73,7 +73,7 @@ extern "C" {
 #define TRAP_VRemove                 0xA034U /* ROM: 0x4080A280 */
 #define TRAP_OffLine                 0xA035U /* ROM: 0x4080FC98 */
 #define TRAP_MoreMasters             0xA036U /* ROM: 0x4080D734 */
-#define TRAP_OSTrap_A037             0xA037U /* ROM: 0x4080C042 */
+#define TRAP_READPARAM               0xA037U /* ROM: 0x4080C042 (Apple ROM map name) */
 #define TRAP_WriteParam              0xA038U /* ROM: 0x4080C05C */
 #define TRAP_ReadDateTime            0xA039U /* ROM: 0x4080C07C */
 #define TRAP_SetDateTime             0xA03AU /* ROM: 0x4080C086 */
@@ -88,9 +88,9 @@ extern "C" {
 #define TRAP_SetFilType              0xA043U /* ROM: 0x40811170 */
 #define TRAP_SetFPos                 0xA044U /* ROM: 0x40811838 */
 #define TRAP_FlushFile               0xA045U /* ROM: 0x40811A78 */
-#define TRAP_OSTrap_A046             0xA046U /* ROM: 0x40809A66 */
+#define TRAP_GetTrapAddress          0xA046U /* ROM: 0x40809A66 */
 #define TRAP_SetTrapAddress          0xA047U /* ROM: 0x40809A6E */
-#define TRAP_OSTrap_A048             0xA048U /* ROM: 0x4080D3FC */
+#define TRAP_PtrZone                 0xA048U /* ROM: 0x4080D3FC */
 #define TRAP_HPurge                  0xA049U /* ROM: 0x4080D670 */
 #define TRAP_HNoPurge                0xA04AU /* ROM: 0x4080D68E */
 #define TRAP_SetGrowZone             0xA04BU /* ROM: 0x4080D23E */
@@ -101,16 +101,16 @@ extern "C" {
 #define TRAP_RelString               0xA050U /* ROM: 0x4080C134 */
 #define TRAP_ReadXPRam               0xA051U /* ROM: 0x4080B186 */
 #define TRAP_WriteXPRam              0xA052U /* ROM: 0x4080B190 */
-#define TRAP_OSTrap_A053             0xA053U /* ROM: 0x408B39B6 */
+#define TRAP_CLKNOMEM                0xA053U /* ROM: 0x408B39B6 (Apple ROM map name) */
 #define TRAP_UprString               0xA054U /* ROM: 0x4080C108 */
 #define TRAP_StripAddress            0xA055U /* ROM: 0x4080D764 */
-#define TRAP_OSTrap_A056             0xA056U /* ROM: 0x4080C0A0 */
-#define TRAP_SetAppBase              0xA057U /* ROM: 0x4080CCFE */
+#define TRAP_LwrString               0xA056U /* ROM: 0x4080C0A0 */
+#define TRAP_SetApplBase             0xA057U /* ROM: 0x4080CCFE */
 #define TRAP_InsTime                 0xA058U /* ROM: 0x4080AEEC */
 #define TRAP_RmvTime                 0xA059U /* ROM: 0x4080AE90 */
 #define TRAP_PrimeTime               0xA05AU /* ROM: 0x4080AF1A */
-#define TRAP_OSTrap_A05B             0xA05BU /* ROM: 0x40809E16 */
-#define TRAP_OSTrap_A05C             0xA05CU /* ROM: 0x40805538 */
+#define TRAP_PowerOff                0xA05BU /* ROM: 0x40809E16 */
+#define TRAP_MemoryDispatch          0xA05CU /* ROM: 0x40805538 */
 #define TRAP_SwapMMUMode             0xA05DU /* ROM: 0x40803F30 */
 #define TRAP_NMInstall               0xA05EU /* ROM: 0x4081D720 */
 #define TRAP_NMRemove                0xA05FU /* ROM: 0x4081D730 */
@@ -125,165 +125,165 @@ extern "C" {
 #define TRAP_HClrRBit                0xA068U /* ROM: 0x4080D6D4 */
 #define TRAP_HGetState               0xA069U /* ROM: 0x4080D6F2 */
 #define TRAP_HSetState               0xA06AU /* ROM: 0x4080D718 */
-#define TRAP_OSTrap_A06B             0xA06BU /* ROM: 0x408B93D0 */
-#define TRAP_OSTrap_A06C             0xA06CU /* ROM: 0x4080F368 */
-#define TRAP_OSTrap_A06D             0xA06DU /* ROM: 0x408022E0 */
+#define TRAP_USTSTRT1                0xA06BU /* ROM: 0x408B93D0 (Apple ROM map name) */
+#define TRAP_InitFS                  0xA06CU /* ROM: 0x4080F368 */
+#define TRAP_InitEvents              0xA06DU /* ROM: 0x408022E0 */
 #define TRAP_SlotManager             0xA06EU /* ROM: 0x40806E16 */
 #define TRAP_SlotVInstall            0xA06FU /* ROM: 0x4080A312 */
 #define TRAP_SlotVRemove             0xA070U /* ROM: 0x4080A318 */
 #define TRAP_AttachVBL               0xA071U /* ROM: 0x4080A328 */
 #define TRAP_DoVBLTask               0xA072U /* ROM: 0x4080A332 */
 #define TRAP_OSTrap_A073             0xA073U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A074             0xA074U /* ROM: 0x40809840 */
+#define TRAP_CACHETRAP               0xA074U /* ROM: 0x40809840 (Apple ROM map name) */
 #define TRAP_SIntInstall             0xA075U /* ROM: 0x40806E56 */
 #define TRAP_SIntRemove              0xA076U /* ROM: 0x40806E7A */
 #define TRAP_CountADBs               0xA077U /* ROM: 0x4080A360 */
-#define TRAP_SVersion                0xA078U /* ROM: 0x4080A37A */
+#define TRAP_GetIndADB               0xA078U /* ROM: 0x4080A37A */
 #define TRAP_GetADBInfo              0xA079U /* ROM: 0x4080A3A6 */
 #define TRAP_SetADBInfo              0xA07AU /* ROM: 0x4080A3AC */
-#define TRAP_SetAppFiles             0xA07BU /* ROM: 0x4080A752 */
-#define TRAP_HOpen                   0xA07CU /* ROM: 0x4080A3DC */
-#define TRAP_HGetVInfo               0xA07DU /* ROM: 0x40801390 */
-#define TRAP_HCreate                 0xA07EU /* ROM: 0x408013A0 */
-#define TRAP_HDelete                 0xA07FU /* ROM: 0x40801400 */
-#define TRAP_HOpenRF                 0xA080U /* ROM: 0x408013E0 */
-#define TRAP_HRename                 0xA081U /* ROM: 0x408013F0 */
-#define TRAP_HGetFileInfo            0xA082U /* ROM: 0x4080A1D0 */
-#define TRAP_HSetFileInfo            0xA083U /* ROM: 0x408013C0 */
-#define TRAP_HUnmountVol             0xA084U /* ROM: 0x408013B0 */
-#define TRAP_OSTrap_A085             0xA085U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A086             0xA086U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A087             0xA087U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A088             0xA088U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_HGetVol                 0xA089U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_HSetVol                 0xA08AU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A08B             0xA08BU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ADBReInit               0xA07BU /* ROM: 0x4080A752 */
+#define TRAP_ADBOp                   0xA07CU /* ROM: 0x4080A3DC */
+#define TRAP_GetDefaultStartup       0xA07DU /* ROM: 0x40801390 */
+#define TRAP_SetDefaultStartup       0xA07EU /* ROM: 0x408013A0 */
+#define TRAP_InternalWait            0xA07FU /* ROM: 0x40801400 */
+#define TRAP_GetVideoDefault         0xA080U /* ROM: 0x408013E0 */
+#define TRAP_SetVideoDefault         0xA081U /* ROM: 0x408013F0 */
+#define TRAP_DTInstall               0xA082U /* ROM: 0x4080A1D0 */
+#define TRAP_SetOSDefault            0xA083U /* ROM: 0x408013C0 */
+#define TRAP_GetOSDefault            0xA084U /* ROM: 0x408013B0 */
+#define TRAP_PMgrOp                  0xA085U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_IOPInfoAccess           0xA086U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_IOPMsgRequest           0xA087U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_IOPMoveData             0xA088U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_SCSIAtomic              0xA089U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_Sleep                   0xA08AU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_CommToolboxDispatch     0xA08BU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A08C             0xA08CU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A08D             0xA08DU /* ROM: 0x4080A0F0 */
+#define TRAP_DebugUtil               0xA08DU /* ROM: 0x4080A0F0 */
 #define TRAP_OSTrap_A08E             0xA08EU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A08F             0xA08FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_PPCToolbox              0xA090U /* ROM: 0x4080C750 */
-#define TRAP_OSTrap_A091             0xA091U /* ROM: 0x4082F090 */
-#define TRAP_OSTrap_A092             0xA092U /* ROM: 0x40814800 */
-#define TRAP_OSTrap_A093             0xA093U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A094             0xA094U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DeferUserFn             0xA08FU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_SysEnvirons             0xA090U /* ROM: 0x4080C750 */
+#define TRAP_Translate24To32         0xA091U /* ROM: 0x4082F090 */
+#define TRAP_EgretDispatch           0xA092U /* ROM: 0x40814800 */
+#define TRAP_Microseconds            0xA093U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ServerDispatch          0xA094U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A095             0xA095U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A096             0xA096U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A097             0xA097U /* ROM: 0x40895850 */
-#define TRAP_OSTrap_A098             0xA098U /* ROM: 0x40805448 */
+#define TRAP_PRIVTRAP040             0xA097U /* ROM: 0x40895850 (Apple ROM map name) */
+#define TRAP_HWPriv                  0xA098U /* ROM: 0x40805448 */
 #define TRAP_OSTrap_A099             0xA099U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A09A             0xA09AU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A09B             0xA09BU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A09C             0xA09CU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A09D             0xA09DU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A09E             0xA09EU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A09F             0xA09FU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_PowerMgrDispatch        0xA09EU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_PowerDispatch           0xA09FU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A0A0             0xA0A0U /* RAM: 0x0086EE0E (installed during boot) */
 #define TRAP_OSTrap_A0A1             0xA0A1U /* RAM: 0x0086EED0 (installed during boot) */
 #define TRAP_OSTrap_A0A2             0xA0A2U /* RAM: 0x0086EFA6 (installed during boot) */
 #define TRAP_OSTrap_A0A3             0xA0A3U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0A4             0xA0A4U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_HeapDispatch            0xA0A4U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A0A5             0xA0A5U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0A6             0xA0A6U /* ROM: 0x4081B70E */
-#define TRAP_OSTrap_A0A7             0xA0A7U /* ROM: 0x4081B7CA */
+#define TRAP_VRMGRSTDENTRY           0xA0A6U /* ROM: 0x4081B70E (Apple ROM map name) */
+#define TRAP_VRMGRSTDEXIT            0xA0A7U /* ROM: 0x4081B7CA (Apple ROM map name) */
 #define TRAP_OSTrap_A0A8             0xA0A8U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A0A9             0xA0A9U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A0AA             0xA0AAU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_OSTrap_A0AB             0xA0ABU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0AC             0xA0ACU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0AD             0xA0ADU /* ROM: 0x40816500 */
-#define TRAP_OSTrap_A0AE             0xA0AEU /* ROM: 0x4080A776 */
-#define TRAP_OSTrap_A0AF             0xA0AFU /* ROM: 0x4080F9AE */
-#define TRAP_OSTrap_A0B0             0xA0B0U /* ROM: 0x4080F824 */
-#define TRAP_OSTrap_A0B1             0xA0B1U /* ROM: 0x4081005C */
-#define TRAP_OSTrap_A0B2             0xA0B2U /* ROM: 0x4080FC72 */
-#define TRAP_OSTrap_A0B3             0xA0B3U /* ROM: 0x40811AA8 */
-#define TRAP_OSTrap_A0B4             0xA0B4U /* ROM: 0x4080F53A */
-#define TRAP_OSTrap_A0B5             0xA0B5U /* ROM: 0x4080B656 */
-#define TRAP_OSTrap_A0B6             0xA0B6U /* ROM: 0x4080BACC */
-#define TRAP_OSTrap_A0B7             0xA0B7U /* ROM: 0x4080BB8C */
-#define TRAP_OSTrap_A0B8             0xA0B8U /* ROM: 0x40842D10 */
-#define TRAP_OSTrap_A0B9             0xA0B9U /* ROM: 0x4080A1EE */
-#define TRAP_OSTrap_A0BA             0xA0BAU /* ROM: 0x4080CDE4 */
-#define TRAP_OSTrap_A0BB             0xA0BBU /* ROM: 0x4080CEFE */
-#define TRAP_OSTrap_A0BC             0xA0BCU /* ROM: 0x4080BF8E */
+#define TRAP_FSMDispatch             0xA0ACU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_Gestalt                 0xA0ADU /* ROM: 0x40816500 */
+#define TRAP_VADBProc                0xA0AEU /* ROM: 0x4080A776 */
+#define TRAP_VMTCHECK                0xA0AFU /* ROM: 0x4080F9AE (Apple ROM map name) */
+#define TRAP_VCHECKREMOUNT           0xA0B0U /* ROM: 0x4080F824 (Apple ROM map name) */
+#define TRAP_VDTRMV2                 0xA0B1U /* ROM: 0x4081005C (Apple ROM map name) */
+#define TRAP_VFINDDRIVE              0xA0B2U /* ROM: 0x4080FC72 (Apple ROM map name) */
+#define TRAP_VFCLOSE                 0xA0B3U /* ROM: 0x40811AA8 (Apple ROM map name) */
+#define TRAP_VFLUSHMDB               0xA0B4U /* ROM: 0x4080F53A (Apple ROM map name) */
+#define TRAP_VGODRIVER               0xA0B5U /* ROM: 0x4080B656 (Apple ROM map name) */
+#define TRAP_VWAITUNTIL              0xA0B6U /* ROM: 0x4080BACC (Apple ROM map name) */
+#define TRAP_VSYNCWAIT               0xA0B7U /* ROM: 0x4080BB8C (Apple ROM map name) */
+#define TRAP_SNDAPPDEAD              0xA0B8U /* ROM: 0x40842D10 (Apple ROM map name) */
+#define TRAP_VDISPTCH                0xA0B9U /* ROM: 0x4080A1EE (Apple ROM map name) */
+#define TRAP_VIAZINIT                0xA0BAU /* ROM: 0x4080CDE4 (Apple ROM map name) */
+#define TRAP_VIAZPOSTINIT            0xA0BBU /* ROM: 0x4080CEFE (Apple ROM map name) */
+#define TRAP_VLAUNCHINIT             0xA0BCU /* ROM: 0x4080BF8E (Apple ROM map name) */
 #define TRAP_OSTrap_A0BD             0xA0BDU /* ROM: 0x40885030 */
-#define TRAP_OSTrap_A0BE             0xA0BEU /* ROM: 0x4080C040 */
-#define TRAP_OSTrap_A0BF             0xA0BFU /* ROM: 0x40811F14 */
-#define TRAP_OSTrap_A0C0             0xA0C0U /* ROM: 0x40814140 */
-#define TRAP_OSTrap_A0C1             0xA0C1U /* ROM: 0x4081422A */
-#define TRAP_OSTrap_A0C2             0xA0C2U /* ROM: 0x4081446C */
-#define TRAP_OSTrap_A0C3             0xA0C3U /* ROM: 0x40814482 */
-#define TRAP_OSTrap_A0C4             0xA0C4U /* ROM: 0x4081455A */
-#define TRAP_OSTrap_A0C5             0xA0C5U /* ROM: 0x408144D4 */
-#define TRAP_OSTrap_A0C6             0xA0C6U /* ROM: 0x408145CE */
-#define TRAP_OSTrap_A0C7             0xA0C7U /* ROM: 0x408145A2 */
-#define TRAP_OSTrap_A0C8             0xA0C8U /* ROM: 0x4081468C */
-#define TRAP_OSTrap_A0C9             0xA0C9U /* ROM: 0x40814706 */
-#define TRAP_OSTrap_A0CA             0xA0CAU /* ROM: 0x40814754 */
-#define TRAP_OSTrap_A0CB             0xA0CBU /* ROM: 0x40814766 */
-#define TRAP_OSTrap_A0CC             0xA0CCU /* ROM: 0x40813056 */
-#define TRAP_OSTrap_A0CD             0xA0CDU /* ROM: 0x40813096 */
-#define TRAP_OSTrap_A0CE             0xA0CEU /* ROM: 0x40813248 */
-#define TRAP_OSTrap_A0CF             0xA0CFU /* ROM: 0x408132AC */
-#define TRAP_OSTrap_A0D0             0xA0D0U /* ROM: 0x40813364 */
-#define TRAP_OSTrap_A0D1             0xA0D1U /* ROM: 0x40813604 */
-#define TRAP_OSTrap_A0D2             0xA0D2U /* ROM: 0x408136BC */
-#define TRAP_OSTrap_A0D3             0xA0D3U /* ROM: 0x40813746 */
-#define TRAP_OSTrap_A0D4             0xA0D4U /* ROM: 0x40813E7E */
-#define TRAP_OSTrap_A0D5             0xA0D5U /* ROM: 0x4081404A */
-#define TRAP_OSTrap_A0D6             0xA0D6U /* ROM: 0x408137B6 */
-#define TRAP_OSTrap_A0D7             0xA0D7U /* ROM: 0x4081393A */
-#define TRAP_OSTrap_A0D8             0xA0D8U /* ROM: 0x4081384C */
-#define TRAP_OSTrap_A0D9             0xA0D9U /* ROM: 0x408123E6 */
-#define TRAP_OSTrap_A0DA             0xA0DAU /* ROM: 0x408124BA */
-#define TRAP_OSTrap_A0DB             0xA0DBU /* ROM: 0x408126F6 */
-#define TRAP_OSTrap_A0DC             0xA0DCU /* ROM: 0x40812F0C */
-#define TRAP_OSTrap_A0DD             0xA0DDU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0DE             0xA0DEU /* ROM: 0x4080FF24 */
-#define TRAP_OSTrap_A0DF             0xA0DFU /* ROM: 0x40812116 */
-#define TRAP_OSTrap_A0E0             0xA0E0U /* ROM: 0x40812270 */
-#define TRAP_IconBitmap              0xA0E1U /* ROM: 0x408108FE */
-#define TRAP_OSTrap_A0E2             0xA0E2U /* ROM: 0x40810A7A */
-#define TRAP_OSTrap_A0E3             0xA0E3U /* ROM: 0x408112B4 */
-#define TRAP_OSTrap_A0E4             0xA0E4U /* ROM: 0x40811C8C */
-#define TRAP_OSTrap_A0E5             0xA0E5U /* ROM: 0x40811E6A */
-#define TRAP_OSTrap_A0E6             0xA0E6U /* ROM: 0x40822696 */
-#define TRAP_OSTrap_A0E7             0xA0E7U /* ROM: 0x4082389C */
+#define TRAP_SYSUTIL                 0xA0BEU /* ROM: 0x4080C040 (Apple ROM map name) */
+#define TRAP_VLG2PHYS                0xA0BFU /* ROM: 0x40811F14 (Apple ROM map name) */
+#define TRAP_VFLUSHCACHE             0xA0C0U /* ROM: 0x40814140 (Apple ROM map name) */
+#define TRAP_VGETBLOCK               0xA0C1U /* ROM: 0x4081422A (Apple ROM map name) */
+#define TRAP_VMARKBLOCK              0xA0C2U /* ROM: 0x4081446C (Apple ROM map name) */
+#define TRAP_VRELBLOCK               0xA0C3U /* ROM: 0x40814482 (Apple ROM map name) */
+#define TRAP_VTRASHBLOCKS            0xA0C4U /* ROM: 0x4081455A (Apple ROM map name) */
+#define TRAP_VTRASHVBLKS             0xA0C5U /* ROM: 0x408144D4 (Apple ROM map name) */
+#define TRAP_VCACHEWRIP              0xA0C6U /* ROM: 0x408145CE (Apple ROM map name) */
+#define TRAP_VCACHERDIP              0xA0C7U /* ROM: 0x408145A2 (Apple ROM map name) */
+#define TRAP_VBASICIO                0xA0C8U /* ROM: 0x4081468C (Apple ROM map name) */
+#define TRAP_VRDBLOCKS               0xA0C9U /* ROM: 0x40814706 (Apple ROM map name) */
+#define TRAP_VWRBLOCKS               0xA0CAU /* ROM: 0x40814754 (Apple ROM map name) */
+#define TRAP_VSETUPTAGS              0xA0CBU /* ROM: 0x40814766 (Apple ROM map name) */
+#define TRAP_VBTCLOSE                0xA0CCU /* ROM: 0x40813056 (Apple ROM map name) */
+#define TRAP_VBTDELETE               0xA0CDU /* ROM: 0x40813096 (Apple ROM map name) */
+#define TRAP_VBTFLUSH                0xA0CEU /* ROM: 0x40813248 (Apple ROM map name) */
+#define TRAP_VBTGETRECORD            0xA0CFU /* ROM: 0x408132AC (Apple ROM map name) */
+#define TRAP_VBTINSERT               0xA0D0U /* ROM: 0x40813364 (Apple ROM map name) */
+#define TRAP_VBTOPEN                 0xA0D1U /* ROM: 0x40813604 (Apple ROM map name) */
+#define TRAP_VBTSEARCH               0xA0D2U /* ROM: 0x408136BC (Apple ROM map name) */
+#define TRAP_VBTUPDATE               0xA0D3U /* ROM: 0x40813746 (Apple ROM map name) */
+#define TRAP_VGETNODE                0xA0D4U /* ROM: 0x40813E7E (Apple ROM map name) */
+#define TRAP_VRELNODE                0xA0D5U /* ROM: 0x4081404A (Apple ROM map name) */
+#define TRAP_VALLOCNODE              0xA0D6U /* ROM: 0x408137B6 (Apple ROM map name) */
+#define TRAP_VFREENODE               0xA0D7U /* ROM: 0x4081393A (Apple ROM map name) */
+#define TRAP_VEXTBTFILE              0xA0D8U /* ROM: 0x4081384C (Apple ROM map name) */
+#define TRAP_VDEALLOCFILE            0xA0D9U /* ROM: 0x408123E6 (Apple ROM map name) */
+#define TRAP_VEXTENDFILE             0xA0DAU /* ROM: 0x408124BA (Apple ROM map name) */
+#define TRAP_VTRUNCATEFILE           0xA0DBU /* ROM: 0x408126F6 (Apple ROM map name) */
+#define TRAP_VCMSETUP                0xA0DCU /* ROM: 0x40812F0C (Apple ROM map name) */
+#define TRAP_PPC                     0xA0DDU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_VDTRMV1                 0xA0DEU /* ROM: 0x4080FF24 (Apple ROM map name) */
+#define TRAP_VBLKALLOC               0xA0DFU /* ROM: 0x40812116 (Apple ROM map name) */
+#define TRAP_VBLKDEALLOC             0xA0E0U /* ROM: 0x40812270 (Apple ROM map name) */
+#define TRAP_VFILEOPEN               0xA0E1U /* ROM: 0x408108FE (Apple ROM map name) */
+#define TRAP_VPERMSSNCHK             0xA0E2U /* ROM: 0x40810A7A (Apple ROM map name) */
+#define TRAP_VFNDFILNAME             0xA0E3U /* ROM: 0x408112B4 (Apple ROM map name) */
+#define TRAP_VRFNCALL                0xA0E4U /* ROM: 0x40811C8C (Apple ROM map name) */
+#define TRAP_VADJEOF                 0xA0E5U /* ROM: 0x40811E6A (Apple ROM map name) */
+#define TRAP_VPIXEL2CHAR             0xA0E6U /* ROM: 0x40822696 (Apple ROM map name) */
+#define TRAP_VCHAR2PIXEL             0xA0E7U /* ROM: 0x4082389C (Apple ROM map name) */
 #define TRAP_OSTrap_A0E8             0xA0E8U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0E9             0xA0E9U /* ROM: 0x40811A88 */
-#define TRAP_OSTrap_A0EA             0xA0EAU /* ROM: 0x40811842 */
-#define TRAP_OSTrap_A0EB             0xA0EBU /* ROM: 0x4081195E */
+#define TRAP_VFILECLOSE              0xA0E9U /* ROM: 0x40811A88 (Apple ROM map name) */
+#define TRAP_VFILEREAD               0xA0EAU /* ROM: 0x40811842 (Apple ROM map name) */
+#define TRAP_VFILEWRITE              0xA0EBU /* ROM: 0x4081195E (Apple ROM map name) */
 #define TRAP_OSTrap_A0EC             0xA0ECU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OSTrap_A0ED             0xA0EDU /* ROM: 0x408139EC */
-#define TRAP_OSTrap_A0EE             0xA0EEU /* ROM: 0x4080FF00 */
-#define TRAP_OSTrap_A0EF             0xA0EFU /* ROM: 0x4080FF10 */
-#define TRAP_OSTrap_A0F0             0xA0F0U /* ROM: 0x4080FB8A */
-#define TRAP_OSTrap_A0F1             0xA0F1U /* ROM: 0x40811CD6 */
-#define TRAP_OSTrap_A0F2             0xA0F2U /* ROM: 0x40813004 */
-#define TRAP_OSTrap_A0F3             0xA0F3U /* ROM: 0x40813C60 */
-#define TRAP_OSTrap_A0F4             0xA0F4U /* ROM: 0x40812674 */
-#define TRAP_OSTrap_A0F5             0xA0F5U /* ROM: 0x40812864 */
-#define TRAP_OSTrap_A0F6             0xA0F6U /* ROM: 0x4081233E */
-#define TRAP_OSTrap_A0F7             0xA0F7U /* ROM: 0x4080F334 */
-#define TRAP_OSTrap_A0F8             0xA0F8U /* ROM: 0x4080BF06 */
-#define TRAP_OSTrap_A0F9             0xA0F9U /* ROM: 0x4081AC9C */
-#define TRAP_OSTrap_A0FA             0xA0FAU /* ROM: 0x4081B196 */
-#define TRAP_OSTrap_A0FB             0xA0FBU /* ROM: 0x4081ADD4 */
-#define TRAP_OSTrap_A0FC             0xA0FCU /* ROM: 0x4081B8FA */
-#define TRAP_OSTrap_A0FD             0xA0FDU /* ROM: 0x408237B0 */
-#define TRAP_OSTrap_A0FE             0xA0FEU /* ROM: 0x40823F3A */
-#define TRAP_OSTrap_A0FF             0xA0FFU /* ROM: 0x4082414A */
+#define TRAP_VUPDALTMDB              0xA0EDU /* ROM: 0x408139EC (Apple ROM map name) */
+#define TRAP_VCKEXTFS                0xA0EEU /* ROM: 0x4080FF00 (Apple ROM map name) */
+#define TRAP_VDTRMV3                 0xA0EFU /* ROM: 0x4080FF10 (Apple ROM map name) */
+#define TRAP_VBMCHK                  0xA0F0U /* ROM: 0x4080FB8A (Apple ROM map name) */
+#define TRAP_VTSTMOD                 0xA0F1U /* ROM: 0x40811CD6 (Apple ROM map name) */
+#define TRAP_VLOCCREC                0xA0F2U /* ROM: 0x40813004 (Apple ROM map name) */
+#define TRAP_VTREESEARCH             0xA0F3U /* ROM: 0x40813C60 (Apple ROM map name) */
+#define TRAP_VMAPFBLOCK              0xA0F4U /* ROM: 0x40812674 (Apple ROM map name) */
+#define TRAP_VXFSEARCH               0xA0F5U /* ROM: 0x40812864 (Apple ROM map name) */
+#define TRAP_VREADBM                 0xA0F6U /* ROM: 0x4081233E (Apple ROM map name) */
+#define TRAP_DOEJECT                 0xA0F7U /* ROM: 0x4080F334 (Apple ROM map name) */
+#define TRAP_VSEGSTACK               0xA0F8U /* ROM: 0x4080BF06 (Apple ROM map name) */
+#define TRAP_VSUPERLOAD              0xA0F9U /* ROM: 0x4081AC9C (Apple ROM map name) */
+#define TRAP_VCMPFRM                 0xA0FAU /* ROM: 0x4081B196 (Apple ROM map name) */
+#define TRAP_VNEWMAP                 0xA0FBU /* ROM: 0x4081ADD4 (Apple ROM map name) */
+#define TRAP_VCHECKLOAD              0xA0FCU /* ROM: 0x4081B8FA (Apple ROM map name) */
+#define TRAP_XTRIMMEASURE            0xA0FDU /* ROM: 0x408237B0 (Apple ROM map name) */
+#define TRAP_TEFindWord              0xA0FEU /* ROM: 0x40823F3A */
+#define TRAP_TEFindLine              0xA0FFU /* ROM: 0x4082414A */
 
 /* Core Toolbox Trap Equates ($A800 - $ABFF) */
 #define TRAP_SoundDispatch           0xA800U /* ROM: 0x40843E9E */
-#define TRAP_ToolboxTrap_A801        0xA801U /* ROM: 0x40843070 */
-#define TRAP_ToolboxTrap_A802        0xA802U /* ROM: 0x408434D0 */
-#define TRAP_ToolboxTrap_A803        0xA803U /* ROM: 0x40842D90 */
-#define TRAP_ToolboxTrap_A804        0xA804U /* ROM: 0x40842E40 */
-#define TRAP_ToolboxTrap_A805        0xA805U /* ROM: 0x40843100 */
-#define TRAP_ToolboxTrap_A806        0xA806U /* ROM: 0x408433B0 */
-#define TRAP_ToolboxTrap_A807        0xA807U /* ROM: 0x40842EB0 */
+#define TRAP_SndDisposeChannel       0xA801U /* ROM: 0x40843070 */
+#define TRAP_SndAddModifier          0xA802U /* ROM: 0x408434D0 */
+#define TRAP_SndDoCommand            0xA803U /* ROM: 0x40842D90 */
+#define TRAP_SndDoImmediate          0xA804U /* ROM: 0x40842E40 */
+#define TRAP_SndPlay                 0xA805U /* ROM: 0x40843100 */
+#define TRAP_SndControl              0xA806U /* ROM: 0x408433B0 */
+#define TRAP_SndNewChannel           0xA807U /* ROM: 0x40842EB0 */
 #define TRAP_InitProcMenu            0xA808U /* ROM: 0x40816D20 */
 #define TRAP_GetCVariant             0xA809U /* ROM: 0x40815E84 */
 #define TRAP_GetWVariant             0xA80AU /* ROM: 0x40818DD8 */
@@ -296,29 +296,29 @@ extern "C" {
 #define TRAP_TESelView               0xA811U /* ROM: 0x408251FE */
 #define TRAP_TEPinScroll             0xA812U /* ROM: 0x40825176 */
 #define TRAP_TEAutoView              0xA813U /* ROM: 0x40825288 */
-#define TRAP_ToolboxTrap_A814        0xA814U /* ROM: 0x408275EA */
+#define TRAP_SetFractEnable          0xA814U /* ROM: 0x408275EA */
 #define TRAP_SCSIDispatch            0xA815U /* ROM: 0x40807460 */
 #define TRAP_Pack8                   0xA816U /* ROM: 0x408262B6 */
 #define TRAP_CopyMask                0xA817U /* ROM: 0x40835912 */
-#define TRAP_FixAtan2                0xA818U /* ROM: 0x4081C5BC */
-#define TRAP_ToolboxTrap_A819        0xA819U /* ROM: 0x4081C0DE */
-#define TRAP_ToolboxTrap_A81A        0xA81AU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A81B        0xA81BU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_FixATan2                0xA818U /* ROM: 0x4081C5BC */
+#define TRAP_XMunger                 0xA819U /* ROM: 0x4081C0DE */
+#define TRAP_HOpenResFile            0xA81AU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_HCreateResFile          0xA81BU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_Count1Types             0xA81CU /* ROM: 0x4081B4EE */
-#define TRAP_ToolboxTrap_A81D        0xA81DU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_InvalMenuBar            0xA81DU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_A81E        0xA81EU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_Get1Resource            0xA81FU /* ROM: 0x4081B59C */
 #define TRAP_Get1NamedResource       0xA820U /* ROM: 0x4081B5E0 */
 #define TRAP_MaxSizeRsrc             0xA821U /* ROM: 0x4081C05E */
-#define TRAP_ToolboxTrap_A822        0xA822U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A823        0xA823U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A824        0xA824U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A825        0xA825U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ResourceDispatch        0xA822U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_AliasDispatch           0xA823U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_HFSUtilDispatch         0xA824U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_MenuDispatch            0xA825U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_InsMenuItem             0xA826U /* ROM: 0x40817DC6 */
 #define TRAP_HideDItem               0xA827U /* ROM: 0x4081A184 */
 #define TRAP_ShowDItem               0xA828U /* ROM: 0x4081A1E2 */
 #define TRAP_ToolboxTrap_A829        0xA829U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A82A        0xA82AU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ComponentDispatch       0xA82AU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_Pack9                   0xA82BU /* ROM: 0x408262B8 */
 #define TRAP_Pack10                  0xA82CU /* ROM: 0x408262BA */
 #define TRAP_Pack11                  0xA82DU /* ROM: 0x408262BC */
@@ -327,10 +327,10 @@ extern "C" {
 #define TRAP_Pack14                  0xA830U /* ROM: 0x408262C2 */
 #define TRAP_Pack15                  0xA831U /* ROM: 0x408262C4 */
 #define TRAP_ToolboxTrap_A832        0xA832U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_A833        0xA833U /* ROM: 0x4082EA80 */
+#define TRAP_ScrnBitMap              0xA833U /* ROM: 0x4082EA80 */
 #define TRAP_SetFScaleDisable        0xA834U /* ROM: 0x408275DC */
 #define TRAP_FontMetrics             0xA835U /* ROM: 0x408275F2 */
-#define TRAP_ToolboxTrap_A836        0xA836U /* ROM: 0x4082EBF0 */
+#define TRAP_GetMaskTable            0xA836U /* ROM: 0x4082EBF0 */
 #define TRAP_MeasureText             0xA837U /* ROM: 0x40829320 */
 #define TRAP_CalcMask                0xA838U /* ROM: 0x408359C8 */
 #define TRAP_SeedFill                0xA839U /* ROM: 0x408359C0 */
@@ -360,19 +360,19 @@ extern "C" {
 #define TRAP_SetCursor               0xA851U /* ROM: 0x408280C0 */
 #define TRAP_HideCursor              0xA852U /* ROM: 0x408280F0 */
 #define TRAP_ShowCursor              0xA853U /* ROM: 0x40828100 */
-#define TRAP_ToolboxTrap_A854        0xA854U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_FontDispatch            0xA854U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ShieldCursor            0xA855U /* ROM: 0x40828110 */
 #define TRAP_ObscureCursor           0xA856U /* ROM: 0x40828140 */
 #define TRAP_ToolboxTrap_A857        0xA857U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_BitAnd                  0xA858U /* ROM: 0x4082EAC0 */
-#define TRAP_BitXor                  0xA859U /* ROM: 0x4082EAC8 */
+#define TRAP_BitXOr                  0xA859U /* ROM: 0x4082EAC8 */
 #define TRAP_BitNot                  0xA85AU /* ROM: 0x4082EAB0 */
 #define TRAP_BitOr                   0xA85BU /* ROM: 0x4082EAD2 */
 #define TRAP_BitShift                0xA85CU /* ROM: 0x4082EADA */
 #define TRAP_BitTst                  0xA85DU /* ROM: 0x4082EAF0 */
 #define TRAP_BitSet                  0xA85EU /* ROM: 0x4082EAFE */
 #define TRAP_BitClr                  0xA85FU /* ROM: 0x4082EB08 */
-#define TRAP_ToolboxTrap_A860        0xA860U /* ROM: 0x40815CD0 */
+#define TRAP_WaitNextEvent           0xA860U /* ROM: 0x40815CD0 */
 #define TRAP_Random                  0xA861U /* ROM: 0x4082EB20 */
 #define TRAP_ForeColor               0xA862U /* ROM: 0x4082EB80 */
 #define TRAP_BackColor               0xA863U /* ROM: 0x4082EBCC */
@@ -388,83 +388,83 @@ extern "C" {
 #define TRAP_InitPort                0xA86DU /* ROM: 0x408316EE */
 #define TRAP_InitGraf                0xA86EU /* ROM: 0x40831530 */
 #define TRAP_OpenPort                0xA86FU /* ROM: 0x408316E0 */
-#define TRAP_InitPort_A870           0xA870U /* ROM: 0x40831800 */
-#define TRAP_ClosePort               0xA871U /* ROM: 0x40831808 */
+#define TRAP_LocalToGlobal           0xA870U /* ROM: 0x40831800 */
+#define TRAP_GlobalToLocal           0xA871U /* ROM: 0x40831808 */
 #define TRAP_GrafDevice              0xA872U /* ROM: 0x40831880 */
-#define TRAP_SetGDevice              0xA873U /* ROM: 0x40831860 */
-#define TRAP_GetGDevice              0xA874U /* ROM: 0x40831868 */
-#define TRAP_GetDeviceList           0xA875U /* ROM: 0x40831890 */
-#define TRAP_GetMainDevice           0xA876U /* ROM: 0x408318E0 */
-#define TRAP_GetMaxDevice            0xA877U /* ROM: 0x40831900 */
+#define TRAP_SetPort                 0xA873U /* ROM: 0x40831860 */
+#define TRAP_GetPort                 0xA874U /* ROM: 0x40831868 */
+#define TRAP_SetPBits                0xA875U /* ROM: 0x40831890 */
+#define TRAP_PortSize                0xA876U /* ROM: 0x408318E0 */
+#define TRAP_MovePortTo              0xA877U /* ROM: 0x40831900 */
 #define TRAP_SetOrigin               0xA878U /* ROM: 0x40831930 */
 #define TRAP_SetClip                 0xA879U /* ROM: 0x40831990 */
 #define TRAP_GetClip                 0xA87AU /* ROM: 0x4083199C */
 #define TRAP_ClipRect                0xA87BU /* ROM: 0x40831970 */
 #define TRAP_BackPat                 0xA87CU /* ROM: 0x408318AE */
-#define TRAP_CloseCPort              0xA87DU /* ROM: 0x408301E0 */
+#define TRAP_ClosePort               0xA87DU /* ROM: 0x408301E0 */
 #define TRAP_AddPt                   0xA87EU /* ROM: 0x4083183A */
 #define TRAP_SubPt                   0xA87FU /* ROM: 0x40831842 */
-#define TRAP_SetPort                 0xA880U /* ROM: 0x408319B0 */
-#define TRAP_GetPort                 0xA881U /* ROM: 0x408319C0 */
-#define TRAP_GrafDevice_A882         0xA882U /* ROM: 0x40828E40 */
-#define TRAP_SetPortBits             0xA883U /* ROM: 0x4082913C */
-#define TRAP_PortSize                0xA884U /* ROM: 0x4082919C */
-#define TRAP_MovePortTo              0xA885U /* ROM: 0x408291AE */
-#define TRAP_SetOrigin_A886          0xA886U /* ROM: 0x408291E0 */
-#define TRAP_SetClip_A887            0xA887U /* ROM: 0x40829170 */
-#define TRAP_GetClip_A888            0xA888U /* ROM: 0x40829130 */
-#define TRAP_ClipRect_A889           0xA889U /* ROM: 0x40829174 */
-#define TRAP_BackPat_A88A            0xA88AU /* ROM: 0x40829178 */
+#define TRAP_SetPt                   0xA880U /* ROM: 0x408319B0 */
+#define TRAP_EqualPt                 0xA881U /* ROM: 0x408319C0 */
+#define TRAP_StdText                 0xA882U /* ROM: 0x40828E40 */
+#define TRAP_DrawChar                0xA883U /* ROM: 0x4082913C */
+#define TRAP_DrawString              0xA884U /* ROM: 0x4082919C */
+#define TRAP_DrawText                0xA885U /* ROM: 0x408291AE */
+#define TRAP_TextWidth               0xA886U /* ROM: 0x408291E0 */
+#define TRAP_TextFont                0xA887U /* ROM: 0x40829170 */
+#define TRAP_TextFace                0xA888U /* ROM: 0x40829130 */
+#define TRAP_TextMode                0xA889U /* ROM: 0x40829174 */
+#define TRAP_TextSize                0xA88AU /* ROM: 0x40829178 */
 #define TRAP_GetFontInfo             0xA88BU /* ROM: 0x40829420 */
 #define TRAP_StringWidth             0xA88CU /* ROM: 0x408291D0 */
-#define TRAP_HidePen                 0xA88DU /* ROM: 0x4082914A */
-#define TRAP_ShowPen                 0xA88EU /* ROM: 0x40829190 */
-#define TRAP_GetPenState             0xA88FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_SetPenState             0xA890U /* ROM: 0x40829580 */
-#define TRAP_GetPen                  0xA891U /* ROM: 0x40829670 */
-#define TRAP_PenSize                 0xA892U /* ROM: 0x40829690 */
-#define TRAP_PenMode                 0xA893U /* ROM: 0x408296B0 */
-#define TRAP_PenPat                  0xA894U /* ROM: 0x408296D0 */
-#define TRAP_PenNormal               0xA895U /* ROM: 0x4080ED7E */
-#define TRAP_MoveTo                  0xA896U /* ROM: 0x40829780 */
-#define TRAP_Move                    0xA897U /* ROM: 0x40829784 */
-#define TRAP_LineTo                  0xA898U /* ROM: 0x40829790 */
-#define TRAP_Line                    0xA899U /* ROM: 0x408297CC */
-#define TRAP_GetPen_A89A             0xA89AU /* ROM: 0x40829810 */
-#define TRAP_PenSize_A89B            0xA89BU /* ROM: 0x40829820 */
-#define TRAP_PenMode_A89C            0xA89CU /* ROM: 0x40829830 */
-#define TRAP_PenPat_A89D             0xA89DU /* ROM: 0x40829840 */
-#define TRAP_PenNormal_A89E          0xA89EU /* ROM: 0x40829868 */
-#define TRAP_ToolboxTrap_A89F        0xA89FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_FrameRect               0xA8A0U /* ROM: 0x4082C150 */
-#define TRAP_PaintRect               0xA8A1U /* ROM: 0x4082C488 */
-#define TRAP_EraseRect               0xA8A2U /* ROM: 0x4082C48C */
-#define TRAP_InverRect               0xA8A3U /* ROM: 0x4082C490 */
-#define TRAP_FillRect                0xA8A4U /* ROM: 0x4082C494 */
-#define TRAP_FillRect_A8A5           0xA8A5U /* ROM: 0x4082C470 */
+#define TRAP_CharWidth               0xA88DU /* ROM: 0x4082914A */
+#define TRAP_SpaceExtra              0xA88EU /* ROM: 0x40829190 */
+#define TRAP_OSDispatch              0xA88FU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_StdLine                 0xA890U /* ROM: 0x40829580 */
+#define TRAP_LineTo                  0xA891U /* ROM: 0x40829670 */
+#define TRAP_Line                    0xA892U /* ROM: 0x40829690 */
+#define TRAP_MoveTo                  0xA893U /* ROM: 0x408296B0 */
+#define TRAP_Move                    0xA894U /* ROM: 0x408296D0 */
+#define TRAP_ShutDown                0xA895U /* ROM: 0x4080ED7E */
+#define TRAP_HidePen                 0xA896U /* ROM: 0x40829780 */
+#define TRAP_ShowPen                 0xA897U /* ROM: 0x40829784 */
+#define TRAP_GetPenState             0xA898U /* ROM: 0x40829790 */
+#define TRAP_SetPenState             0xA899U /* ROM: 0x408297CC */
+#define TRAP_GetPen                  0xA89AU /* ROM: 0x40829810 */
+#define TRAP_PenSize                 0xA89BU /* ROM: 0x40829820 */
+#define TRAP_PenMode                 0xA89CU /* ROM: 0x40829830 */
+#define TRAP_PenPat                  0xA89DU /* ROM: 0x40829840 */
+#define TRAP_PenNormal               0xA89EU /* ROM: 0x40829868 */
+#define TRAP_Unimplemented           0xA89FU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_StdRect                 0xA8A0U /* ROM: 0x4082C150 */
+#define TRAP_FrameRect               0xA8A1U /* ROM: 0x4082C488 */
+#define TRAP_PaintRect               0xA8A2U /* ROM: 0x4082C48C */
+#define TRAP_EraseRect               0xA8A3U /* ROM: 0x4082C490 */
+#define TRAP_InverRect               0xA8A4U /* ROM: 0x4082C494 */
+#define TRAP_FillRect                0xA8A5U /* ROM: 0x4082C470 */
 #define TRAP_EqualRect               0xA8A6U /* ROM: 0x4082C630 */
-#define TRAP_FrameOval               0xA8A7U /* ROM: 0x4082C620 */
-#define TRAP_PaintOval               0xA8A8U /* ROM: 0x4082C670 */
-#define TRAP_EraseOval               0xA8A9U /* ROM: 0x4082C690 */
-#define TRAP_InvertOval              0xA8AAU /* ROM: 0x4082C6B0 */
-#define TRAP_FillOval                0xA8ABU /* ROM: 0x4082C750 */
+#define TRAP_SetRect                 0xA8A7U /* ROM: 0x4082C620 */
+#define TRAP_OffsetRect              0xA8A8U /* ROM: 0x4082C670 */
+#define TRAP_InsetRect               0xA8A9U /* ROM: 0x4082C690 */
+#define TRAP_SectRect                0xA8AAU /* ROM: 0x4082C6B0 */
+#define TRAP_UnionRect               0xA8ABU /* ROM: 0x4082C750 */
 #define TRAP_Pt2Rect                 0xA8ACU /* ROM: 0x4082C78E */
 #define TRAP_PtInRect                0xA8ADU /* ROM: 0x4082C7D0 */
 #define TRAP_EmptyRect               0xA8AEU /* ROM: 0x4082C650 */
 #define TRAP_StdRRect                0xA8AFU /* ROM: 0x40834570 */
-#define TRAP_ToolboxTrap_A8B0        0xA8B0U /* ROM: 0x40834630 */
+#define TRAP_FrameRoundRect          0xA8B0U /* ROM: 0x40834630 */
 #define TRAP_PaintRoundRect          0xA8B1U /* ROM: 0x40834634 */
-#define TRAP_DrawChar                0xA8B2U /* ROM: 0x40834638 */
-#define TRAP_DrawString              0xA8B3U /* ROM: 0x4083463C */
-#define TRAP_DrawText                0xA8B4U /* ROM: 0x40834640 */
-#define TRAP_TextWidth               0xA8B5U /* ROM: 0x4081E318 */
+#define TRAP_EraseRoundRect          0xA8B2U /* ROM: 0x40834638 */
+#define TRAP_InverRoundRect          0xA8B3U /* ROM: 0x4083463C */
+#define TRAP_FillRoundRect           0xA8B4U /* ROM: 0x40834640 */
+#define TRAP_ScriptUtil              0xA8B5U /* ROM: 0x4081E318 */
 #define TRAP_StdOval                 0xA8B6U /* ROM: 0x4083BA20 */
-#define TRAP_TextFont                0xA8B7U /* ROM: 0x4083BAE0 */
-#define TRAP_TextFace                0xA8B8U /* ROM: 0x4083BAE4 */
-#define TRAP_TextMode                0xA8B9U /* ROM: 0x4083BAE8 */
-#define TRAP_TextSize                0xA8BAU /* ROM: 0x4083BAEC */
-#define TRAP_FillOval_A8BB           0xA8BBU /* ROM: 0x4083BAF0 */
-#define TRAP_GetFontInfo_A8BC        0xA8BCU /* ROM: 0x4083CE5E */
+#define TRAP_FrameOval               0xA8B7U /* ROM: 0x4083BAE0 */
+#define TRAP_PaintOval               0xA8B8U /* ROM: 0x4083BAE4 */
+#define TRAP_EraseOval               0xA8B9U /* ROM: 0x4083BAE8 */
+#define TRAP_InvertOval              0xA8BAU /* ROM: 0x4083BAEC */
+#define TRAP_FillOval                0xA8BBU /* ROM: 0x4083BAF0 */
+#define TRAP_SlopeFromAngle          0xA8BCU /* ROM: 0x4083CE5E */
 #define TRAP_StdArc                  0xA8BDU /* ROM: 0x4083BB30 */
 #define TRAP_FrameArc                0xA8BEU /* ROM: 0x4083BBE0 */
 #define TRAP_PaintArc                0xA8BFU /* ROM: 0x4083BBE4 */
@@ -491,7 +491,7 @@ extern "C" {
 #define TRAP_EraseRgn                0xA8D4U /* ROM: 0x40835F18 */
 #define TRAP_InverRgn                0xA8D5U /* ROM: 0x40835F1C */
 #define TRAP_FillRgn                 0xA8D6U /* ROM: 0x40835F20 */
-#define TRAP_ToolboxTrap_A8D7        0xA8D7U /* ROM: 0x408366F0 */
+#define TRAP_BitMapRgn               0xA8D7U /* ROM: 0x408366F0 */
 #define TRAP_NewRgn                  0xA8D8U /* ROM: 0x40836040 */
 #define TRAP_DisposRgn               0xA8D9U /* ROM: 0x40836060 */
 #define TRAP_OpenRgn                 0xA8DAU /* ROM: 0x40836070 */
@@ -500,14 +500,14 @@ extern "C" {
 #define TRAP_SetEmptyRgn             0xA8DDU /* ROM: 0x40836160 */
 #define TRAP_SetRecRgn               0xA8DEU /* ROM: 0x40836170 */
 #define TRAP_RectRgn                 0xA8DFU /* ROM: 0x408361D0 */
-#define TRAP_OfsetRgn                0xA8E0U /* ROM: 0x408361E0 */
+#define TRAP_OffsetRgn               0xA8E0U /* ROM: 0x408361E0 */
 #define TRAP_InsetRgn                0xA8E1U /* ROM: 0x40836220 */
 #define TRAP_EmptyRgn                0xA8E2U /* ROM: 0x408362D0 */
 #define TRAP_EqualRgn                0xA8E3U /* ROM: 0x408362F0 */
 #define TRAP_SectRgn                 0xA8E4U /* ROM: 0x40836330 */
 #define TRAP_UnionRgn                0xA8E5U /* ROM: 0x40836334 */
 #define TRAP_DiffRgn                 0xA8E6U /* ROM: 0x40836338 */
-#define TRAP_XorRgn                  0xA8E7U /* ROM: 0x4083633C */
+#define TRAP_XOrRgn                  0xA8E7U /* ROM: 0x4083633C */
 #define TRAP_PtInRgn                 0xA8E8U /* ROM: 0x40836430 */
 #define TRAP_RectInRgn               0xA8E9U /* ROM: 0x40836490 */
 #define TRAP_SetStdProcs             0xA8EAU /* ROM: 0x408317A0 */
@@ -523,13 +523,13 @@ extern "C" {
 #define TRAP_ClosePicture            0xA8F4U /* ROM: 0x40831D20 */
 #define TRAP_KillPicture             0xA8F5U /* ROM: 0x40831D90 */
 #define TRAP_DrawPicture             0xA8F6U /* ROM: 0x40831DA0 */
-#define TRAP_ToolboxTrap_A8F7        0xA8F7U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_Layout                  0xA8F7U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ScalePt                 0xA8F8U /* ROM: 0x408339A0 */
 #define TRAP_MapPt                   0xA8F9U /* ROM: 0x40833A00 */
 #define TRAP_MapRect                 0xA8FAU /* ROM: 0x40833AC0 */
 #define TRAP_MapRgn                  0xA8FBU /* ROM: 0x40836630 */
 #define TRAP_MapPoly                 0xA8FCU /* ROM: 0x40833D20 */
-#define TRAP_ToolboxTrap_A8FD        0xA8FDU /* ROM: 0x40825F40 */
+#define TRAP_PrGlue                  0xA8FDU /* ROM: 0x40825F40 */
 #define TRAP_InitFonts               0xA8FEU /* ROM: 0x408263B0 */
 #define TRAP_GetFName                0xA8FFU /* ROM: 0x40827498 */
 #define TRAP_GetFNum                 0xA900U /* ROM: 0x40827570 */
@@ -549,29 +549,29 @@ extern "C" {
 #define TRAP_SaveOld                 0xA90EU /* ROM: 0x408184EE */
 #define TRAP_DrawNew                 0xA90FU /* ROM: 0x4081851C */
 #define TRAP_GetWMgrPort             0xA910U /* ROM: 0x408185C8 */
-#define TRAP_CheckUpdate             0xA911U /* ROM: 0x408185DC */
+#define TRAP_CheckUpDate             0xA911U /* ROM: 0x408185DC */
 #define TRAP_InitWindows             0xA912U /* ROM: 0x4081867A */
 #define TRAP_NewWindow               0xA913U /* ROM: 0x40818870 */
-#define TRAP_GetNewWindow            0xA914U /* ROM: 0x40818AE2 */
-#define TRAP_DisposeWindow           0xA915U /* ROM: 0x40818AF0 */
-#define TRAP_InitMenus               0xA916U /* ROM: 0x40818B18 */
-#define TRAP_NewMenu                 0xA917U /* ROM: 0x40818B42 */
-#define TRAP_DisposeMenu             0xA918U /* ROM: 0x40818B50 */
-#define TRAP_AppendMenu              0xA919U /* ROM: 0x40818B6C */
-#define TRAP_ClearMenuBar            0xA91AU /* ROM: 0x40818B84 */
-#define TRAP_InsertMenu              0xA91BU /* ROM: 0x40818C5E */
-#define TRAP_DeleteMenu              0xA91CU /* ROM: 0x40818E9E */
-#define TRAP_DrawMenuBar             0xA91DU /* ROM: 0x40818EDE */
+#define TRAP_DisposWindow            0xA914U /* ROM: 0x40818AE2 */
+#define TRAP_ShowWindow              0xA915U /* ROM: 0x40818AF0 */
+#define TRAP_HideWindow              0xA916U /* ROM: 0x40818B18 */
+#define TRAP_GetWRefCon              0xA917U /* ROM: 0x40818B42 */
+#define TRAP_SetWRefCon              0xA918U /* ROM: 0x40818B50 */
+#define TRAP_GetWTitle               0xA919U /* ROM: 0x40818B6C */
+#define TRAP_SetWTitle               0xA91AU /* ROM: 0x40818B84 */
+#define TRAP_MoveWindow              0xA91BU /* ROM: 0x40818C5E */
+#define TRAP_HiliteWindow            0xA91CU /* ROM: 0x40818E9E */
+#define TRAP_SizeWindow              0xA91DU /* ROM: 0x40818EDE */
 #define TRAP_TrackGoAway             0xA91EU /* ROM: 0x40818F9C */
 #define TRAP_SelectWindow            0xA91FU /* ROM: 0x40819014 */
 #define TRAP_BringToFront            0xA920U /* ROM: 0x40819048 */
 #define TRAP_SendBehind              0xA921U /* ROM: 0x408190EA */
-#define TRAP_BeginUpdate             0xA922U /* ROM: 0x40819140 */
-#define TRAP_EndUpdate               0xA923U /* ROM: 0x40819184 */
-#define TRAP_MenuSelect              0xA924U /* ROM: 0x408191AC */
-#define TRAP_MenuKey                 0xA925U /* ROM: 0x408191D6 */
+#define TRAP_BeginUpDate             0xA922U /* ROM: 0x40819140 */
+#define TRAP_EndUpDate               0xA923U /* ROM: 0x40819184 */
+#define TRAP_FrontWindow             0xA924U /* ROM: 0x408191AC */
+#define TRAP_DragWindow              0xA925U /* ROM: 0x408191D6 */
 #define TRAP_DragTheRgn              0xA926U /* ROM: 0x408192A4 */
-#define TRAP_HiliteMenu              0xA927U /* ROM: 0x408194B2 */
+#define TRAP_InvalRgn                0xA927U /* ROM: 0x408194B2 */
 #define TRAP_InvalRect               0xA928U /* ROM: 0x408194F8 */
 #define TRAP_ValidRgn                0xA929U /* ROM: 0x40819516 */
 #define TRAP_ValidRect               0xA92AU /* ROM: 0x4081951A */
@@ -580,30 +580,30 @@ extern "C" {
 #define TRAP_CloseWindow             0xA92DU /* ROM: 0x408189D6 */
 #define TRAP_SetWindowPic            0xA92EU /* ROM: 0x40818B60 */
 #define TRAP_GetWindowPic            0xA92FU /* ROM: 0x40818B66 */
-#define TRAP_InitMenus_A930          0xA930U /* ROM: 0x40816D50 */
-#define TRAP_NewMenu_A931            0xA931U /* ROM: 0x40817D6C */
+#define TRAP_InitMenus               0xA930U /* ROM: 0x40816D50 */
+#define TRAP_NewMenu                 0xA931U /* ROM: 0x40817D6C */
 #define TRAP_DisposMenu              0xA932U /* ROM: 0x40817876 */
-#define TRAP_AppendMenu_A933         0xA933U /* ROM: 0x40817DBE */
-#define TRAP_ClearMenuBar_A934       0xA934U /* ROM: 0x40816EA0 */
-#define TRAP_InsertMenu_A935         0xA935U /* ROM: 0x40816EC6 */
-#define TRAP_DeleteMenu_A936         0xA936U /* ROM: 0x40816FC2 */
-#define TRAP_DrawMenuBar_A937        0xA937U /* ROM: 0x408170B6 */
-#define TRAP_HiliteMenu_A938         0xA938U /* ROM: 0x408170D4 */
+#define TRAP_AppendMenu              0xA933U /* ROM: 0x40817DBE */
+#define TRAP_ClearMenuBar            0xA934U /* ROM: 0x40816EA0 */
+#define TRAP_InsertMenu              0xA935U /* ROM: 0x40816EC6 */
+#define TRAP_DeleteMenu              0xA936U /* ROM: 0x40816FC2 */
+#define TRAP_DrawMenuBar             0xA937U /* ROM: 0x408170B6 */
+#define TRAP_HiliteMenu              0xA938U /* ROM: 0x408170D4 */
 #define TRAP_EnableItem              0xA939U /* ROM: 0x40817126 */
 #define TRAP_DisableItem             0xA93AU /* ROM: 0x40817148 */
-#define TRAP_SelectWindow_A93B       0xA93BU /* ROM: 0x40817818 */
-#define TRAP_HideWindow              0xA93CU /* ROM: 0x40817842 */
-#define TRAP_ShowWindow              0xA93DU /* ROM: 0x4081718E */
-#define TRAP_SendBehind_A93E         0xA93EU /* ROM: 0x40817B8C */
-#define TRAP_BeginUpdate_A93F        0xA93FU /* ROM: 0x408179A4 */
-#define TRAP_EndUpdate_A940          0xA940U /* ROM: 0x408179A8 */
-#define TRAP_FrontWindow             0xA941U /* ROM: 0x408179B4 */
-#define TRAP_DragWindow              0xA942U /* ROM: 0x408179B8 */
-#define TRAP_ZoomWindow_A943         0xA943U /* ROM: 0x408179BC */
-#define TRAP_TrackGoAway_A944        0xA944U /* ROM: 0x408179C0 */
-#define TRAP_TrackBox_A945           0xA945U /* ROM: 0x408179C4 */
+#define TRAP_GetMenuBar              0xA93BU /* ROM: 0x40817818 */
+#define TRAP_SetMenuBar              0xA93CU /* ROM: 0x40817842 */
+#define TRAP_MenuSelect              0xA93DU /* ROM: 0x4081718E */
+#define TRAP_MenuKey                 0xA93EU /* ROM: 0x40817B8C */
+#define TRAP_GetItmIcon              0xA93FU /* ROM: 0x408179A4 */
+#define TRAP_SetItmIcon              0xA940U /* ROM: 0x408179A8 */
+#define TRAP_GetItmStyle             0xA941U /* ROM: 0x408179B4 */
+#define TRAP_SetItmStyle             0xA942U /* ROM: 0x408179B8 */
+#define TRAP_GetItmMark              0xA943U /* ROM: 0x408179BC */
+#define TRAP_SetItmMark              0xA944U /* ROM: 0x408179C0 */
+#define TRAP_CheckItem               0xA945U /* ROM: 0x408179C4 */
 #define TRAP_GetItem                 0xA946U /* ROM: 0x40817CDC */
-#define TRAP_FindWindow_A947         0xA947U /* ROM: 0x40817FC6 */
+#define TRAP_SetItem                 0xA947U /* ROM: 0x40817FC6 */
 #define TRAP_CalcMenuSize            0xA948U /* ROM: 0x40817D32 */
 #define TRAP_GetMHandle              0xA949U /* ROM: 0x40817F58 */
 #define TRAP_SetMFlash               0xA94AU /* ROM: 0x4081800C */
@@ -653,40 +653,40 @@ extern "C" {
 #define TRAP_GetKeys                 0xA976U /* ROM: 0x408159D0 */
 #define TRAP_WaitMouseUp             0xA977U /* ROM: 0x40815A7E */
 #define TRAP_UpdtDialog              0xA978U /* ROM: 0x40819DA6 */
-#define TRAP_CouldDialog             0xA979U /* ROM: 0x40819EC6 */
-#define TRAP_FreeDialog              0xA97AU /* ROM: 0x40819F80 */
+#define TRAP_COULDDIALOG             0xA979U /* ROM: 0x40819EC6 (Apple ROM map name) */
+#define TRAP_FREEDIALOG              0xA97AU /* ROM: 0x40819F80 (Apple ROM map name) */
 #define TRAP_InitDialogs             0xA97BU /* ROM: 0x408198CA */
 #define TRAP_GetNewDialog            0xA97CU /* ROM: 0x40819AF8 */
 #define TRAP_NewDialog               0xA97DU /* ROM: 0x40819B94 */
 #define TRAP_SelIText                0xA97EU /* ROM: 0x4081A128 */
 #define TRAP_IsDialogEvent           0xA97FU /* ROM: 0x40819C66 */
 #define TRAP_DialogSelect            0xA980U /* ROM: 0x40819CA2 */
-#define TRAP_ModalDialog             0xA981U /* ROM: 0x40819D8E */
-#define TRAP_IsDialogEvent_A982      0xA982U /* ROM: 0x40819DCE */
-#define TRAP_DialogSelect_A983       0xA983U /* ROM: 0x40819E52 */
-#define TRAP_DrawDialog              0xA984U /* ROM: 0x4081A256 */
-#define TRAP_CloseDialog             0xA985U /* ROM: 0x4081998C */
-#define TRAP_DisposeDialog           0xA986U /* ROM: 0x40819980 */
+#define TRAP_DrawDialog              0xA981U /* ROM: 0x40819D8E */
+#define TRAP_CloseDialog             0xA982U /* ROM: 0x40819DCE */
+#define TRAP_DisposDialog            0xA983U /* ROM: 0x40819E52 */
+#define TRAP_FindDItem               0xA984U /* ROM: 0x4081A256 */
+#define TRAP_Alert                   0xA985U /* ROM: 0x4081998C */
+#define TRAP_StopAlert               0xA986U /* ROM: 0x40819980 */
 #define TRAP_NoteAlert               0xA987U /* ROM: 0x40819984 */
 #define TRAP_CautionAlert            0xA988U /* ROM: 0x40819988 */
-#define TRAP_CouldAlert              0xA989U /* ROM: 0x40819ED4 */
-#define TRAP_FreeAlert               0xA98AU /* ROM: 0x40819F8E */
+#define TRAP_COULDALERT              0xA989U /* ROM: 0x40819ED4 (Apple ROM map name) */
+#define TRAP_FREEALERT               0xA98AU /* ROM: 0x40819F8E (Apple ROM map name) */
 #define TRAP_ParamText               0xA98BU /* ROM: 0x40819FF2 */
 #define TRAP_ErrorSound              0xA98CU /* ROM: 0x4081A016 */
 #define TRAP_GetDItem                0xA98DU /* ROM: 0x4081A01E */
 #define TRAP_SetDItem                0xA98EU /* ROM: 0x4081A064 */
 #define TRAP_SetIText                0xA98FU /* ROM: 0x4081A0BC */
 #define TRAP_GetIText                0xA990U /* ROM: 0x4081A09C */
-#define TRAP_ModalDialog_A991        0xA991U /* ROM: 0x40819CE4 */
+#define TRAP_ModalDialog             0xA991U /* ROM: 0x40819CE4 */
 #define TRAP_DetachResource          0xA992U /* ROM: 0x4081BC06 */
 #define TRAP_SetResPurge             0xA993U /* ROM: 0x4081BCBE */
 #define TRAP_CurResFile              0xA994U /* ROM: 0x4081BCE8 */
 #define TRAP_InitResources           0xA995U /* ROM: 0x4081AA32 */
 #define TRAP_RsrcZoneInit            0xA996U /* ROM: 0x4081AEC0 */
 #define TRAP_OpenResFile             0xA997U /* ROM: 0x4081AF9E */
-#define TRAP_CloseResFile            0xA998U /* ROM: 0x4081AFE2 */
+#define TRAP_UseResFile              0xA998U /* ROM: 0x4081AFE2 */
 #define TRAP_UpdateResFile           0xA999U /* ROM: 0x4081B0AE */
-#define TRAP_CloseResFile_A99A       0xA99AU /* ROM: 0x4081B388 */
+#define TRAP_CloseResFile            0xA99AU /* ROM: 0x4081B388 */
 #define TRAP_SetResLoad              0xA99BU /* ROM: 0x4081BCDE */
 #define TRAP_CountResources          0xA99CU /* ROM: 0x4081B42C */
 #define TRAP_GetIndResource          0xA99DU /* ROM: 0x4081B456 */
@@ -702,13 +702,13 @@ extern "C" {
 #define TRAP_SetResAttrs             0xA9A7U /* ROM: 0x4081BD26 */
 #define TRAP_GetResInfo              0xA9A8U /* ROM: 0x4081BD58 */
 #define TRAP_SetResInfo              0xA9A9U /* ROM: 0x4081BD9E */
-#define TRAP_CountResources_A9AA     0xA9AAU /* ROM: 0x4081BC1E */
+#define TRAP_ChangedResource         0xA9AAU /* ROM: 0x4081BC1E */
 #define TRAP_AddResource             0xA9ABU /* ROM: 0x4081BDE8 */
 #define TRAP_AddReference            0xA9ACU /* ROM: 0x4081BCF8 */
 #define TRAP_RmveResource            0xA9ADU /* ROM: 0x4081BEC0 */
 #define TRAP_RmveReference           0xA9AEU /* ROM: 0x4081BD08 */
 #define TRAP_ResError                0xA9AFU /* ROM: 0x4081BCF0 */
-#define TRAP_FrameRoundRect          0xA9B0U /* ROM: 0x4081BC5A */
+#define TRAP_WriteResource           0xA9B0U /* ROM: 0x4081BC5A */
 #define TRAP_CreateResFile           0xA9B1U /* ROM: 0x4081AF54 */
 #define TRAP_SystemEvent             0xA9B2U /* ROM: 0x4081C750 */
 #define TRAP_SystemClick             0xA9B3U /* ROM: 0x4081C82C */
@@ -721,7 +721,7 @@ extern "C" {
 #define TRAP_GetString               0xA9BAU /* ROM: 0x40821C78 */
 #define TRAP_GetIcon                 0xA9BBU /* ROM: 0x40821C80 */
 #define TRAP_GetPicture              0xA9BCU /* ROM: 0x40821C88 */
-#define TRAP_GetNewWindow_A9BD       0xA9BDU /* ROM: 0x40821C9C */
+#define TRAP_GetNewWindow            0xA9BDU /* ROM: 0x40821C9C */
 #define TRAP_GetNewControl           0xA9BEU /* ROM: 0x40821D44 */
 #define TRAP_GetRMenu                0xA9BFU /* ROM: 0x40821DC6 */
 #define TRAP_GetNewMBar              0xA9C0U /* ROM: 0x40821E80 */
@@ -731,26 +731,26 @@ extern "C" {
 #define TRAP_OpenRFPerm              0xA9C4U /* ROM: 0x4081AFCE */
 #define TRAP_RsrcMapEntry            0xA9C5U /* ROM: 0x4081C072 */
 #define TRAP_Secs2Date               0xA9C6U /* ROM: 0x408262D0 */
-#define TRAP_Date2Sec                0xA9C7U /* ROM: 0x40826348 */
+#define TRAP_Date2Secs               0xA9C7U /* ROM: 0x40826348 */
 #define TRAP_SysBeep                 0xA9C8U /* ROM: 0x40806FC0 */
 #define TRAP_SysError                0xA9C9U /* ROM: 0x40802720 */
-#define TRAP_ToolboxTrap_A9CA        0xA9CAU /* ROM: 0x40802524 */
+#define TRAP_PutIcon                 0xA9CAU /* ROM: 0x40802524 */
 #define TRAP_TEGetText               0xA9CBU /* ROM: 0x40822038 */
 #define TRAP_TEInit                  0xA9CCU /* ROM: 0x40821F92 */
-#define TRAP_TENew                   0xA9CDU /* ROM: 0x40822044 */
-#define TRAP_TEDispose               0xA9CEU /* ROM: 0x408220A2 */
+#define TRAP_TEDispose               0xA9CDU /* ROM: 0x40822044 */
+#define TRAP_TextBox                 0xA9CEU /* ROM: 0x408220A2 */
 #define TRAP_TESetText               0xA9CFU /* ROM: 0x40822182 */
-#define TRAP_TEGetText_A9D0          0xA9D0U /* ROM: 0x4082229A */
-#define TRAP_TEIdle                  0xA9D1U /* ROM: 0x408222FE */
-#define TRAP_TEClick                 0xA9D2U /* ROM: 0x40822344 */
+#define TRAP_TECalText               0xA9D0U /* ROM: 0x4082229A */
+#define TRAP_TESetSelect             0xA9D1U /* ROM: 0x408222FE */
+#define TRAP_TENew                   0xA9D2U /* ROM: 0x40822344 */
 #define TRAP_TEUpdate                0xA9D3U /* ROM: 0x40822536 */
-#define TRAP_TEClick_A9D4            0xA9D4U /* ROM: 0x40822564 */
+#define TRAP_TEClick                 0xA9D4U /* ROM: 0x40822564 */
 #define TRAP_TECopy                  0xA9D5U /* ROM: 0x40823C18 */
 #define TRAP_TECut                   0xA9D6U /* ROM: 0x40823CF0 */
 #define TRAP_TEDelete                0xA9D7U /* ROM: 0x40823D00 */
 #define TRAP_TEActivate              0xA9D8U /* ROM: 0x4082471E */
 #define TRAP_TEDeactivate            0xA9D9U /* ROM: 0x40824740 */
-#define TRAP_TEIdle_A9DA             0xA9DAU /* ROM: 0x40824758 */
+#define TRAP_TEIdle                  0xA9DAU /* ROM: 0x40824758 */
 #define TRAP_TEPaste                 0xA9DBU /* ROM: 0x40824796 */
 #define TRAP_TEKey                   0xA9DCU /* ROM: 0x40824B42 */
 #define TRAP_TEScroll                0xA9DDU /* ROM: 0x40825120 */
@@ -770,31 +770,31 @@ extern "C" {
 #define TRAP_FP68K                   0xA9EBU /* ROM: 0x40826206 */
 #define TRAP_Elems68K                0xA9ECU /* ROM: 0x40826228 */
 #define TRAP_Pack6                   0xA9EDU /* ROM: 0x408262B2 */
-#define TRAP_Pack7                   0xA9EEU /* ROM: 0x408262B4 */
+#define TRAP_DECSTR68K               0xA9EEU /* ROM: 0x408262B4 */
 #define TRAP_PtrAndHand              0xA9EFU /* ROM: 0x4081C282 */
 #define TRAP_LoadSeg                 0xA9F0U /* ROM: 0x4080BCE0 */
-#define TRAP_UnloadSeg               0xA9F1U /* ROM: 0x4080BD72 */
+#define TRAP_UnLoadSeg               0xA9F1U /* ROM: 0x4080BD72 */
 #define TRAP_Launch                  0xA9F2U /* ROM: 0x4080BE0A */
 #define TRAP_Chain                   0xA9F3U /* ROM: 0x4080BE04 */
 #define TRAP_ExitToShell             0xA9F4U /* ROM: 0x4080BF54 */
 #define TRAP_GetAppParms             0xA9F5U /* ROM: 0x4080BFC0 */
 #define TRAP_GetResFileAttrs         0xA9F6U /* ROM: 0x4081AFEC */
 #define TRAP_SetResFileAttrs         0xA9F7U /* ROM: 0x4081AFF8 */
-#define TRAP_ToolboxTrap_A9F8        0xA9F8U /* ROM: 0x4081C292 */
+#define TRAP_MethodDispatch          0xA9F8U /* ROM: 0x4081C292 */
 #define TRAP_InfoScrap               0xA9F9U /* ROM: 0x40825D50 */
 #define TRAP_UnlodeScrap             0xA9FAU /* ROM: 0x40825DCA */
 #define TRAP_LodeScrap               0xA9FBU /* ROM: 0x40825E00 */
 #define TRAP_ZeroScrap               0xA9FCU /* ROM: 0x40825E34 */
 #define TRAP_GetScrap                0xA9FDU /* ROM: 0x40825E80 */
 #define TRAP_PutScrap                0xA9FEU /* ROM: 0x40825EF0 */
-#define TRAP_ToolboxTrap_A9FF        0xA9FFU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_OpenCport               0xAA00U /* ROM: 0x408300F0 */
-#define TRAP_DAStrings               0xAA01U /* ROM: 0x40830126 */
-#define TRAP_ToolboxTrap_AA02        0xAA02U /* ROM: 0x408301E0 */
+#define TRAP_Debugger                0xA9FFU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_OpenCPort               0xAA00U /* ROM: 0x408300F0 */
+#define TRAP_InitCPort               0xAA01U /* ROM: 0x40830126 */
+#define TRAP_CloseCPort              0xAA02U /* ROM: 0x408301E0 */
 #define TRAP_NewPixMap               0xAA03U /* ROM: 0x408302F0 */
 #define TRAP_DisposPixMap            0xAA04U /* ROM: 0x40830300 */
 #define TRAP_CopyPixMap              0xAA05U /* ROM: 0x40830360 */
-#define TRAP_SetCPortPix             0xAA06U /* ROM: 0x40830260 */
+#define TRAP_SetPortPix              0xAA06U /* ROM: 0x40830260 */
 #define TRAP_NewPixPat               0xAA07U /* ROM: 0x40830690 */
 #define TRAP_DisposPixPat            0xAA08U /* ROM: 0x40830700 */
 #define TRAP_CopyPixPat              0xAA09U /* ROM: 0x40830840 */
@@ -820,31 +820,31 @@ extern "C" {
 #define TRAP_AllocCursor             0xAA1DU /* ROM: 0x40828090 */
 #define TRAP_GetCIcon                0xAA1EU /* ROM: 0x408311E0 */
 #define TRAP_PlotCIcon               0xAA1FU /* ROM: 0x408312A0 */
-#define TRAP_ToolboxTrap_AA20        0xAA20U /* ROM: 0x40831BA0 */
+#define TRAP_OpenCPicture            0xAA20U /* ROM: 0x40831BA0 */
 #define TRAP_OpColor                 0xAA21U /* ROM: 0x40830550 */
 #define TRAP_HiliteColor             0xAA22U /* ROM: 0x40830540 */
 #define TRAP_CharExtra               0xAA23U /* ROM: 0x40829530 */
 #define TRAP_DisposCTable            0xAA24U /* ROM: 0x40830290 */
 #define TRAP_DisposCIcon             0xAA25U /* ROM: 0x40831400 */
 #define TRAP_DisposCCursor           0xAA26U /* ROM: 0x40830700 */
-#define TRAP_GetMaxDevice_AA27       0xAA27U /* ROM: 0x40828020 */
-#define TRAP_ToolboxTrap_AA28        0xAA28U /* ROM: 0x408302A0 */
-#define TRAP_GetDeviceList_AA29      0xAA29U /* ROM: 0x40827FB0 */
-#define TRAP_GetMainDevice_AA2A      0xAA2AU /* ROM: 0x40827FC0 */
+#define TRAP_GetMaxDevice            0xAA27U /* ROM: 0x40828020 */
+#define TRAP_GetCTSeed               0xAA28U /* ROM: 0x408302A0 */
+#define TRAP_GetDeviceList           0xAA29U /* ROM: 0x40827FB0 */
+#define TRAP_GetMainDevice           0xAA2AU /* ROM: 0x40827FC0 */
 #define TRAP_GetNextDevice           0xAA2BU /* ROM: 0x40827FD0 */
 #define TRAP_TestDeviceAttribute     0xAA2CU /* ROM: 0x40827FE0 */
 #define TRAP_SetDeviceAttribute      0xAA2DU /* ROM: 0x40828000 */
 #define TRAP_InitGDevice             0xAA2EU /* ROM: 0x408278D0 */
 #define TRAP_NewGDevice              0xAA2FU /* ROM: 0x408277E0 */
 #define TRAP_DisposGDevice           0xAA30U /* ROM: 0x40827880 */
-#define TRAP_SetGDevice_AA31         0xAA31U /* ROM: 0x40827FA0 */
-#define TRAP_GetGDevice_AA32         0xAA32U /* ROM: 0x40827F90 */
+#define TRAP_SetGDevice              0xAA31U /* ROM: 0x40827FA0 */
+#define TRAP_GetGDevice              0xAA32U /* ROM: 0x40827F90 */
 #define TRAP_Color2Index             0xAA33U /* ROM: 0x4083C3C8 */
 #define TRAP_Index2Color             0xAA34U /* ROM: 0x4083C460 */
 #define TRAP_InvertColor             0xAA35U /* ROM: 0x4083C500 */
 #define TRAP_RealColor               0xAA36U /* ROM: 0x4083C640 */
 #define TRAP_GetSubTable             0xAA37U /* ROM: 0x4083CB20 */
-#define TRAP_ToolboxTrap_AA38        0xAA38U /* ROM: 0x4083BDB0 */
+#define TRAP_UpdatePixMap            0xAA38U /* ROM: 0x4083BDB0 */
 #define TRAP_MakeITable              0xAA39U /* ROM: 0x4083BDC0 */
 #define TRAP_AddSearch               0xAA3AU /* ROM: 0x4083CA50 */
 #define TRAP_AddComp                 0xAA3BU /* ROM: 0x4083CA8A */
@@ -866,33 +866,33 @@ extern "C" {
 #define TRAP_NewCDialog              0xAA4BU /* ROM: 0x40819B90 */
 #define TRAP_DelSearch               0xAA4CU /* ROM: 0x4083CAC0 */
 #define TRAP_DelComp                 0xAA4DU /* ROM: 0x4083CAF0 */
-#define TRAP_ToolboxTrap_AA4E        0xAA4EU /* ROM: 0x408317E0 */
+#define TRAP_SetStdCProcs            0xAA4EU /* ROM: 0x408317E0 */
 #define TRAP_CalcCMask               0xAA4FU /* ROM: 0x4083D55A */
 #define TRAP_SeedCFill               0xAA50U /* ROM: 0x4083D540 */
-#define TRAP_ToolboxTrap_AA51        0xAA51U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA52        0xAA52U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA53        0xAA53U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA54        0xAA54U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_CopyDeepMask            0xAA51U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_HighLevelFSDispatch     0xAA52U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DictionaryDispatch      0xAA53U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_TextServicesDispatch    0xAA54U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA55        0xAA55U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA56        0xAA56U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA57        0xAA57U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_SpeechRecognitionDispatch 0xAA56U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DockingDispatch         0xAA57U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA58        0xAA58U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA59        0xAA59U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA5A        0xAA5AU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_MixedModeDispatch       0xAA59U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_CodeFragmentDispatch    0xAA5AU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA5B        0xAA5BU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA5C        0xAA5CU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA5D        0xAA5DU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA5E        0xAA5EU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_OCEUtils                0xAA5CU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DigitalSignature        0xAA5DU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_TBDispatch              0xAA5EU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA5F        0xAA5FU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_DelMCEntries            0xAA60U /* ROM: 0x40817032 */
 #define TRAP_GetMCInfo               0xAA61U /* ROM: 0x40817832 */
 #define TRAP_SetMCInfo               0xAA62U /* ROM: 0x4081785A */
-#define TRAP_DispMCEntries           0xAA63U /* ROM: 0x4081788E */
+#define TRAP_DispMCInfo              0xAA63U /* ROM: 0x4081788E */
 #define TRAP_GetMCEntry              0xAA64U /* ROM: 0x40817B5E */
 #define TRAP_SetMCEntries            0xAA65U /* ROM: 0x408179E4 */
 #define TRAP_MenuChoice              0xAA66U /* ROM: 0x40817810 */
-#define TRAP_ToolboxTrap_AA67        0xAA67U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA68        0xAA68U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ModalDialogMenuSetup    0xAA67U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DialogDispatch          0xAA68U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA69        0xAA69U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA6A        0xAA6AU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA6B        0xAA6BU /* ROM: 0x40809AE6 (unimplemented) */
@@ -903,8 +903,8 @@ extern "C" {
 #define TRAP_ToolboxTrap_AA70        0xAA70U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA71        0xAA71U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA72        0xAA72U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA73        0xAA73U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA74        0xAA74U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ControlDispatch         0xAA73U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_AppearanceDispatch      0xAA74U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA75        0xAA75U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA76        0xAA76U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA77        0xAA77U /* ROM: 0x40809AE6 (unimplemented) */
@@ -914,10 +914,10 @@ extern "C" {
 #define TRAP_ToolboxTrap_AA7B        0xAA7BU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA7C        0xAA7CU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA7D        0xAA7DU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA7E        0xAA7EU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_SysDebugDispatch        0xAA7EU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA7F        0xAA7FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA80        0xAA80U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA81        0xAA81U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_AVLTreeDispatch         0xAA80U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_FileMappingDispatch     0xAA81U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA82        0xAA82U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA83        0xAA83U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA84        0xAA84U /* ROM: 0x40809AE6 (unimplemented) */
@@ -932,27 +932,27 @@ extern "C" {
 #define TRAP_ToolboxTrap_AA8D        0xAA8DU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA8E        0xAA8EU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AA8F        0xAA8FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AA90        0xAA90U /* ROM: 0x4083E1F0 */
-#define TRAP_ToolboxTrap_AA91        0xAA91U /* ROM: 0x4083DBD0 */
-#define TRAP_ToolboxTrap_AA92        0xAA92U /* ROM: 0x4083DC80 */
-#define TRAP_ToolboxTrap_AA93        0xAA93U /* ROM: 0x4083E0E0 */
-#define TRAP_ToolboxTrap_AA94        0xAA94U /* ROM: 0x4083D7B8 */
-#define TRAP_ToolboxTrap_AA95        0xAA95U /* ROM: 0x4083E6B0 */
-#define TRAP_ToolboxTrap_AA96        0xAA96U /* ROM: 0x4083E7A0 */
-#define TRAP_ToolboxTrap_AA97        0xAA97U /* ROM: 0x4083EA20 */
-#define TRAP_ToolboxTrap_AA98        0xAA98U /* ROM: 0x4083EA24 */
-#define TRAP_ToolboxTrap_AA99        0xAA99U /* ROM: 0x4083EA90 */
-#define TRAP_ToolboxTrap_AA9A        0xAA9AU /* ROM: 0x4083EBC0 */
-#define TRAP_ToolboxTrap_AA9B        0xAA9BU /* ROM: 0x4083ED60 */
-#define TRAP_ToolboxTrap_AA9C        0xAA9CU /* ROM: 0x4083EF70 */
-#define TRAP_ToolboxTrap_AA9D        0xAA9DU /* ROM: 0x4083EFC0 */
-#define TRAP_ToolboxTrap_AA9E        0xAA9EU /* ROM: 0x4083F000 */
-#define TRAP_ToolboxTrap_AA9F        0xAA9FU /* ROM: 0x4083F0A0 */
-#define TRAP_ToolboxTrap_AAA0        0xAAA0U /* ROM: 0x4083F140 */
-#define TRAP_ToolboxTrap_AAA1        0xAAA1U /* ROM: 0x4083F210 */
-#define TRAP_ToolboxTrap_AAA2        0xAAA2U /* ROM: 0x4083FA36 */
-#define TRAP_ToolboxTrap_AAA3        0xAAA3U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AAA4        0xAAA4U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_InitPalettes            0xAA90U /* ROM: 0x4083E1F0 */
+#define TRAP_NewPalette              0xAA91U /* ROM: 0x4083DBD0 */
+#define TRAP_GetNewPalette           0xAA92U /* ROM: 0x4083DC80 */
+#define TRAP_DisposePalette          0xAA93U /* ROM: 0x4083E0E0 */
+#define TRAP_ActivatePalette         0xAA94U /* ROM: 0x4083D7B8 */
+#define TRAP_SetPalette              0xAA95U /* ROM: 0x4083E6B0 */
+#define TRAP_GetPalette              0xAA96U /* ROM: 0x4083E7A0 */
+#define TRAP_PmForeColor             0xAA97U /* ROM: 0x4083EA20 */
+#define TRAP_PmBackColor             0xAA98U /* ROM: 0x4083EA24 */
+#define TRAP_AnimateEntry            0xAA99U /* ROM: 0x4083EA90 */
+#define TRAP_AnimatePalette          0xAA9AU /* ROM: 0x4083EBC0 */
+#define TRAP_GetEntryColor           0xAA9BU /* ROM: 0x4083ED60 */
+#define TRAP_SetEntryColor           0xAA9CU /* ROM: 0x4083EF70 */
+#define TRAP_GetEntryUsage           0xAA9DU /* ROM: 0x4083EFC0 */
+#define TRAP_SetEntryUsage           0xAA9EU /* ROM: 0x4083F000 */
+#define TRAP_CTab2Palette            0xAA9FU /* ROM: 0x4083F0A0 */
+#define TRAP_Palette2CTab            0xAAA0U /* ROM: 0x4083F140 */
+#define TRAP_CopyPalette             0xAAA1U /* ROM: 0x4083F210 */
+#define TRAP_PaletteDispatch         0xAAA2U /* ROM: 0x4083FA36 */
+#define TRAP_CodecDispatch           0xAAA3U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ALMDispatch             0xAAA4U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAA5        0xAAA5U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAA6        0xAAA6U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAA7        0xAAA7U /* ROM: 0x40809AE6 (unimplemented) */
@@ -1007,7 +1007,7 @@ extern "C" {
 #define TRAP_ToolboxTrap_AAD8        0xAAD8U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAD9        0xAAD9U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AADA        0xAADAU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AADB        0xAADBU /* ROM: 0x408B63D0 */
+#define TRAP_CursorDeviceDispatch    0xAADBU /* ROM: 0x408B63D0 */
 #define TRAP_ToolboxTrap_AADC        0xAADCU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AADD        0xAADDU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AADE        0xAADEU /* ROM: 0x40809AE6 (unimplemented) */
@@ -1030,8 +1030,8 @@ extern "C" {
 #define TRAP_ToolboxTrap_AAEF        0xAAEFU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAF0        0xAAF0U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAF1        0xAAF1U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AAF2        0xAAF2U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AAF3        0xAAF3U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ControlStripDispatch    0xAAF2U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ExpansionManager        0xAAF3U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAF4        0xAAF4U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAF5        0xAAF5U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAF6        0xAAF6U /* ROM: 0x40809AE6 (unimplemented) */
@@ -1044,209 +1044,209 @@ extern "C" {
 #define TRAP_ToolboxTrap_AAFD        0xAAFDU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAFE        0xAAFEU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_AAFF        0xAAFFU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AB00        0xAB00U /* ROM: 0x4082C870 */
-#define TRAP_ToolboxTrap_AB01        0xAB01U /* ROM: 0x408300D2 */
-#define TRAP_ToolboxTrap_AB02        0xAB02U /* ROM: 0x40830390 */
-#define TRAP_ToolboxTrap_AB03        0xAB03U /* ROM: 0x4083143A */
-#define TRAP_ToolboxTrap_AB04        0xAB04U /* ROM: 0x4082EC90 */
-#define TRAP_ToolboxTrap_AB05        0xAB05U /* ROM: 0x40830060 */
-#define TRAP_ToolboxTrap_AB06        0xAB06U /* ROM: 0x4083BCC0 */
-#define TRAP_ToolboxTrap_AB07        0xAB07U /* ROM: 0x40832BF0 */
-#define TRAP_ToolboxTrap_AB08        0xAB08U /* ROM: 0x40832C90 */
-#define TRAP_ToolboxTrap_AB09        0xAB09U /* ROM: 0x40834680 */
-#define TRAP_ToolboxTrap_AB0A        0xAB0AU /* ROM: 0x408299A0 */
-#define TRAP_ToolboxTrap_AB0B        0xAB0BU /* ROM: 0x4082F160 */
-#define TRAP_ToolboxTrap_AB0C        0xAB0CU /* ROM: 0x40830040 */
-#define TRAP_ToolboxTrap_AB0D        0xAB0DU /* ROM: 0x4083AF40 */
-#define TRAP_ToolboxTrap_AB0E        0xAB0EU /* ROM: 0x40830E50 */
-#define TRAP_ToolboxTrap_AB0F        0xAB0FU /* ROM: 0x40833780 */
-#define TRAP_ToolboxTrap_AB10        0xAB10U /* ROM: 0x408296F0 */
-#define TRAP_ToolboxTrap_AB11        0xAB11U /* ROM: 0x40830890 */
-#define TRAP_ToolboxTrap_AB12        0xAB12U /* ROM: 0x4083D180 */
-#define TRAP_ToolboxTrap_AB13        0xAB13U /* ROM: 0x40830C20 */
-#define TRAP_ToolboxTrap_AB14        0xAB14U /* ROM: 0x40830FB0 */
-#define TRAP_ToolboxTrap_AB15        0xAB15U /* ROM: 0x40830920 */
-#define TRAP_ToolboxTrap_AB16        0xAB16U /* ROM: 0x4082C3F0 */
-#define TRAP_ToolboxTrap_AB17        0xAB17U /* ROM: 0x408300D0 */
-#define TRAP_ToolboxTrap_AB18        0xAB18U /* ROM: 0x4082C410 */
-#define TRAP_ToolboxTrap_AB19        0xAB19U /* ROM: 0x40829890 */
-#define TRAP_ToolboxTrap_AB1A        0xAB1AU /* ROM: 0x4083D030 */
-#define TRAP_ToolboxTrap_AB1B        0xAB1BU /* ROM: 0x4083BD10 */
-#define TRAP_ToolboxTrap_AB1C        0xAB1CU /* ROM: 0x408314A0 */
-#define TRAP_ToolboxTrap_AB1D        0xAB1DU /* ROM: 0x4083FA60 */
-#define TRAP_ToolboxTrap_AB1E        0xAB1EU /* ROM: 0x40831510 */
-#define TRAP_ToolboxTrap_AB1F        0xAB1FU /* ROM: 0x4082A6E0 */
-#define TRAP_ToolboxTrap_AB20        0xAB20U /* ROM: 0x4083D250 */
-#define TRAP_ToolboxTrap_AB21        0xAB21U /* ROM: 0x4082C6D4 */
-#define TRAP_ToolboxTrap_AB22        0xAB22U /* ROM: 0x40836A10 */
-#define TRAP_ToolboxTrap_AB23        0xAB23U /* ROM: 0x40830780 */
-#define TRAP_ToolboxTrap_AB24        0xAB24U /* ROM: 0x40838440 */
-#define TRAP_ToolboxTrap_AB25        0xAB25U /* ROM: 0x4082FEE0 */
-#define TRAP_ToolboxTrap_AB26        0xAB26U /* ROM: 0x4083BC30 */
-#define TRAP_ToolboxTrap_AB27        0xAB27U /* ROM: 0x40836B60 */
-#define TRAP_ToolboxTrap_AB28        0xAB28U /* ROM: 0x4082C1E0 */
-#define TRAP_ToolboxTrap_AB29        0xAB29U /* ROM: 0x40836520 */
-#define TRAP_ToolboxTrap_AB2A        0xAB2AU /* ROM: 0x4082F110 */
-#define TRAP_ToolboxTrap_AB2B        0xAB2BU /* ROM: 0x4083852C */
+#define TRAP_BITBLT                  0xAB00U /* ROM: 0x4082C870 (Apple ROM map name) */
+#define TRAP_BITSTOMAP               0xAB01U /* ROM: 0x408300D2 (Apple ROM map name) */
+#define TRAP_BITSTOPIX               0xAB02U /* ROM: 0x40830390 (Apple ROM map name) */
+#define TRAP_JACKSONPOLLOCK          0xAB03U /* ROM: 0x4083143A (Apple ROM map name) */
+#define TRAP_COLORMAP                0xAB04U /* ROM: 0x4082EC90 (Apple ROM map name) */
+#define TRAP_COPYHANDLE              0xAB05U /* ROM: 0x40830060 (Apple ROM map name) */
+#define TRAP_CULLPOINTS              0xAB06U /* ROM: 0x4083BCC0 (Apple ROM map name) */
+#define TRAP_DPUTPICBYTE             0xAB07U /* ROM: 0x40832BF0 (Apple ROM map name) */
+#define TRAP_DPUTPICOP               0xAB08U /* ROM: 0x40832C90 (Apple ROM map name) */
+#define TRAP_DRAWARC                 0xAB09U /* ROM: 0x40834680 (Apple ROM map name) */
+#define TRAP_DRAWLINE                0xAB0AU /* ROM: 0x408299A0 (Apple ROM map name) */
+#define TRAP_DRAWSLAB                0xAB0BU /* ROM: 0x4082F160 (Apple ROM map name) */
+#define TRAP_FASTSLABMODE            0xAB0CU /* ROM: 0x40830040 (Apple ROM map name) */
+#define TRAP_GETSEEK                 0xAB0DU /* ROM: 0x4083AF40 (Apple ROM map name) */
+#define TRAP_MAKESCALETBL            0xAB0EU /* ROM: 0x40830E50 (Apple ROM map name) */
+#define TRAP_CHECKPIC                0xAB0FU /* ROM: 0x40833780 (Apple ROM map name) */
+#define TRAP_DOLINE                  0xAB10U /* ROM: 0x408296F0 (Apple ROM map name) */
+#define TRAP_OLDPATTONEW             0xAB11U /* ROM: 0x40830890 (Apple ROM map name) */
+#define TRAP_PACKRGN                 0xAB12U /* ROM: 0x4083D180 (Apple ROM map name) */
+#define TRAP_PATCONVERT              0xAB13U /* ROM: 0x40830C20 (Apple ROM map name) */
+#define TRAP_PATDITHER               0xAB14U /* ROM: 0x40830FB0 (Apple ROM map name) */
+#define TRAP_PATEXPAND               0xAB15U /* ROM: 0x40830920 (Apple ROM map name) */
+#define TRAP_PINIT                   0xAB16U /* ROM: 0x4082C3F0 (Apple ROM map name) */
+#define TRAP_PORTTOMAP               0xAB17U /* ROM: 0x408300D0 (Apple ROM map name) */
+#define TRAP_PUSHVERB                0xAB18U /* ROM: 0x4082C410 (Apple ROM map name) */
+#define TRAP_PUTLINE                 0xAB19U /* ROM: 0x40829890 (Apple ROM map name) */
+#define TRAP_PUTOVAL                 0xAB1AU /* ROM: 0x4083D030 (Apple ROM map name) */
+#define TRAP_PUTRGN                  0xAB1BU /* ROM: 0x4083BD10 (Apple ROM map name) */
+#define TRAP_NEWTEMPBUFFER           0xAB1CU /* ROM: 0x408314A0 (Apple ROM map name) */
+#define TRAP_QDExtensions            0xAB1DU /* ROM: 0x4083FA60 */
+#define TRAP_DISPOSETEMPBUFFER       0xAB1EU /* ROM: 0x40831510 (Apple ROM map name) */
+#define TRAP_RGNBLT                  0xAB1FU /* ROM: 0x4082A6E0 (Apple ROM map name) */
+#define TRAP_RGNOP                   0xAB20U /* ROM: 0x4083D250 (Apple ROM map name) */
+#define TRAP_RSECT                   0xAB21U /* ROM: 0x4082C6D4 (Apple ROM map name) */
+#define TRAP_SEEKRGN                 0xAB22U /* ROM: 0x40836A10 (Apple ROM map name) */
+#define TRAP_SETFILLPAT              0xAB23U /* ROM: 0x40830780 (Apple ROM map name) */
+#define TRAP_SETUPSTRETCH            0xAB24U /* ROM: 0x40838440 (Apple ROM map name) */
+#define TRAP_SLABMODE                0xAB25U /* ROM: 0x4082FEE0 (Apple ROM map name) */
+#define TRAP_SORTPOINTS              0xAB26U /* ROM: 0x4083BC30 (Apple ROM map name) */
+#define TRAP_STRETCHBITS             0xAB27U /* ROM: 0x40836B60 (Apple ROM map name) */
+#define TRAP_STDDEVLOOP              0xAB28U /* ROM: 0x4082C1E0 (Apple ROM map name) */
+#define TRAP_TRIMRECT                0xAB29U /* ROM: 0x40836520 (Apple ROM map name) */
+#define TRAP_XORSLAB                 0xAB2AU /* ROM: 0x4082F110 (Apple ROM map name) */
+#define TRAP_EXTBL                   0xAB2BU /* ROM: 0x4083852C (Apple ROM map name) */
 #define TRAP_ToolboxTrap_AB2C        0xAB2CU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AB2D        0xAB2DU /* ROM: 0x40831460 */
-#define TRAP_ToolboxTrap_AB2E        0xAB2EU /* ROM: 0x4083854C */
+#define TRAP_NEWTEMPHANDLE           0xAB2DU /* ROM: 0x40831460 (Apple ROM map name) */
+#define TRAP_PATEXTBL                0xAB2EU /* ROM: 0x4083854C (Apple ROM map name) */
 #define TRAP_ToolboxTrap_AB2F        0xAB2FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AB30        0xAB30U /* ROM: 0x4082CE12 */
-#define TRAP_ToolboxTrap_AB31        0xAB31U /* ROM: 0x4082CE42 */
-#define TRAP_ToolboxTrap_AB32        0xAB32U /* ROM: 0x4082CE62 */
-#define TRAP_ToolboxTrap_AB33        0xAB33U /* ROM: 0x4082CE82 */
-#define TRAP_ToolboxTrap_AB34        0xAB34U /* ROM: 0x4082CFC0 */
-#define TRAP_ToolboxTrap_AB35        0xAB35U /* ROM: 0x4082D062 */
-#define TRAP_ToolboxTrap_AB36        0xAB36U /* ROM: 0x4082D0B0 */
-#define TRAP_ToolboxTrap_AB37        0xAB37U /* ROM: 0x4082D132 */
-#define TRAP_ToolboxTrap_AB38        0xAB38U /* ROM: 0x4082D1B0 */
-#define TRAP_ToolboxTrap_AB39        0xAB39U /* ROM: 0x4082D202 */
-#define TRAP_ToolboxTrap_AB3A        0xAB3AU /* ROM: 0x4082D262 */
-#define TRAP_ToolboxTrap_AB3B        0xAB3BU /* ROM: 0x4082D282 */
-#define TRAP_ToolboxTrap_AB3C        0xAB3CU /* ROM: 0x4082CEA2 */
-#define TRAP_ToolboxTrap_AB3D        0xAB3DU /* ROM: 0x4082CED2 */
-#define TRAP_ToolboxTrap_AB3E        0xAB3EU /* ROM: 0x4082DD40 */
-#define TRAP_ToolboxTrap_AB3F        0xAB3FU /* ROM: 0x4082CF02 */
-#define TRAP_ToolboxTrap_AB40        0xAB40U /* ROM: 0x4082CE10 */
-#define TRAP_ToolboxTrap_AB41        0xAB41U /* ROM: 0x4082CE40 */
-#define TRAP_ToolboxTrap_AB42        0xAB42U /* ROM: 0x4082CE60 */
-#define TRAP_ToolboxTrap_AB43        0xAB43U /* ROM: 0x4082CE80 */
-#define TRAP_ToolboxTrap_AB44        0xAB44U /* ROM: 0x4082CF30 */
-#define TRAP_ToolboxTrap_AB45        0xAB45U /* ROM: 0x4082D060 */
-#define TRAP_ToolboxTrap_AB46        0xAB46U /* ROM: 0x4082D080 */
-#define TRAP_ToolboxTrap_AB47        0xAB47U /* ROM: 0x4082D130 */
-#define TRAP_ToolboxTrap_AB48        0xAB48U /* ROM: 0x4082D150 */
-#define TRAP_ToolboxTrap_AB49        0xAB49U /* ROM: 0x4082D200 */
-#define TRAP_ToolboxTrap_AB4A        0xAB4AU /* ROM: 0x4082D230 */
-#define TRAP_ToolboxTrap_AB4B        0xAB4BU /* ROM: 0x4082D280 */
-#define TRAP_ToolboxTrap_AB4C        0xAB4CU /* ROM: 0x4082CEA0 */
-#define TRAP_ToolboxTrap_AB4D        0xAB4DU /* ROM: 0x4082CED0 */
-#define TRAP_ToolboxTrap_AB4E        0xAB4EU /* ROM: 0x4082DE10 */
-#define TRAP_ToolboxTrap_AB4F        0xAB4FU /* ROM: 0x4082CF00 */
-#define TRAP_ToolboxTrap_AB50        0xAB50U /* ROM: 0x4082DAD0 */
-#define TRAP_ToolboxTrap_AB51        0xAB51U /* ROM: 0x4082D450 */
-#define TRAP_ToolboxTrap_AB52        0xAB52U /* ROM: 0x4082D340 */
-#define TRAP_ToolboxTrap_AB53        0xAB53U /* ROM: 0x4082D6E0 */
-#define TRAP_ToolboxTrap_AB54        0xAB54U /* ROM: 0x4082DE80 */
-#define TRAP_ToolboxTrap_AB55        0xAB55U /* ROM: 0x4082D870 */
-#define TRAP_ToolboxTrap_AB56        0xAB56U /* ROM: 0x4082D5D0 */
-#define TRAP_ToolboxTrap_AB57        0xAB57U /* ROM: 0x4082D9A0 */
-#define TRAP_ToolboxTrap_AB58        0xAB58U /* ROM: 0x4082CD90 */
-#define TRAP_ToolboxTrap_AB59        0xAB59U /* ROM: 0x4082CD40 */
-#define TRAP_ToolboxTrap_AB5A        0xAB5AU /* ROM: 0x4082ACC0 */
-#define TRAP_ToolboxTrap_AB5B        0xAB5BU /* ROM: 0x4082AE5A */
-#define TRAP_ToolboxTrap_AB5C        0xAB5CU /* ROM: 0x4082AEBA */
-#define TRAP_ToolboxTrap_AB5D        0xAB5DU /* ROM: 0x4082AF1A */
-#define TRAP_ToolboxTrap_AB5E        0xAB5EU /* ROM: 0x4082B0EC */
-#define TRAP_ToolboxTrap_AB5F        0xAB5FU /* ROM: 0x4082B16E */
-#define TRAP_ToolboxTrap_AB60        0xAB60U /* ROM: 0x4082B1DC */
-#define TRAP_ToolboxTrap_AB61        0xAB61U /* ROM: 0x4082B22E */
-#define TRAP_ToolboxTrap_AB62        0xAB62U /* ROM: 0x4082B260 */
-#define TRAP_ToolboxTrap_AB63        0xAB63U /* ROM: 0x4082B2D2 */
-#define TRAP_ToolboxTrap_AB64        0xAB64U /* ROM: 0x4082B350 */
-#define TRAP_ToolboxTrap_AB65        0xAB65U /* ROM: 0x4082B390 */
-#define TRAP_ToolboxTrap_AB66        0xAB66U /* ROM: 0x4082BBB0 */
-#define TRAP_ToolboxTrap_AB67        0xAB67U /* ROM: 0x4082B4C0 */
-#define TRAP_ToolboxTrap_AB68        0xAB68U /* ROM: 0x4082B3A0 */
-#define TRAP_ToolboxTrap_AB69        0xAB69U /* ROM: 0x4082B790 */
-#define TRAP_ToolboxTrap_AB6A        0xAB6AU /* ROM: 0x4082C060 */
-#define TRAP_ToolboxTrap_AB6B        0xAB6BU /* ROM: 0x4082B930 */
-#define TRAP_ToolboxTrap_AB6C        0xAB6CU /* ROM: 0x4082B660 */
-#define TRAP_ToolboxTrap_AB6D        0xAB6DU /* ROM: 0x4082BA70 */
-#define TRAP_ToolboxTrap_AB6E        0xAB6EU /* ROM: 0x4082AF60 */
-#define TRAP_ToolboxTrap_AB6F        0xAB6FU /* ROM: 0x4082B00A */
-#define TRAP_ToolboxTrap_AB70        0xAB70U /* ROM: 0x4082BFD0 */
-#define TRAP_ToolboxTrap_AB71        0xAB71U /* ROM: 0x4082B07A */
-#define TRAP_ToolboxTrap_AB72        0xAB72U /* ROM: 0x4082BE90 */
-#define TRAP_ToolboxTrap_AB73        0xAB73U /* ROM: 0x408379F0 */
-#define TRAP_ToolboxTrap_AB74        0xAB74U /* ROM: 0x40837A20 */
-#define TRAP_ToolboxTrap_AB75        0xAB75U /* ROM: 0x40837A40 */
-#define TRAP_ToolboxTrap_AB76        0xAB76U /* ROM: 0x40837A60 */
-#define TRAP_ToolboxTrap_AB77        0xAB77U /* ROM: 0x40837CC0 */
-#define TRAP_ToolboxTrap_AB78        0xAB78U /* ROM: 0x40837AD0 */
-#define TRAP_ToolboxTrap_AB79        0xAB79U /* ROM: 0x40837A80 */
-#define TRAP_ToolboxTrap_AB7A        0xAB7AU /* ROM: 0x40837B90 */
-#define TRAP_ToolboxTrap_AB7B        0xAB7BU /* ROM: 0x40837D20 */
-#define TRAP_ToolboxTrap_AB7C        0xAB7CU /* ROM: 0x40837C00 */
-#define TRAP_ToolboxTrap_AB7D        0xAB7DU /* ROM: 0x40837B40 */
-#define TRAP_ToolboxTrap_AB7E        0xAB7EU /* ROM: 0x40837C60 */
-#define TRAP_ToolboxTrap_AB7F        0xAB7FU /* ROM: 0x40837D60 */
-#define TRAP_ToolboxTrap_AB80        0xAB80U /* ROM: 0x4082F1C4 */
-#define TRAP_ToolboxTrap_AB81        0xAB81U /* ROM: 0x4082F1E6 */
-#define TRAP_ToolboxTrap_AB82        0xAB82U /* ROM: 0x4082F1FC */
-#define TRAP_AppPacks                0xAB83U /* ROM: 0x4082F226 */
-#define TRAP_ToolboxTrap_AB84        0xAB84U /* ROM: 0x4082F230 */
-#define TRAP_ToolboxTrap_AB85        0xAB85U /* ROM: 0x4082F270 */
-#define TRAP_ToolboxTrap_AB86        0xAB86U /* ROM: 0x4082F2B0 */
-#define TRAP_ToolboxTrap_AB87        0xAB87U /* ROM: 0x4082F2F0 */
-#define TRAP_ToolboxTrap_AB88        0xAB88U /* ROM: 0x4082F670 */
-#define TRAP_ToolboxTrap_AB89        0xAB89U /* ROM: 0x4082F3E0 */
-#define TRAP_ToolboxTrap_AB8A        0xAB8AU /* ROM: 0x4082F330 */
-#define TRAP_ToolboxTrap_AB8B        0xAB8BU /* ROM: 0x4082F4E0 */
-#define TRAP_ToolboxTrap_AB8C        0xAB8CU /* ROM: 0x4082F790 */
-#define TRAP_ToolboxTrap_AB8D        0xAB8DU /* ROM: 0x4082F570 */
-#define TRAP_ToolboxTrap_AB8E        0xAB8EU /* ROM: 0x4082F470 */
-#define TRAP_ToolboxTrap_AB8F        0xAB8FU /* ROM: 0x4082F5F0 */
-#define TRAP_ToolboxTrap_AB90        0xAB90U /* ROM: 0x4082F720 */
-#define TRAP_ToolboxTrap_AB91        0xAB91U /* ROM: 0x4083C250 */
-#define TRAP_ToolboxTrap_AB92        0xAB92U /* ROM: 0x4083C3A0 */
+#define TRAP_BMAIN0                  0xAB30U /* ROM: 0x4082CE12 (Apple ROM map name) */
+#define TRAP_BMAIN1                  0xAB31U /* ROM: 0x4082CE42 (Apple ROM map name) */
+#define TRAP_BMAIN2                  0xAB32U /* ROM: 0x4082CE62 (Apple ROM map name) */
+#define TRAP_BMAIN3                  0xAB33U /* ROM: 0x4082CE82 (Apple ROM map name) */
+#define TRAP_BSETUP8                 0xAB34U /* ROM: 0x4082CFC0 (Apple ROM map name) */
+#define TRAP_BMAIN9                  0xAB35U /* ROM: 0x4082D062 (Apple ROM map name) */
+#define TRAP_BSETUP10                0xAB36U /* ROM: 0x4082D0B0 (Apple ROM map name) */
+#define TRAP_BMAIN11                 0xAB37U /* ROM: 0x4082D132 (Apple ROM map name) */
+#define TRAP_BXMAIN8                 0xAB38U /* ROM: 0x4082D1B0 (Apple ROM map name) */
+#define TRAP_BXMAIN9                 0xAB39U /* ROM: 0x4082D202 (Apple ROM map name) */
+#define TRAP_BXMAIN10                0xAB3AU /* ROM: 0x4082D262 (Apple ROM map name) */
+#define TRAP_BXMAIN11                0xAB3BU /* ROM: 0x4082D282 (Apple ROM map name) */
+#define TRAP_BCMAIN0                 0xAB3CU /* ROM: 0x4082CEA2 (Apple ROM map name) */
+#define TRAP_BCMAIN1                 0xAB3DU /* ROM: 0x4082CED2 (Apple ROM map name) */
+#define TRAP_BHILITE                 0xAB3EU /* ROM: 0x4082DD40 (Apple ROM map name) */
+#define TRAP_BCMAIN3                 0xAB3FU /* ROM: 0x4082CF02 (Apple ROM map name) */
+#define TRAP_BEND0                   0xAB40U /* ROM: 0x4082CE10 (Apple ROM map name) */
+#define TRAP_BEND1                   0xAB41U /* ROM: 0x4082CE40 (Apple ROM map name) */
+#define TRAP_BEND2                   0xAB42U /* ROM: 0x4082CE60 (Apple ROM map name) */
+#define TRAP_BEND3                   0xAB43U /* ROM: 0x4082CE80 (Apple ROM map name) */
+#define TRAP_BLONG8                  0xAB44U /* ROM: 0x4082CF30 (Apple ROM map name) */
+#define TRAP_BEND9                   0xAB45U /* ROM: 0x4082D060 (Apple ROM map name) */
+#define TRAP_BEND10                  0xAB46U /* ROM: 0x4082D080 (Apple ROM map name) */
+#define TRAP_BEND11                  0xAB47U /* ROM: 0x4082D130 (Apple ROM map name) */
+#define TRAP_BXLONG8                 0xAB48U /* ROM: 0x4082D150 (Apple ROM map name) */
+#define TRAP_BXEND9                  0xAB49U /* ROM: 0x4082D200 (Apple ROM map name) */
+#define TRAP_BXEND10                 0xAB4AU /* ROM: 0x4082D230 (Apple ROM map name) */
+#define TRAP_BXEND11                 0xAB4BU /* ROM: 0x4082D280 (Apple ROM map name) */
+#define TRAP_BCEND0                  0xAB4CU /* ROM: 0x4082CEA0 (Apple ROM map name) */
+#define TRAP_BCEND1                  0xAB4DU /* ROM: 0x4082CED0 (Apple ROM map name) */
+#define TRAP_BSLOHILITE              0xAB4EU /* ROM: 0x4082DE10 (Apple ROM map name) */
+#define TRAP_BCEND3                  0xAB4FU /* ROM: 0x4082CF00 (Apple ROM map name) */
+#define TRAP_BAVG                    0xAB50U /* ROM: 0x4082DAD0 (Apple ROM map name) */
+#define TRAP_BADDPIN                 0xAB51U /* ROM: 0x4082D450 (Apple ROM map name) */
+#define TRAP_BADDOVER                0xAB52U /* ROM: 0x4082D340 (Apple ROM map name) */
+#define TRAP_BSUBPIN                 0xAB53U /* ROM: 0x4082D6E0 (Apple ROM map name) */
+#define TRAP_BTRANSPARENT            0xAB54U /* ROM: 0x4082DE80 (Apple ROM map name) */
+#define TRAP_BMAX                    0xAB55U /* ROM: 0x4082D870 (Apple ROM map name) */
+#define TRAP_BSUBOVER                0xAB56U /* ROM: 0x4082D5D0 (Apple ROM map name) */
+#define TRAP_BMIN                    0xAB57U /* ROM: 0x4082D9A0 (Apple ROM map name) */
+#define TRAP_BSETUP0                 0xAB58U /* ROM: 0x4082CD90 (Apple ROM map name) */
+#define TRAP_BLEFT0                  0xAB59U /* ROM: 0x4082CD40 (Apple ROM map name) */
+#define TRAP_RMASK0                  0xAB5AU /* ROM: 0x4082ACC0 (Apple ROM map name) */
+#define TRAP_RMASK1                  0xAB5BU /* ROM: 0x4082AE5A (Apple ROM map name) */
+#define TRAP_RMASK2                  0xAB5CU /* ROM: 0x4082AEBA (Apple ROM map name) */
+#define TRAP_RMASK3                  0xAB5DU /* ROM: 0x4082AF1A (Apple ROM map name) */
+#define TRAP_RMASK8                  0xAB5EU /* ROM: 0x4082B0EC (Apple ROM map name) */
+#define TRAP_RMASK9                  0xAB5FU /* ROM: 0x4082B16E (Apple ROM map name) */
+#define TRAP_RMASK10                 0xAB60U /* ROM: 0x4082B1DC (Apple ROM map name) */
+#define TRAP_RMASK11                 0xAB61U /* ROM: 0x4082B22E (Apple ROM map name) */
+#define TRAP_RXMASK8                 0xAB62U /* ROM: 0x4082B260 (Apple ROM map name) */
+#define TRAP_RXMASK9                 0xAB63U /* ROM: 0x4082B2D2 (Apple ROM map name) */
+#define TRAP_RXMASK10                0xAB64U /* ROM: 0x4082B350 (Apple ROM map name) */
+#define TRAP_RXMASK11                0xAB65U /* ROM: 0x4082B390 (Apple ROM map name) */
+#define TRAP_RAVG                    0xAB66U /* ROM: 0x4082BBB0 (Apple ROM map name) */
+#define TRAP_RADDPIN                 0xAB67U /* ROM: 0x4082B4C0 (Apple ROM map name) */
+#define TRAP_RADDOVER                0xAB68U /* ROM: 0x4082B3A0 (Apple ROM map name) */
+#define TRAP_RSUBPIN                 0xAB69U /* ROM: 0x4082B790 (Apple ROM map name) */
+#define TRAP_RTRANSPARENT            0xAB6AU /* ROM: 0x4082C060 (Apple ROM map name) */
+#define TRAP_RMAX                    0xAB6BU /* ROM: 0x4082B930 (Apple ROM map name) */
+#define TRAP_RSUBOVER                0xAB6CU /* ROM: 0x4082B660 (Apple ROM map name) */
+#define TRAP_RMIN                    0xAB6DU /* ROM: 0x4082BA70 (Apple ROM map name) */
+#define TRAP_RCMASK0                 0xAB6EU /* ROM: 0x4082AF60 (Apple ROM map name) */
+#define TRAP_RCMASK1                 0xAB6FU /* ROM: 0x4082B00A (Apple ROM map name) */
+#define TRAP_RSLOWHILITE             0xAB70U /* ROM: 0x4082BFD0 (Apple ROM map name) */
+#define TRAP_RCMASK3                 0xAB71U /* ROM: 0x4082B07A (Apple ROM map name) */
+#define TRAP_RHILITE                 0xAB72U /* ROM: 0x4082BE90 (Apple ROM map name) */
+#define TRAP_STMASK0                 0xAB73U /* ROM: 0x408379F0 (Apple ROM map name) */
+#define TRAP_STMASK1                 0xAB74U /* ROM: 0x40837A20 (Apple ROM map name) */
+#define TRAP_STMASK2                 0xAB75U /* ROM: 0x40837A40 (Apple ROM map name) */
+#define TRAP_STMASK3                 0xAB76U /* ROM: 0x40837A60 (Apple ROM map name) */
+#define TRAP_STAVG                   0xAB77U /* ROM: 0x40837CC0 (Apple ROM map name) */
+#define TRAP_STADDPIN                0xAB78U /* ROM: 0x40837AD0 (Apple ROM map name) */
+#define TRAP_STADDOVER               0xAB79U /* ROM: 0x40837A80 (Apple ROM map name) */
+#define TRAP_STSUBPIN                0xAB7AU /* ROM: 0x40837B90 (Apple ROM map name) */
+#define TRAP_STTRANSPARENT           0xAB7BU /* ROM: 0x40837D20 (Apple ROM map name) */
+#define TRAP_STMAX                   0xAB7CU /* ROM: 0x40837C00 (Apple ROM map name) */
+#define TRAP_STSUBOVER               0xAB7DU /* ROM: 0x40837B40 (Apple ROM map name) */
+#define TRAP_STMIN                   0xAB7EU /* ROM: 0x40837C60 (Apple ROM map name) */
+#define TRAP_STHILITE                0xAB7FU /* ROM: 0x40837D60 (Apple ROM map name) */
+#define TRAP_SLMASK8                 0xAB80U /* ROM: 0x4082F1C4 (Apple ROM map name) */
+#define TRAP_SLMASK9                 0xAB81U /* ROM: 0x4082F1E6 (Apple ROM map name) */
+#define TRAP_SLMASK10                0xAB82U /* ROM: 0x4082F1FC (Apple ROM map name) */
+#define TRAP_SLMASK11                0xAB83U /* ROM: 0x4082F226 (Apple ROM map name) */
+#define TRAP_SLXMASK8                0xAB84U /* ROM: 0x4082F230 (Apple ROM map name) */
+#define TRAP_SLXMASK9                0xAB85U /* ROM: 0x4082F270 (Apple ROM map name) */
+#define TRAP_SLXMASK10               0xAB86U /* ROM: 0x4082F2B0 (Apple ROM map name) */
+#define TRAP_SLXMASK11               0xAB87U /* ROM: 0x4082F2F0 (Apple ROM map name) */
+#define TRAP_SLAVG                   0xAB88U /* ROM: 0x4082F670 (Apple ROM map name) */
+#define TRAP_SLADDPIN                0xAB89U /* ROM: 0x4082F3E0 (Apple ROM map name) */
+#define TRAP_SLADDOVER               0xAB8AU /* ROM: 0x4082F330 (Apple ROM map name) */
+#define TRAP_SLSUBPIN                0xAB8BU /* ROM: 0x4082F4E0 (Apple ROM map name) */
+#define TRAP_SLTRANSPARENT           0xAB8CU /* ROM: 0x4082F790 (Apple ROM map name) */
+#define TRAP_SLMAX                   0xAB8DU /* ROM: 0x4082F570 (Apple ROM map name) */
+#define TRAP_SLSUBOVER               0xAB8EU /* ROM: 0x4082F470 (Apple ROM map name) */
+#define TRAP_SLMIN                   0xAB8FU /* ROM: 0x4082F5F0 (Apple ROM map name) */
+#define TRAP_SLHILITE                0xAB90U /* ROM: 0x4082F720 (Apple ROM map name) */
+#define TRAP_ITABMATCH               0xAB91U /* ROM: 0x4083C250 (Apple ROM map name) */
+#define TRAP_COLORTHING2INDEX        0xAB92U /* ROM: 0x4083C3A0 (Apple ROM map name) */
 #define TRAP_ToolboxTrap_AB93        0xAB93U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_AB94        0xAB94U /* ROM: 0x4083AF0A */
-#define TRAP_ToolboxTrap_AB95        0xAB95U /* ROM: 0x408369C0 */
-#define TRAP_ToolboxTrap_AB96        0xAB96U /* ROM: 0x40839DD0 */
-#define TRAP_ToolboxTrap_AB97        0xAB97U /* ROM: 0x40837980 */
-#define TRAP_ToolboxTrap_AB98        0xAB98U /* ROM: 0x40836D24 */
-#define TRAP_ToolboxTrap_AB99        0xAB99U /* ROM: 0x408374D0 */
-#define TRAP_ToolboxTrap_AB9A        0xAB9AU /* ROM: 0x40831F60 */
-#define TRAP_ToolboxTrap_AB9B        0xAB9BU /* ROM: 0x4083C144 */
-#define TRAP_ToolboxTrap_AB9C        0xAB9CU /* ROM: 0x40829EA0 */
-#define TRAP_ToolboxTrap_AB9D        0xAB9DU /* ROM: 0x4082A080 */
-#define TRAP_ToolboxTrap_AB9E        0xAB9EU /* ROM: 0x40835200 */
+#define TRAP_ALLOCRUNBUF             0xAB94U /* ROM: 0x4083AF0A (Apple ROM map name) */
+#define TRAP_INITRGN                 0xAB95U /* ROM: 0x408369C0 (Apple ROM map name) */
+#define TRAP_SCALEBLT                0xAB96U /* ROM: 0x40839DD0 (Apple ROM map name) */
+#define TRAP_STNOSTACK               0xAB97U /* ROM: 0x40837980 (Apple ROM map name) */
+#define TRAP_BLITCASE                0xAB98U /* ROM: 0x40836D24 (Apple ROM map name) */
+#define TRAP_STSCANLOOP              0xAB99U /* ROM: 0x408374D0 (Apple ROM map name) */
+#define TRAP_PICITEM1                0xAB9AU /* ROM: 0x40831F60 (Apple ROM map name) */
+#define TRAP_MAKEGRAYITAB            0xAB9BU /* ROM: 0x4083C144 (Apple ROM map name) */
+#define TRAP_FASTLINE                0xAB9CU /* ROM: 0x40829EA0 (Apple ROM map name) */
+#define TRAP_FASTSLANT               0xAB9DU /* ROM: 0x4082A080 (Apple ROM map name) */
+#define TRAP_BITSDEVLOOP             0xAB9EU /* ROM: 0x40835200 (Apple ROM map name) */
 #define TRAP_ToolboxTrap_AB9F        0xAB9FU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABA0        0xABA0U /* ROM: 0x4082AC5C */
-#define TRAP_ToolboxTrap_ABA1        0xABA1U /* ROM: 0x4082AC80 */
-#define TRAP_ToolboxTrap_ABA2        0xABA2U /* ROM: 0x4082ACA4 */
-#define TRAP_ToolboxTrap_ABA3        0xABA3U /* ROM: 0x4083B084 */
-#define TRAP_ToolboxTrap_ABA4        0xABA4U /* ROM: 0x4083B09C */
-#define TRAP_ToolboxTrap_ABA5        0xABA5U /* ROM: 0x4083B0B4 */
-#define TRAP_ToolboxTrap_ABA6        0xABA6U /* ROM: 0x408383F4 */
-#define TRAP_ToolboxTrap_ABA7        0xABA7U /* ROM: 0x40838418 */
-#define TRAP_ToolboxTrap_ABA8        0xABA8U /* ROM: 0x40837030 */
-#define TRAP_ToolboxTrap_ABA9        0xABA9U /* ROM: 0x40837050 */
-#define TRAP_ToolboxTrap_ABAA        0xABAAU /* ROM: 0x40837070 */
-#define TRAP_ToolboxTrap_ABAB        0xABABU /* ROM: 0x40839380 */
-#define TRAP_ToolboxTrap_ABAC        0xABACU /* ROM: 0x4083A614 */
-#define TRAP_ToolboxTrap_ABAD        0xABADU /* ROM: 0x4083A624 */
-#define TRAP_ToolboxTrap_ABAE        0xABAEU /* ROM: 0x4083A634 */
-#define TRAP_ToolboxTrap_ABAF        0xABAFU /* ROM: 0x4083A644 */
-#define TRAP_ToolboxTrap_ABB0        0xABB0U /* ROM: 0x4083A654 */
-#define TRAP_ToolboxTrap_ABB1        0xABB1U /* ROM: 0x4083A664 */
-#define TRAP_ToolboxTrap_ABB2        0xABB2U /* ROM: 0x4083A554 */
-#define TRAP_ToolboxTrap_ABB3        0xABB3U /* ROM: 0x4083A574 */
-#define TRAP_ToolboxTrap_ABB4        0xABB4U /* ROM: 0x4083A594 */
-#define TRAP_ToolboxTrap_ABB5        0xABB5U /* ROM: 0x4083A5B4 */
-#define TRAP_ToolboxTrap_ABB6        0xABB6U /* ROM: 0x4083A5D4 */
-#define TRAP_ToolboxTrap_ABB7        0xABB7U /* ROM: 0x4083A5F4 */
-#define TRAP_ToolboxTrap_ABB8        0xABB8U /* ROM: 0x4082CCE0 */
-#define TRAP_ToolboxTrap_ABB9        0xABB9U /* ROM: 0x4082CD04 */
-#define TRAP_ToolboxTrap_ABBA        0xABBAU /* ROM: 0x4082CD28 */
-#define TRAP_ToolboxTrap_ABBB        0xABBBU /* ROM: 0x4082D2F0 */
-#define TRAP_ToolboxTrap_ABBC        0xABBCU /* ROM: 0x4082D2B0 */
-#define TRAP_ToolboxTrap_ABBD        0xABBDU /* ROM: 0x4082FF70 */
-#define TRAP_ToolboxTrap_ABBE        0xABBEU /* ROM: 0x4082FF94 */
+#define TRAP_RARITH16TAB             0xABA0U /* ROM: 0x4082AC5C (Apple ROM map name) */
+#define TRAP_RARITH32TAB             0xABA1U /* ROM: 0x4082AC80 (Apple ROM map name) */
+#define TRAP_RHILITETAB              0xABA2U /* ROM: 0x4082ACA4 (Apple ROM map name) */
+#define TRAP_GSRUNTBL                0xABA3U /* ROM: 0x4083B084 (Apple ROM map name) */
+#define TRAP_GSEXPTBL                0xABA4U /* ROM: 0x4083B09C (Apple ROM map name) */
+#define TRAP_GSSEEKTBL               0xABA5U /* ROM: 0x4083B0B4 (Apple ROM map name) */
+#define TRAP_STARITH16TAB            0xABA6U /* ROM: 0x408383F4 (Apple ROM map name) */
+#define TRAP_STARITH32TAB            0xABA7U /* ROM: 0x40838418 (Apple ROM map name) */
+#define TRAP_STCOLORTAB              0xABA8U /* ROM: 0x40837030 (Apple ROM map name) */
+#define TRAP_STGRAYTAB               0xABA9U /* ROM: 0x40837050 (Apple ROM map name) */
+#define TRAP_STSEARCHTAB             0xABAAU /* ROM: 0x40837070 (Apple ROM map name) */
+#define TRAP_SCALEINDEXEDTOINDEXED   0xABABU /* ROM: 0x40839380 (Apple ROM map name) */
+#define TRAP_SCINDTAB1               0xABACU /* ROM: 0x4083A614 (Apple ROM map name) */
+#define TRAP_SCINDTAB2               0xABADU /* ROM: 0x4083A624 (Apple ROM map name) */
+#define TRAP_SCINDTAB4               0xABAEU /* ROM: 0x4083A634 (Apple ROM map name) */
+#define TRAP_SCINDTAB8               0xABAFU /* ROM: 0x4083A644 (Apple ROM map name) */
+#define TRAP_SCINDTAB16              0xABB0U /* ROM: 0x4083A654 (Apple ROM map name) */
+#define TRAP_SCINDTAB32              0xABB1U /* ROM: 0x4083A664 (Apple ROM map name) */
+#define TRAP_SCDIRTAB1               0xABB2U /* ROM: 0x4083A554 (Apple ROM map name) */
+#define TRAP_SCDIRTAB2               0xABB3U /* ROM: 0x4083A574 (Apple ROM map name) */
+#define TRAP_SCDIRTAB4               0xABB4U /* ROM: 0x4083A594 (Apple ROM map name) */
+#define TRAP_SCDIRTAB8               0xABB5U /* ROM: 0x4083A5B4 (Apple ROM map name) */
+#define TRAP_SCDIRTAB16              0xABB6U /* ROM: 0x4083A5D4 (Apple ROM map name) */
+#define TRAP_SCDIRTAB32              0xABB7U /* ROM: 0x4083A5F4 (Apple ROM map name) */
+#define TRAP_BARITH16TAB             0xABB8U /* ROM: 0x4082CCE0 (Apple ROM map name) */
+#define TRAP_BARITH32TAB             0xABB9U /* ROM: 0x4082CD04 (Apple ROM map name) */
+#define TRAP_BHILITETAB              0xABBAU /* ROM: 0x4082CD28 (Apple ROM map name) */
+#define TRAP_BARITH16SETUP           0xABBBU /* ROM: 0x4082D2F0 (Apple ROM map name) */
+#define TRAP_BARITH32SETUP           0xABBCU /* ROM: 0x4082D2B0 (Apple ROM map name) */
+#define TRAP_SLARITH16TAB            0xABBDU /* ROM: 0x4082FF70 (Apple ROM map name) */
+#define TRAP_SLARITH32TAB            0xABBEU /* ROM: 0x4082FF94 (Apple ROM map name) */
 #define TRAP_ToolboxTrap_ABBF        0xABBFU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC0        0xABC0U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC1        0xABC1U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC2        0xABC2U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABC3        0xABC3U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_NQDMisc                 0xABC3U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC4        0xABC4U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC5        0xABC5U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC6        0xABC6U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC7        0xABC7U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABC8        0xABC8U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABC9        0xABC9U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABCA        0xABCAU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_IconDispatch            0xABC9U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DeviceLoop              0xABCAU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABCB        0xABCBU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABCC        0xABCCU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABCD        0xABCDU /* ROM: 0x40809AE6 (unimplemented) */
@@ -1268,7 +1268,7 @@ extern "C" {
 #define TRAP_ToolboxTrap_ABDD        0xABDDU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABDE        0xABDEU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABDF        0xABDFU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABE0        0xABE0U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_QDExtensions2           0xABE0U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABE1        0xABE1U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABE2        0xABE2U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABE3        0xABE3U /* ROM: 0x40809AE6 (unimplemented) */
@@ -1279,27 +1279,27 @@ extern "C" {
 #define TRAP_ToolboxTrap_ABE8        0xABE8U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABE9        0xABE9U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABEA        0xABEAU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABEB        0xABEBU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DisplayDispatch         0xABEBU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABEC        0xABECU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABED        0xABEDU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DragDispatch            0xABEDU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABEE        0xABEEU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABEF        0xABEFU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABF0        0xABF0U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABF1        0xABF1U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABF2        0xABF2U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_GestaltValueDispatch    0xABF1U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_ThreadDispatch          0xABF2U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABF3        0xABF3U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABF4        0xABF4U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABF5        0xABF5U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABF6        0xABF6U /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_CollectionMgr           0xABF6U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABF7        0xABF7U /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABF8        0xABF8U /* ROM: 0x40831B30 */
+#define TRAP_StdOpcodeProc           0xABF8U /* ROM: 0x40831B30 */
 #define TRAP_ToolboxTrap_ABF9        0xABF9U /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABFA        0xABFAU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABFB        0xABFBU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABFC        0xABFCU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_TranslationDispatch     0xABFCU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABFD        0xABFDU /* ROM: 0x40809AE6 (unimplemented) */
 #define TRAP_ToolboxTrap_ABFE        0xABFEU /* ROM: 0x40809AE6 (unimplemented) */
-#define TRAP_ToolboxTrap_ABFF        0xABFFU /* ROM: 0x40809AE6 (unimplemented) */
+#define TRAP_DebugStr                0xABFFU /* ROM: 0x40809AE6 (unimplemented) */
 
 typedef struct {
     uint16_t trap_num;
