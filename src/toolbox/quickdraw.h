@@ -28,7 +28,7 @@ typedef struct {
 
 /**
  * @brief Initializes QuickDraw graphics system and global variables.
- * Decompiled from QUADRA800.ROM at 0x40841530 (_InitGraf / $A86E).
+ * Decompiled from QUADRA800.ROM at 0x40831530 (_InitGraf / $A86E).
  */
 void MacInitGraf(Ptr global_ptr);
 

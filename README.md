@@ -41,7 +41,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 
 3. **Temporary Exception Vector Table (`0x40802E00`)**:
    * Sets temporary stack pointer `%sp = $2600`.
-   * Points `VBR` to ROM exception vector table at `0x40803D08`, pre-populated with Gary Davidian's trap handler (`0x47617279` / `'Gary'`).
+   * Points `VBR` to ROM exception vector table at `0x40803D00`, pre-populated with Gary Davidian's trap handler (`0x47617279` / `'Gary'`).
 
 4. **Hardware Identification & RAM Sizing**:
    * Looks up motherboard configuration table at `0x4080322C`. Quadra 800 is identified by Machine ID `0x0023` (BoxFlag 35).
@@ -56,7 +56,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
    * Sets `ROMBase` ($02AE) and `ROMBaseCopy` ($0DDC) = `0x40800000`.
    * Sets `SysZone` ($02A6) and `ApplZone` ($02AA).
 
-6. **Trap Dispatcher Installation & Unpacking (`0x40809A88`)**:
+6. **Trap Dispatcher Installation & Unpacking (`0x40809A96`)**:
    * Installs `_trap_dispatcher` (`0x408099B0`) at Vector 10 (`$0028`, Line 1010 Emulator).
    * Reads relative table offset at ROM header byte 34 (`$0022` -> `$000D3370`).
    * Unpacks 1,024 Toolbox Traps into `ToolboxTable` ($0E00).
@@ -64,7 +64,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 
 7. **Subsystem Launch**:
    * Calls `_SwapMMUMode` (`$A05D`) to enter 32-bit addressing mode.
-   * Initializes Color QuickDraw (`_InitGraf` at `0x40841530`), cursor, fonts, windows, menus, and Dialog Manager.
+   * Initializes Color QuickDraw (`_InitGraf` at `0x40831530`), cursor, fonts, windows, menus, and Dialog Manager.
    * Traverses NuBus Declaration ROM and mounts ROM Resource Map (`ROMMapHndl` at `$0B06`).
    * Invokes `'boot'` resource to locate startup volume (SCSI, Floppy, or CD-ROM).
 
@@ -92,7 +92,7 @@ src/
 │   └── lowmem_init.c / .h - Initialization of low-memory globals and vector table
 ├── traps/
 │   ├── trap_dispatcher.s  - A-Line Trap Dispatcher (vector 10, $0028) decompiled from 0x408099B0
-│   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A88
+│   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A96
 │   └── trap_table.c / .h  - Complete table of all 1,024 Toolbox Traps and 256 OS Traps
 ├── toolbox/
 │   ├── mem_manager.c / .h - Memory Manager (_NewPtr, _DisposPtr, _NewHandle, _DisposHandle, _HLock, _HUnlock)
@@ -115,43 +115,66 @@ src/
 
 ## 4. Building the ROM
 
-### Prerequisites
-* **Host C Compiler**: `gcc` / `clang` (for the analysis harness and host testing).
-* **Motorola 68000 Cross-Toolchain**: `m68k-suse-linux-gcc`, `m68k-elf-gcc`, or `m68k-linux-gnu-gcc` with GNU `as` and `ld`.
-* **Python 3**: For checksum validation and ROM binary composition.
-* **Emulator** (Optional for testing): `qemu-system-m68k` (with `q800` machine support) or `BasiliskII`.
+The build no longer needs the original `QUADRA800.ROM`. The whole ROM exists as
+68040 assembly source in `src/romsrc/`, produced by disassembling the original
+and checked to rebuild it **byte for byte**.
 
-### 1. Build the Entire Project & 1MB ROM
-From the `src/` directory, simply run:
+### Prerequisites
+* **Motorola 68000 Cross-Toolchain**: `m68k-suse-linux-gcc` with GNU `as`, `ld`, `objcopy`.
+* **Host C Compiler**: `gcc` (analysis harness only).
+* **Python 3**: ROM packaging, checksum, tests.
+* **Optional**: `qemu-system-m68k` (boot tests); Ghidra `analyzeHeadless` (only to regenerate `romsrc/`).
+
+### 1. Build the 1MB ROM
 
 ```bash
 make -C src rom
 ```
 
-This single command automatically:
-1. Compiles all C modules (`boot/`, `traps/`, `toolbox/`, `declrom/`) with the m68040 cross-compiler.
-2. Assembles `boot/reset.s` and `traps/trap_dispatcher.s`.
-3. Links all bare-metal objects using [`src/rom.ld`](file:///home/eder/Downloads/_IA_/REA/q800rom/src/rom.ld) into `build/q800_rom.elf`.
-4. Invokes [`src/tools/build_rom.py`](file:///home/eder/Downloads/_IA_/REA/q800rom/src/tools/build_rom.py) to package both:
-   * **`build/QUADRA800_REBUILT.ROM`**: A 1,048,576 byte (1MB) composite ROM injecting our recompiled 68040 CPU detect, cache/MMU setup, and fast A-line trap dispatcher into the Quadra 800 layout.
-   * **`build/QUADRA800_STANDALONE.ROM`**: A 1,048,576 byte (1MB) pure standalone ROM built from ELF sections and NuBus Format Block.
-5. Computes and stamps the classic 16-bit word addition checksum at offset `0x00000000` and validates the result.
+1. Assembles `src/romsrc/q800rom.s` (which includes `part_00.s` … `part_0F.s`) into
+   `build/QUADRA800_BASE.ROM` and checks it against `romsrc/q800rom.sha256`.
+2. Compiles and links the reconstructed C/assembly modules (`boot/`, `traps/`,
+   `toolbox/`, `declrom/`) into `build/q800_rom.elf` and `build/QUADRA800_STANDALONE.ROM`
+   (experimental; this image does not boot yet).
+3. Overlays the reconstructed `_early_cpu_detect` and `_trap_dispatcher` on the base image,
+   stamps the checksum and writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently
+   identical to the original ROM, checksum `0xF1ACAD13`).
 
-```text
-[*] Building Standalone 1MB ROM from ELF: ../build/q800_rom.elf
-    -> Computed Checksum: 0x174B0787
-[+] Successfully generated: ../build/QUADRA800_STANDALONE.ROM (1048576 bytes)
-[*] Building Overlay ROM from template: ../QUADRA800.ROM
-    -> Injected _early_cpu_detect (80 bytes) at offset 0x00004052
-    -> Injected _trap_dispatcher (120 bytes) at offset 0x000099B0
-    -> Verified NuBus Declaration ROM Format Block at 0x0FFFEC
-    -> Computed Checksum: 0xF1AF0BAE written to offset 0x00000000
-[+] Successfully generated: ../build/QUADRA800_REBUILT.ROM (1048576 bytes)
-ROM File:          ../build/QUADRA800_REBUILT.ROM (1048576 bytes)
-Stored Checksum:   0xF1AF0BAE
-Computed Checksum: 0xF1AF0BAE
-Status:            VALID
+### 2. Test it
+
+```bash
+make -C src test-boot    # headless QEMU: must reach the grey desktop with the cursor
+make -C src test-qemu    # interactive QEMU window
 ```
+
+`build/QUADRA800_REBUILT.ROM` boots QEMU's q800 machine to the desktop and boots
+Mac OS 8.1 to the Finder (`analysis/qemu_macos81_boot_rebuilt_rom.png`).
+
+### 3. The disassembled source (`src/romsrc/`)
+
+* Real instructions (MIT syntax, GNU as) with labels for every branch and PC-relative
+  target: `trap_GetResource`, `trap_InitGraf`, … for trap handlers (named from the live
+  trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources, `sub_XXXXXXXX` for other
+  functions, `loc_`/`dat_` for branch and data targets.
+* A-line trap calls are written as macros (`_GetResource`), defined in `romsrc/include/traps_gas.inc`.
+* Data (resources, fonts, sounds, tables, padding) is written as `.long`/`.short`/`.ascii`/`.fill`.
+* About 1% of instructions (mostly Apple's `jsr ([vector])` memory-indirect form, which uses an
+  encoding GNU as cannot produce) are written as raw `.short` words with the disassembly as a comment.
+* Absolute addresses and offset tables are still numbers. **Changing the size of code
+  is not safe yet**; same-size edits are.
+
+### 4. Regenerating `romsrc/` (needs an original ROM)
+
+```bash
+make -C src romsrc-regen ORIG_ROM=/path/to/QUADRA800.ROM
+```
+
+`tools/regen_romsrc.sh` runs: `tools/rom_seeds.py` (entry points from the QEMU evidence in
+`analysis/`, the ROM resource list and verified symbols) → Ghidra headless analysis
+(`tools/ghidra/Q800Seed.java`, `Q800ATraps.java`, `Q800Export.java`) → `tools/rom_disasm.py`
+(source generation and per-instruction verification). See `analysis/README.md`.
+
+`src/romsrc/` is listed in `.gitignore` because it contains Apple's ROM content.
 
 ---
 
@@ -194,4 +217,4 @@ To verify the decompiled structures, test the trap table unpacker, and inspect N
 ```bash
 make -C src run
 ```
-This builds and executes `quadra_rom_harness` on `QUADRA800.ROM`.
+This builds and executes `quadra_rom_harness` on `build/QUADRA800_REBUILT.ROM`.

@@ -15,7 +15,7 @@ extern "C" {
 
 /**
  * @brief Unpacks the compressed ROM trap table into memory.
- * Decompiled from QUADRA800.ROM at 0x40809A88.
+ * Decompiled from QUADRA800.ROM at 0x40809A96.
  *
  * @param rom_bytes Pointer to 1MB ROM binary image
  * @param rom_base Virtual base address of the ROM (0x40800000)

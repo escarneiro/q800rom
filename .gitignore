@@ -18,3 +18,4 @@ scripts/
 *.o
 quadra_rom_harness
 build/
+src/romsrc/

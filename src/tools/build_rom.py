@@ -166,7 +166,7 @@ def main():
     out_path = sys.argv[2]
 
     if mode == "overlay":
-        template = sys.argv[3] if len(sys.argv) > 3 else "QUADRA800.ROM"
+        template = sys.argv[3] if len(sys.argv) > 3 else "build/QUADRA800_BASE.ROM"
         obj_dir = sys.argv[4] if len(sys.argv) > 4 else "src"
         build_overlay_rom(template, out_path, obj_dir)
     elif mode == "standalone":

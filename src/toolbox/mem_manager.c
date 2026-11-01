@@ -3,12 +3,12 @@
  * @brief Macintosh Classic Memory Manager Implementation
  *
  * Decompiled from QUADRA800.ROM:
- * - 0x4088D360: _NewPtr
- * - 0x4088D3A0: _DisposPtr
- * - 0x4089D448: _NewHandle
- * - 0x4089D484: _DisposHandle
- * - 0x408BD628: _HLock
- * - 0x408BD64E: _HUnlock
+ * - 0x4080D360: _NewPtr
+ * - 0x4080D3A0: _DisposPtr
+ * - 0x4080D448: _NewHandle
+ * - 0x4080D484: _DisposHandle
+ * - 0x4080D628: _HLock
+ * - 0x4080D64E: _HUnlock
  */
 
 #include "mem_manager.h"

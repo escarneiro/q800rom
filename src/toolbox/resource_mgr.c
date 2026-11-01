@@ -3,11 +3,11 @@
  * @brief Macintosh Classic Resource Manager Implementation
  *
  * Decompiled from QUADRA800.ROM:
- * - 0x408DB5A0: _GetResource
- * - 0x408DBBDC: _ReleaseResource
- * - 0x408BBCE8: _CurResFile
- * - 0x408CAF9E: _OpenResFile
- * - 0x408CAFE2: _CloseResFile
+ * - 0x4081B5A0: _GetResource
+ * - 0x4081BBDC: _ReleaseResource
+ * - 0x4081BCE8: _CurResFile
+ * - 0x4081AF9E: _OpenResFile
+ * - 0x4081B388: _CloseResFile
  */
 
 #include "resource_mgr.h"

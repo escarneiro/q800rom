@@ -35,37 +35,37 @@ typedef struct __attribute__((packed)) {
 
 /**
  * @brief Allocates a non-relocatable block of memory in the current heap zone.
- * Decompiled from QUADRA800.ROM at 0x4088D360 (_NewPtr / $A01E).
+ * Decompiled from QUADRA800.ROM at 0x4080D360 (_NewPtr / $A01E).
  */
 Ptr MacNewPtr(int32_t logical_size);
 
 /**
  * @brief Releases a non-relocatable block.
- * Decompiled from QUADRA800.ROM at 0x4088D3A0 (_DisposPtr / $A01F).
+ * Decompiled from QUADRA800.ROM at 0x4080D3A0 (_DisposPtr / $A01F).
  */
 OSErr MacDisposPtr(Ptr p);
 
 /**
  * @brief Allocates a relocatable block and creates a master pointer handle.
- * Decompiled from QUADRA800.ROM at 0x4089D448 (_NewHandle / $A022).
+ * Decompiled from QUADRA800.ROM at 0x4080D448 (_NewHandle / $A022).
  */
 Handle MacNewHandle(int32_t logical_size);
 
 /**
  * @brief Releases a relocatable block and frees its master pointer.
- * Decompiled from QUADRA800.ROM at 0x4089D484 (_DisposHandle / $A023).
+ * Decompiled from QUADRA800.ROM at 0x4080D484 (_DisposHandle / $A023).
  */
 OSErr MacDisposHandle(Handle h);
 
 /**
  * @brief Locks a relocatable block so the heap compactor will not move it.
- * Decompiled from QUADRA800.ROM at 0x408BD628 (_HLock / $A029).
+ * Decompiled from QUADRA800.ROM at 0x4080D628 (_HLock / $A029).
  */
 void MacHLock(Handle h);
 
 /**
  * @brief Unlocks a relocatable block, permitting compaction.
- * Decompiled from QUADRA800.ROM at 0x408BD64E (_HUnlock / $A02A).
+ * Decompiled from QUADRA800.ROM at 0x4080D64E (_HUnlock / $A02A).
  */
 void MacHUnlock(Handle h);
 

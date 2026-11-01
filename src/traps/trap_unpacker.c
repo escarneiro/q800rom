@@ -2,7 +2,7 @@
  * @file trap_unpacker.c
  * @brief ROM Compressed Trap Table Unpacker
  *
- * Decompiled from QUADRA800.ROM at 0x40809A88 (InitTrapDispatcher).
+ * Decompiled from QUADRA800.ROM at 0x40809A96 (InitTrapDispatcher).
  *
  * The Quadra 800 ROM stores its 1,280 system traps in a highly optimized
  * variable-length compressed stream at ROM offset 0x0D3370:

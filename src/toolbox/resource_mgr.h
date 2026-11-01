@@ -37,19 +37,19 @@ void MacInitResources(void);
 
 /**
  * @brief Finds and loads a resource by 4-character type and ID.
- * Decompiled from QUADRA800.ROM at 0x408DB5A0 (_GetResource / $A9A0).
+ * Decompiled from QUADRA800.ROM at 0x4081B5A0 (_GetResource / $A9A0).
  */
 Handle MacGetResource(ResType the_type, int16_t the_id);
 
 /**
  * @brief Releases a loaded resource handle.
- * Decompiled from QUADRA800.ROM at 0x408DBBDC (_ReleaseResource / $A9A3).
+ * Decompiled from QUADRA800.ROM at 0x4081BBDC (_ReleaseResource / $A9A3).
  */
 void MacReleaseResource(Handle the_resource);
 
 /**
  * @brief Returns the reference number of the current resource file.
- * Decompiled from QUADRA800.ROM at 0x408BBCE8 (_CurResFile / $A994).
+ * Decompiled from QUADRA800.ROM at 0x4081BCE8 (_CurResFile / $A994).
  */
 int16_t MacCurResFile(void);
 

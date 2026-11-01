@@ -3,7 +3,7 @@
  * @brief Color QuickDraw Graphics Engine Implementation
  *
  * Decompiled from QUADRA800.ROM:
- * - 0x40841530: _InitGraf
+ * - 0x40831530: _InitGraf
  * - 0x408280A0: _InitCursor
  */
 

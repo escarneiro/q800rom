@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     FILE *f = fopen(rom_path, "rb");
     if (!f) {
         printf("    WARNING: Could not open %s directly. Checking parent dir...\n", rom_path);
-        f = fopen("../QUADRA800.ROM", "rb");
+        f = fopen("../build/QUADRA800_REBUILT.ROM", "rb");
     }
     
     uint8_t *rom_bytes = NULL;
