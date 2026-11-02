@@ -19,7 +19,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from build_rom import fix_checksums  # noqa: E402
+from rom_checksum import fix_checksums  # noqa: E402
 
 NM = os.environ.get("M68K_NM", "/usr/m68k-suse-linux/bin/nm")
 ROM_BASE = 0x40800000

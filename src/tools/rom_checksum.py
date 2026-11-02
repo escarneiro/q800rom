@@ -6,6 +6,7 @@ Classic Macintosh ROMs (68000 through 68040) compute the 32-bit ROM checksum
 by summing all 16-bit words from offset 0x00000004 to the end of the ROM:
     sum_16bit = sum(word_16) & 0xFFFFFFFF
 The resulting 32-bit value is stored as a big-endian uint32_t at offset 0x00000000.
+Before it, the four byte-lane sums at 0x30..0x3F are computed (fix_checksums).
 """
 
 import sys
@@ -19,6 +20,23 @@ def calculate_checksum(rom_bytes: bytes) -> int:
     for i in range(4, len(rom_bytes), 2):
         word = (rom_bytes[i] << 8) | rom_bytes[i + 1]
         csum = (csum + word) & 0xFFFFFFFF
+    return csum
+
+def fix_checksums(rom: bytearray) -> int:
+    """Recomputes the ROM header checksums.
+
+    0x30..0x3F: four byte-lane sums (sum of the bytes at offset % 4 == lane, excluding
+    0x00..0x03 and 0x30..0x3F). 0x00: 32-bit sum of all 16-bit words from offset 4.
+    Both formulas reproduce the original Quadra 800 ROM header.
+    """
+    lanes = [0, 0, 0, 0]
+    for i, b in enumerate(rom):
+        lanes[i & 3] += b
+    for i in list(range(0, 4)) + list(range(0x30, 0x40)):
+        lanes[i & 3] -= rom[i]
+    struct.pack_into(">4I", rom, 0x30, *[x & 0xFFFFFFFF for x in lanes])
+    csum = calculate_checksum(rom)
+    struct.pack_into(">I", rom, 0, csum)
     return csum
 
 def verify_checksum(rom_bytes: bytes) -> tuple:
@@ -50,8 +68,6 @@ def main():
 
     file_path = sys.argv[1]
     if "--fix-all" in sys.argv:
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-        from build_rom import fix_checksums
         with open(file_path, "rb") as f:
             rom = bytearray(f.read())
         csum = fix_checksums(rom)

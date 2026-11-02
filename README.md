@@ -82,12 +82,10 @@ src/
 │   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
 │   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
 ├── boot/
-│   ├── reset.s            - 68040 early CPU detection and MMU/cache setup (copied into the rebuilt ROM at 0x40804052)
 │   ├── cpu68040.c / .h    - 68040 processor detection, cache invalidation, and transparent translation setup
 │   ├── hwinit.c / .h      - VIA1 timer calibration, RAM sizing, and machine identification
 │   └── lowmem_init.c / .h - Initialization of low-memory globals and vector table
 ├── traps/
-│   ├── trap_dispatcher.s  - A-Line Trap Dispatcher (vector 10, $0028), copied into the rebuilt ROM at 0x408099B0
 │   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A96
 │   └── trap_table.c / .h  - Complete table of all 1,024 Toolbox Traps and 256 OS Traps
 ├── toolbox/
@@ -100,8 +98,7 @@ src/
 │   ├── declrom_quadra.c/.h- Quadra 800 Declaration ROM structures (Motherboard and Video sResources)
 │   └── video_dafb.c / .h  - DAFB / ViSC onboard video controller driver interface
 ├── tools/
-│   ├── rom_checksum.py    - Classic Macintosh 16-bit word addition checksum calculator & patcher
-│   └── build_rom.py       - 1MB ROM image packager (overlay of reset.s / trap_dispatcher.s, checksums)
+│   └── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
 ├── main.c                 - Verification and analysis harness
 └── Makefile               - Unified build system (host verification harness, ROM generation, tests)
 ```
@@ -126,11 +123,12 @@ and checked to rebuild it **byte for byte**.
 make -C src rom
 ```
 
-1. Assembles `src/romsrc/q800rom.s` (which includes `part_00.s` … `part_0F.s`) into
-   `build/QUADRA800_BASE.ROM` and checks it against `romsrc/q800rom.sha256`.
-2. Assembles `boot/reset.s` and `traps/trap_dispatcher.s`, then overlays the reconstructed `_early_cpu_detect` and `_trap_dispatcher` on the base image,
-   stamps the checksum and writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently
-   identical to the original ROM, checksum `0xF1ACAD13`).
+1. Assembles `src/romsrc/q800rom.s` (which includes `part_00.s` … `part_0F.s`) and links it
+   at `0x40800000` (`build/q800rom.elf`).
+2. Writes the binary image, re-encodes the packed trap table and the NuBus offsets from the
+   linked addresses, stamps the byte-lane sums and the checksum (`tools/rom_postlink.py`) and
+   writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently identical to the original
+   ROM, checksum `0xF1ACAD13`; checked against `romsrc/q800rom.sha256`).
 
 ### 2. Test it
 
@@ -238,7 +236,7 @@ Or run QEMU directly:
 qemu-system-m68k -M q800 -bios build/QUADRA800_REBUILT.ROM -m 64M
 ```
 
-The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`, executes our recompiled `_early_cpu_detect` routine at `0x40804052`, configures 68040 caches, sets up transparent translation registers `DTT0`/`DTT1`, and proceeds with system initialization.
+The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`, executes the early CPU detection routine at `0x40804052` (`early_cpu_detect`), configures 68040 caches, sets up transparent translation registers `DTT0`/`DTT1`, and proceeds with system initialization.
 
 ### B. Testing in Basilisk II
 1. Open or edit your `~/.basilisk_ii_prefs`:

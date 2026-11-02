@@ -1,6 +1,6 @@
 # Macintosh Quadra 800 ROM Build Process
 
-This document details the step-by-step build process of the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`): from the disassembled, relocatable Motorola 68040 assembly source in `src/romsrc/` and two hand-written 68040 routines into a bootable 1,048,576-byte (1 MB) binary image that is byte-identical to the original.
+This document details the step-by-step build process of the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`): from the disassembled, relocatable Motorola 68040 assembly source in `src/romsrc/` into a bootable 1,048,576-byte (1 MB) binary image that is byte-identical to the original.
 
 ---
 
@@ -32,33 +32,23 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 microprocessor 
 +-------------------------------------------------------------+
 |          1. ASSEMBLY & LINKING OF THE ROM SOURCE            |
 |  - m68k-as (-m68040) romsrc/q800rom.s -> build/q800rom.o    |
-|  - m68k-ld -Ttext=0x40800000 -> build/q800rom_base.elf      |
+|  - m68k-ld -Ttext=0x40800000 -> build/q800rom.elf           |
 +-------------------------------------------------------------+
                                |
                                v
 +-------------------------------------------------------------+
-|              2. BASE IMAGE & POST-LINK FIX-UPS              |
-|  - objcopy -O binary -> build/QUADRA800_BASE.ROM            |
+|          2. BINARY IMAGE, POST-LINK FIX-UPS & CHECKSUM      |
+|  - objcopy -O binary -> build/QUADRA800_REBUILT.ROM         |
 |  - tools/rom_postlink.py: packed trap table (traptable.lst),|
-|    NuBus 24-bit offsets (relocs.lst), checksums             |
+|    NuBus 24-bit offsets (relocs.lst), byte-lane sums (0x30) |
+|    and 32-bit checksum (0x00)                               |
 |  - SHA-256 check against romsrc/q800rom.sha256              |
-+-------------------------------------------------------------+
-                               |
-                               v
-+-------------------------------------------------------------+
-|                 3. OVERLAY & CHECKSUM                       |
-|  - m68k-as (-m68030) -> boot/reset.o, trap_dispatcher.o     |
-|  - tools/build_rom.py overlay:                              |
-|      * _early_cpu_detect  at label early_cpu_detect         |
-|      * _trap_dispatcher   at label trap_dispatcher          |
-|      * NuBus Declaration ROM Format Block at 0x0FFFEC       |
-|      * byte-lane sums (0x30) and 32-bit checksum (0x00)     |
 |  - tools/rom_checksum.py --verify                           |
 +-------------------------------------------------------------+
                                |
                                v
 +-------------------------------------------------------------+
-|                     4. BOOTABLE ROM                         |
+|                     3. BOOTABLE ROM                         |
 |  - build/QUADRA800_REBUILT.ROM (identical to the original)  |
 |  - Verified in QEMU (q800 machine): desktop, Mac OS 8.1     |
 +-------------------------------------------------------------+
@@ -93,72 +83,31 @@ Output in `src/romsrc/`: `q800rom.s` (includes `part_00.s` ... `part_0F.s`, one 
 ```bash
 /usr/m68k-suse-linux/bin/as -m68040 -I romsrc -I romsrc/include romsrc/q800rom.s -o ../build/q800rom.o
 /usr/m68k-suse-linux/bin/ld -Ttext=0x40800000 -e 0x40800000 --no-warn-rwx-segments \
-    -o ../build/q800rom_base.elf ../build/q800rom.o
+    -o ../build/q800rom.elf ../build/q800rom.o
 ```
 
 Linking at `ROMBase` (`0x40800000`) makes every label resolve to its ROM address. Padding in front of the fixed region at `0x408F0000` (declaration ROM and format block) is written as `.org`, so the code above it can grow or shrink.
 
 ---
 
-## 5. Step 2: Base Image and Post-Link Fix-Ups (`tools/rom_postlink.py`)
+## 5. Step 2: Binary Image and Post-Link Fix-Ups (`tools/rom_postlink.py`)
 
 ```bash
-/usr/bin/m68k-suse-linux-objcopy -O binary --only-section=.text ../build/q800rom_base.elf ../build/QUADRA800_BASE.ROM
-python3 tools/rom_postlink.py ../build/q800rom_base.elf ../build/QUADRA800_BASE.ROM romsrc
+/usr/bin/m68k-suse-linux-objcopy -O binary --only-section=.text ../build/q800rom.elf ../build/QUADRA800_REBUILT.ROM
+python3 tools/rom_postlink.py ../build/q800rom.elf ../build/QUADRA800_REBUILT.ROM romsrc
 ```
 
 Two ROM structures cannot be expressed as GNU `as` expressions across relaxable branches, so they are filled in after linking from the label addresses in the ELF (`nm`):
 
 1. **Packed trap dispatch table** (header long at `0x22`, table at `0x408D3370`): re-encoded from `romsrc/traptable.lst`, one line per trap (`b`/`w`/`l` encoded entry with its target label, `u` unimplemented). Each entry keeps its encoding class; the build fails if a moved routine no longer fits it.
 2. **NuBus sResource entries**: 24-bit self-relative offsets from `romsrc/relocs.lst` (`s24 <loc> <target>`).
-3. **Checksums**: byte-lane sums and the 32-bit checksum (see Step 4).
+3. **Checksums**: byte-lane sums and the 32-bit checksum (see Step 3).
 
 The result is compared with `romsrc/q800rom.sha256`: an unmodified source gives an image identical to the original ROM; a mismatch is reported (modified source) but is not an error.
 
 ---
 
-## 6. Step 3: Overlay of the Hand-Written Routines (`tools/build_rom.py overlay`)
-
-Two routines exist as hand-written, commented 68040 assembly:
-
-### A. `src/boot/reset.s` -> `boot/reset.o`
-* **68040 CPU Detection & MMU/Cache Configuration (`_early_cpu_detect`, ROM offset `0x4052`)**:
-  * Probes bit 31 of `CACR` to distinguish between Motorola 68040 and 68030 processors.
-  * Executes `cinva bc` (`.word 0xF4D8`) to invalidate both on-chip instruction and data caches.
-  * Disables translation control via `movec %d0, %tc` (`.word 0x4E7B, 0x0003`).
-  * Configures Data Transparent Translation Registers:
-    * `DTT0 = 0x807FC040`: Maps `$80000000-$FFFFFFFF` as non-cacheable serialized memory.
-    * `DTT1 = 0x500FC040`: Maps Apple internal I/O space `$50000000-$50FFFFFF`.
-  * Returns through `%fp` (`jmp (%fp)`).
-
-### B. `src/traps/trap_dispatcher.s` -> `traps/trap_dispatcher.o`
-* Implements **Vector 10 (Line 1010 Emulator at `$0028`)**, ROM address `0x408099B0`.
-* Decodes OS Traps (`$A000-$A7FF`) through the OS Dispatch Table (`OSTable` at `$0400`).
-* Decodes Toolbox Traps (`$A800-$ABFF`) through `ToolboxTable` (`$0E00` / `$1E00`).
-* Supports auto-pop Toolbox Traps (`$AC00-$AFFF`) using `rtd #4`.
-
-### Assembler Invocation
-```bash
-/usr/m68k-suse-linux/bin/as -m68030 boot/reset.s -o boot/reset.o
-/usr/m68k-suse-linux/bin/as -m68030 traps/trap_dispatcher.s -o traps/trap_dispatcher.o
-```
-*Note*: 68040-only instructions (such as `cinva` and 68040 control register `movec` operations) are encoded as raw `.word` machine codes so that the files assemble with `-m68030`.
-
-### Overlay
-```bash
-python3 tools/build_rom.py overlay ../build/QUADRA800_REBUILT.ROM ../build/QUADRA800_BASE.ROM . ../build/q800rom_base.elf
-```
-1. Loads `build/QUADRA800_BASE.ROM` as the template.
-2. Copies `_early_cpu_detect` ... `_cpu_detect_done` (80 bytes) from `boot/reset.o` to the address of the `early_cpu_detect` label in the base ELF (`0x4052` in the unmodified source).
-3. Copies `_trap_dispatcher` ... `_trap_dispatcher_end` (132 bytes) from `traps/trap_dispatcher.o` to the address of the `trap_dispatcher` label (`0x99B0`).
-4. Writes the NuBus Declaration ROM Format Block at `0x0FFFEC`.
-5. Recomputes the byte-lane sums and the checksum, and writes `build/QUADRA800_REBUILT.ROM`.
-
-The two routines reproduce the original bytes, so the rebuilt ROM is identical to the original.
-
----
-
-## 7. Step 4: Checksum Calculation & Validation (`tools/rom_checksum.py`)
+## 6. Step 3: Checksum Calculation & Validation (`tools/rom_checksum.py`)
 
 During cold boot, the ROM verifies its checksum as part of its Power-On Self Test. If the checksum does not match the header value, the machine sounds the error chime ("Chimes of Death") and halts.
 
@@ -169,7 +118,7 @@ $$\text{Checksum}_{32} = \left(\sum_{i=2}^{524287} \text{Word}_{16}[i]\right) \p
 
 Before it, the four **byte-lane sums** at `0x30`-`0x3F` are computed: for each lane `L` (0-3), the sum of all bytes at offsets `i` with `i mod 4 = L`, excluding `0x00`-`0x03` and `0x30`-`0x3F`.
 
-Implemented in Python (`fix_checksums` in `tools/build_rom.py`):
+Implemented in Python (`fix_checksums` in `tools/rom_checksum.py`, called by `tools/rom_postlink.py`):
 ```python
 def fix_checksums(rom: bytearray) -> int:
     lanes = [0, 0, 0, 0]
@@ -188,7 +137,7 @@ The resulting 32-bit integer is written in big-endian byte order at offset `0x00
 
 ---
 
-## 8. Summary of Build Commands & Execution
+## 7. Summary of Build Commands & Execution
 
 ```bash
 # 0. Once per checkout: generate src/romsrc/ from your own ROM

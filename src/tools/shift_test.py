@@ -23,8 +23,6 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.dirname(HERE)
-sys.path.insert(0, HERE)
-from build_rom import fix_checksums  # noqa: E402
 
 AS = "/usr/m68k-suse-linux/bin/as"
 LD = "/usr/m68k-suse-linux/bin/ld"

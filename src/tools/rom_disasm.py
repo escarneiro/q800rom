@@ -750,7 +750,7 @@ def main():
                 "# s24 <loc> <target>: byte loc+1..3 = 24-bit (target - loc) (NuBus sResource entry)\n")
         f.write(src.rn("\n".join(src.post_relocs)) + "\n")
     with open(os.path.join(out_dir, "q800rom.sha256"), "w") as f:
-        f.write(f"{digest}  QUADRA800_BASE.ROM\n")
+        f.write(f"{digest}  QUADRA800_REBUILT.ROM\n")
 
     # ---- final check of the real, split source
     r = subprocess.run([AS, "-m68040", "-I", out_dir, "-I", inc_dir, os.path.join(out_dir, "q800rom.s"),
