@@ -26,6 +26,11 @@ ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 #                       longer sound is cut (about 3.1 s fit).
 #   make BOOTICONS=dir  boot icons from dir/happy.png, disk.png, diskq.png, diskx.png
 #                       (32x32 black and white; tools/icons2s.py)
+#   make FREE_MEDIA=1   the project's own chime and icons (../media, no Apple material)
+ifneq ($(FREE_MEDIA),)
+CHIME ?= ../media/chime.wav
+BOOTICONS ?= ../media/booticons
+endif
 MEDIA_DIR = $(BUILD_DIR)/media
 MEDIA_CFG = $(BUILD_DIR)/media.cfg
 MEDIA_FILES =

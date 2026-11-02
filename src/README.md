@@ -73,6 +73,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 ## 3. Directory Layout
 
 ```
+media/                     - Original boot chime and boot icons (make FREE_MEDIA=1)
 src/
 ├── romsrc/                - Generated 68040 assembly source of the ROM (not in git; make romsrc-regen)
 ├── traps/
@@ -157,6 +158,15 @@ dark pixels are the icon. The mask is the opaque area of a PNG with transparency
 otherwise the icon's outline filled in. `python3 src/tools/icons2s.py --rom QUADRA800.ROM
 --png DIR` writes the original icons as PNGs, and `icons2s.py DIR --png PREVIEW --scale 6`
 shows how yours will look. `CHIME=` and `BOOTICONS=` can be combined.
+
+#### The project's own media
+
+`media/` holds an original chime and original boot icons (no Apple material; see
+`media/README.md`). Build with all of them:
+
+```bash
+make -C src rom FREE_MEDIA=1
+```
 
 ### 3. The disassembled source (`src/romsrc/`)
 

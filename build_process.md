@@ -157,6 +157,8 @@ make -C src rom       # or just: make -C src
 make -C src rom CHIME=/path/to/chime.wav
 # Optional: your own boot icons (happy.png, disk.png, diskq.png, diskx.png)
 make -C src rom BOOTICONS=/path/to/icons
+# Or the project's own chime and icons (media/, no Apple material)
+make -C src rom FREE_MEDIA=1
 ```
 
 ### Verification & Testing
