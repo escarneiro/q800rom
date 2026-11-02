@@ -31,6 +31,16 @@ Rules (all verified on the original ROM):
   R6  long-range PC-relative calls:
         lea N,%aX / movel #N,%dX ; jmp|jsr|lea|pea %pc@(B,%reg:l)
                                                            -> N written as (target-B)
+
+False relocations: R1, R8-R10 guess from values alone and also catch plain numbers that
+happen to look like addresses or offsets (they would change wrongly when code moves).
+A final pass turns these back into numbers:
+  F1  ROM-start/absolute references inside a ROM resource (fonts, pictures, color tables,
+      IOP code, ...), except the resource map fields
+  F2  table-relative references inside a resource whose target or base lies outside it
+  F3  ROM-start/absolute references in the declaration ROM area (0x408F0000..)
+  F4  tables of this ROM found by inspection to hold numbers (FALSE_TABLES below)
+  F5  table-relative values that are masks or multiples of 0x10000
 """
 
 import re
@@ -39,6 +49,19 @@ import struct
 ROM_BASE = 0x40800000
 ROM_SIZE = 0x100000
 UNIMPL = 0x9AE6
+DECLROM = 0xF0000
+
+# F4: ROM offset ranges (inclusive) of Quadra 800 data that hold numbers, not addresses;
+# only ROM-start/absolute references are dropped there
+FALSE_TABLES = [
+    (0x0348E, 0x0349A, "I/O address halves in the universal tables"),
+    (0x497EC, 0x49804, "test address pattern (0x706, 0x10706, ...)"),
+    (0x8D200, 0x957AF, "FPSP floating-point constants"),
+    (0x95960, 0x97B7F, "JMFB video parameters"),
+    (0xB451C, 0xB47A8, "Power Manager primitives data"),
+    (0xB6D2A, 0xB6D42, "cursor acceleration steps"),
+    (0xD319E, 0xD31CA, "numeric sequence in steps of 0x400"),
+]
 
 
 def u16(r, o):
@@ -58,6 +81,7 @@ class Relocator:
         self.src = src
         self.rom = src.rom
         self.stats = {}
+        self.created = set()        # labels created by ref() for relocations
 
     # ------------------------------------------------------------ helpers
     def ref(self, off):
@@ -68,6 +92,7 @@ class Relocator:
         kind = "loc" if off in src.insns else "dat"
         name = f"{kind}_{ROM_BASE + off:08X}"
         src.labels[off] = name
+        self.created.add(off)
         return name
 
     def is_data(self, off, size):
@@ -518,4 +543,71 @@ class Relocator:
         self.r11_sresources()
         self.r10_rombase_offset_tables()
         self.r8_r9_function_offsets()
+        self.drop_false_relocations()
         return self.stats
+
+    # ------------------------------------------------------------ false relocations
+    def resource_ranges(self):
+        """[(entry, end, map field offsets)] of every ROM resource (map entry .. data end)."""
+        r = self.rom
+        m = u32(r, 0x1A)
+        off, seen, out = u32(r, m), set(), []
+        while off and off not in seen and off < ROM_SIZE:
+            seen.add(off)
+            data = u32(r, off + 12)
+            end = data + u32(r, data - 8) - 12
+            out.append((off, end))
+            off = u32(r, off + 8)
+        return out, m
+
+    def drop_false_relocations(self):
+        src = self.src
+        res, mapptr = self.resource_ranges()
+        fields = {mapptr} | {e + 8 for e, _ in res} | {e + 12 for e, _ in res}
+        offs = {n: o for o, n in src.labels.items()}
+        def owner(off):
+            for lo, hi in res:
+                if lo <= off < hi:
+                    return lo, hi
+            return None
+        drop = {}
+        for off, (size, expr, note) in src.data_expr.items():
+            if expr is None or off in fields:
+                continue
+            m = re.fullmatch(r"(\w+)(?:-(\w+))?", expr)
+            if not m or m.group(1) not in offs:
+                continue
+            tgt, base = offs[m.group(1)], m.group(2)
+            form = "abs" if base is None else ("rom" if base == "rom_start" else "rel")
+            res_of = owner(off)
+            rule = None
+            if form in ("abs", "rom"):
+                if res_of:
+                    rule = "F1 ROM-start/absolute reference inside a ROM resource"
+                elif off >= DECLROM:
+                    rule = "F3 ROM-start/absolute reference in the declaration ROM"
+                elif any(lo <= off <= hi for lo, hi, _ in FALSE_TABLES):
+                    rule = "F4 known numeric table"
+            elif base in offs:
+                b = offs[base]
+                v = (tgt - b) & ((1 << (8 * size)) - 1)
+                if res_of and not (res_of[0] <= tgt <= res_of[1] and res_of[0] <= b <= res_of[1]):
+                    rule = "F2 table-relative reference leaving its resource"
+                elif v in (0xFFFFFFFF, 0xFFFFFF00, 0xFFFF0000, 0x0000FFFF) or (v and size == 4 and v & 0xFFFF == 0):
+                    rule = "F5 table-relative mask or multiple of 0x10000"
+            if rule:
+                drop[off] = rule
+        for off, rule in drop.items():
+            size = src.data_expr.pop(off)[0]
+            for k in range(off, off + size):
+                src.data_cover.discard(k)
+            key = rule.split(" ", 1)[0] + " false relocations dropped"
+            self.stats[key] = self.stats.get(key, 0) + 1
+        # labels created only for dropped references
+        used = " ".join(e for _, e, _ in src.data_expr.values() if e) + " " + " ".join(src.ins_override.values())
+        used += " " + " ".join(getattr(src, "trap_table_list", [])) + " " + " ".join(src.post_relocs)
+        words = set(re.findall(r"\w+", used))
+        for off in list(self.created):
+            if src.labels.get(off) not in words and off not in src.insns:
+                src.labels.pop(off, None)
+                self.created.discard(off)
