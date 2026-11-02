@@ -100,7 +100,9 @@ def main():
         shifted = os.path.join(work, "romsrc")
         shutil.copytree(os.path.join(SRC, "romsrc"), shifted, ignore=shutil.ignore_patterns(".git"))
         best = None
-        for fn in sorted(os.listdir(shifted)):
+        sources = sorted(os.path.relpath(os.path.join(d, f), shifted)
+                         for d, _, fs in os.walk(shifted) for f in fs)
+        for fn in sources:
             if not fn.endswith(".s") or fn == "q800rom.s":
                 continue
             lines = open(os.path.join(shifted, fn)).read().split("\n")
