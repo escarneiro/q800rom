@@ -29,6 +29,12 @@ if [ "$1" = "--reanalyze" ]; then REANALYZE=1; shift; fi
 ROM=$(realpath "${1:-../QUADRA800.ROM}")
 SRC=$(cd "$(dirname "$0")/.." && pwd)
 AN=$(cd "$SRC/../analysis" && pwd)
+# A romsrc/ under version control is maintained by hand: never overwrite it
+if [ -e "$SRC/romsrc/.git" ] && [ "${FORCE_REGEN:-0}" != 1 ]; then
+    echo "src/romsrc/ is a git repository (hand-maintained source); not regenerating it." >&2
+    echo "Move it away first, or run with FORCE_REGEN=1 to overwrite the generated parts." >&2
+    exit 1
+fi
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 

@@ -98,7 +98,7 @@ def main():
         # through: the previous instruction must be an unconditional transfer
         addr_of = {nm_: ad for ad, nm_ in syms.items()}
         shifted = os.path.join(work, "romsrc")
-        shutil.copytree(os.path.join(SRC, "romsrc"), shifted)
+        shutil.copytree(os.path.join(SRC, "romsrc"), shifted, ignore=shutil.ignore_patterns(".git"))
         best = None
         for fn in sorted(os.listdir(shifted)):
             if not fn.startswith("part_"):
