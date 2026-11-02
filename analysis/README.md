@@ -23,7 +23,13 @@ into the assembler source in `src/romsrc/`.
   now use the runtime values. Other fixes: the early VBR is `0x40803D00` (`0x40803D08` is only the table entry it
   matches); the trap-table builder that actually runs starts at `0x40809A96` (`0x40809A88` only
   stores the A-line vector); the video driver is the `.Display_Video_Apple_ViSC` DRVR at
-  `0x4089BCC4` (`0x4089A2EA` is its driver directory); `$A0A0`–`$A0A2` are installed in RAM.
+  `0x4089BCC4` (`0x4089A2EA` is its driver directory); `$A0A0`–`$A0A2` hold 24-bit addresses
+  (`0x0086xxxx` is the ROM through its 24-bit mirror): they are not real traps but three jump
+  vectors of the ROM's `.Sony` floppy driver, a second read-address / read-data / write-data
+  set (most likely for MFM disks) that its open routine stores at `$680`–`$688` next to
+  `JRdAddr`/`JRdData`/`JWrData`. `$A0BD` is `_CacheFlush`: the packed table points it at
+  Apple's `VCACHEFLUSH`, replaced on a 68040 by `cpusha bc` at `0x40885030`
+  (`CACHEVECTORPATCH`).
 * **Trap names come from Apple.** `src/traps/trap_table.c` used to have 114 wrong names
   (several ranges shifted by one or more slots, e.g. `$A916` is `_HideWindow`, not
   `_InitMenus`) and 597 placeholders. Names now come from Apple's `Traps.h`, checked against

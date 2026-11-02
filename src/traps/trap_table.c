@@ -8,7 +8,8 @@
  * Toolbox ($0E00) dispatch tables, read from RAM after booting the original ROM in
  * QEMU to the desktop with no disk (analysis/trap_tables_runtime.txt). Entries that
  * point at _UnimplementedTrap (0x40809AE6) are marked not implemented. $A0A0-$A0A2
- * point into RAM: they are installed there during boot, not in ROM.
+ * hold 24-bit addresses (0x0086xxxx = ROM 0x4086xxxx through its 24-bit mirror): the
+ * ROM's .Sony floppy driver stores three of its jump vectors in these slots (below).
  *
  * Names: the public trap names of Apple's Traps.h (Universal Interfaces, via
  * cy384/68k-mac-rom-maps ghidra-a-traps.txt), checked against Apple's own MPW 3.5
@@ -18,8 +19,20 @@
  * Traps without a public name (private File System vectors $A0B0-$A0FD, QuickDraw
  * blitter vectors $AB00-$ABBE, ...) carry Apple's label from that map, in its
  * upper case (_VBTOPEN, _BITBLT). Unimplemented entries (handler BADTRAP) keep the
- * Traps.h name when there is one, else a _OSTrap_/_ToolboxTrap_ placeholder, as do
- * $A0A0-$A0A2 (RAM handlers) and $A0BD (no label at its handler).
+ * Traps.h name when there is one, else a _OSTrap_/_ToolboxTrap_ placeholder.
+ *
+ * Identified separately (see analysis/README.md):
+ * - $A0BD _CacheFlush: the ROM's packed table points it at Apple's VCACHEFLUSH
+ *   (0x40809A7C); on a 68040 CACHEVECTORPATCH (0x4088500C) replaces it with
+ *   0x40885030 (nop; cpusha bc; rts). _CacheFlush is Apple's trap macro for
+ *   FlushCodeCache; the number $A0BD is inferred from this wiring.
+ * - $A0A0-$A0A2: not real traps. The .Sony driver's open routine (0x4086CA64) fills
+ *   three groups of jump vectors from one offset table at 0x4086C9E0: $222-$25A
+ *   (JFigTrkSpd..NiblTbl), $B40-$B48 (JDiskSel..JDCDReset) and $680-$688, the OS trap
+ *   slots $A0A0-$A0A2. These three are a second read-address / read-data / write-data
+ *   set next to JRdAddr/JRdData/JWrData, most likely for MFM (1.44 MB) disks. Apple's
+ *   names for them are not known: _SonyMFMRdAddr, _SonyMFMRdData and _SonyMFMWrData
+ *   are descriptive names chosen by this project.
  */
 
 #include <stdbool.h>
@@ -195,9 +208,9 @@ const MacTrapEntry g_mac_os_traps[256] = {
     { 0xA09DU, "_OSTrap_A09D", 0x40809AE6U, false, false },
     { 0xA09EU, "_PowerMgrDispatch", 0x40809AE6U, false, false },
     { 0xA09FU, "_PowerDispatch", 0x40809AE6U, false, false },
-    { 0xA0A0U, "_OSTrap_A0A0", 0x0086EE0EU, true, false }, /* RAM-resident: installed in RAM during boot */
-    { 0xA0A1U, "_OSTrap_A0A1", 0x0086EED0U, true, false }, /* RAM-resident: installed in RAM during boot */
-    { 0xA0A2U, "_OSTrap_A0A2", 0x0086EFA6U, true, false }, /* RAM-resident: installed in RAM during boot */
+    { 0xA0A0U, "_SonyMFMRdAddr", 0x0086EE0EU, true, false }, /* .Sony vector $680 -> ROM 0x4086EE0E (name not Apple's) */
+    { 0xA0A1U, "_SonyMFMRdData", 0x0086EED0U, true, false }, /* .Sony vector $684 -> ROM 0x4086EED0 (name not Apple's) */
+    { 0xA0A2U, "_SonyMFMWrData", 0x0086EFA6U, true, false }, /* .Sony vector $688 -> ROM 0x4086EFA6 (name not Apple's) */
     { 0xA0A3U, "_OSTrap_A0A3", 0x40809AE6U, false, false },
     { 0xA0A4U, "_HeapDispatch", 0x40809AE6U, false, false },
     { 0xA0A5U, "_OSTrap_A0A5", 0x40809AE6U, false, false },
@@ -224,7 +237,7 @@ const MacTrapEntry g_mac_os_traps[256] = {
     { 0xA0BAU, "_VIAZINIT", 0x4080CDE4U, true, false },
     { 0xA0BBU, "_VIAZPOSTINIT", 0x4080CEFEU, true, false },
     { 0xA0BCU, "_VLAUNCHINIT", 0x4080BF8EU, true, false },
-    { 0xA0BDU, "_OSTrap_A0BD", 0x40885030U, true, false },
+    { 0xA0BDU, "_CacheFlush", 0x40885030U, true, false },
     { 0xA0BEU, "_SYSUTIL", 0x4080C040U, true, false },
     { 0xA0BFU, "_VLG2PHYS", 0x40811F14U, true, false },
     { 0xA0C0U, "_VFLUSHCACHE", 0x40814140U, true, false },
