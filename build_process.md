@@ -81,12 +81,17 @@ Output in `src/romsrc/`: `q800rom.s` (includes `part_00.s` ... `part_0F.s`, one 
 ## 4. Step 1: Assembling and Linking the ROM Source
 
 ```bash
-/usr/m68k-suse-linux/bin/as -m68040 -I romsrc -I romsrc/include romsrc/q800rom.s -o ../build/q800rom.o
+/usr/m68k-suse-linux/bin/as -m68040 -I ../build/media -I romsrc -I romsrc/include romsrc/q800rom.s -o ../build/q800rom.o
 /usr/m68k-suse-linux/bin/ld -Ttext=0x40800000 -e 0x40800000 --no-warn-rwx-segments \
     -o ../build/q800rom.elf ../build/q800rom.o
 ```
 
 Linking at `ROMBase` (`0x40800000`) makes every label resolve to its ROM address. Padding in front of the fixed region at `0x408F0000` (declaration ROM and format block) is written as `.org`, so the code above it can grow or shrink.
+
+`../build/media/` holds replacement media generated from the `make` options; a file there
+takes the place of the `romsrc/` file with the same path. `make CHIME=my.wav` writes
+`media/sound/bootchime.s` and `bootchime.bin` (`tools/wav2snd.py`: uncompressed 8-bit
+`'snd '` at 22254.5 Hz, padded to `CHIME_AREA` bytes so nothing else moves).
 
 ---
 
@@ -145,6 +150,9 @@ make -C src romsrc-regen ORIG_ROM=/path/to/QUADRA800.ROM
 
 # 1. Build the ROM
 make -C src rom       # or just: make -C src
+
+# Optional: your own boot chime instead of Apple's
+make -C src rom CHIME=/path/to/chime.wav
 ```
 
 ### Verification & Testing

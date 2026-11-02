@@ -87,6 +87,7 @@ src/
 │   ├── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
 │   ├── qemu_boot_test.py  - Headless QEMU boot test
 │   ├── shift_test.py      - Relocatability test (moves code, rebuilds, boots, compares traces)
+│   ├── wav2snd.py         - WAV -> uncompressed 'snd ' (boot chime replacement, make CHIME=)
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
@@ -127,6 +128,20 @@ make -C src test-qemu    # interactive QEMU window
 
 `build/QUADRA800_REBUILT.ROM` boots QEMU's q800 machine to the desktop and boots
 Mac OS 8.1 to the Finder.
+
+#### Your own boot chime
+
+```bash
+make -C src rom CHIME=/path/to/chime.wav
+```
+
+The boot chime is taken from the WAV file instead of Apple's sound
+(`romsrc/sound/bootchime.s`). `tools/wav2snd.py` mixes it to mono, resamples it to
+22254.5 Hz and writes an uncompressed 8-bit `'snd '`, which the ROM's boot-beep code plays
+on every sound chip. The sound is padded to the size of the original sound area
+(`CHIME_AREA`), so nothing else in the ROM moves; about 3.1 s fit, longer sounds are cut
+with a short fade-out. Any PCM WAV works (8/16/24/32-bit, mono or stereo, any rate).
+Build again without `CHIME=` to go back to the original sound.
 
 ### 3. The disassembled source (`src/romsrc/`)
 
