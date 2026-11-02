@@ -33,14 +33,18 @@ ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 #   make FONTS=dir      bitmap fonts from dir/chicago12.bdf, geneva9.bdf, geneva12.bdf,
 #                       monaco9.bdf (tools/fonts2s.py); a missing file keeps the original.
 #                       Each font keeps its size, so nothing else moves.
+#   make FILLER=1       the filler in unused places (Apple's team initials, copyright and
+#                       build date, repeated) becomes Lorem Ipsum, ending with the
+#                       project's address (tools/fill2s.py)
 #   make FREE_MEDIA=1   the project's own sounds, icons, cursors and fonts (../media, no
-#                       Apple material)
+#                       Apple material), and FILLER=1
 ifneq ($(FREE_MEDIA),)
 CHIME ?= ../media/chime.wav
 ALERT ?= ../media/alert.wav
 BEEPS ?= ../media/beeps.txt
 ICONS ?= ../media/icons
 FONTS ?= ../media/fonts
+FILLER ?= 1
 endif
 MEDIA_DIR = $(BUILD_DIR)/media
 MEDIA_CFG = $(BUILD_DIR)/media.cfg
@@ -68,8 +72,12 @@ ifneq ($(FONTS),)
 MEDIA_FILES += $(MEDIA_DIR)/fonts.stamp
 MEDIA_INC += -I $(MEDIA_DIR)/fonts
 endif
+ifneq ($(FILLER),)
+MEDIA_FILES += $(MEDIA_DIR)/filler/romfill.inc
+MEDIA_INC += -I $(MEDIA_DIR)/filler
+endif
 MEDIA_SETTINGS = CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA) ALERT=$(ALERT) ALERT_AREA=$(ALERT_AREA) \
-	BEEPS=$(BEEPS) ICONS=$(ICONS) FONTS=$(FONTS)
+	BEEPS=$(BEEPS) ICONS=$(ICONS) FONTS=$(FONTS) FILLER=$(FILLER)
 
 .PHONY: all clean rom applemedia FORCE test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
 
@@ -108,6 +116,10 @@ $(MEDIA_DIR)/fonts.stamp: $(wildcard $(FONTS)/*.bdf) tools/fonts2s.py $(MEDIA_CF
 	rm -rf $(MEDIA_DIR)/fonts
 	python3 tools/fonts2s.py $(FONTS) -o $(MEDIA_DIR)/fonts
 	@touch $@
+
+$(MEDIA_DIR)/filler/romfill.inc: romsrc/include/romfill.inc tools/fill2s.py $(MEDIA_CFG)
+	@mkdir -p $(dir $@)
+	python3 tools/fill2s.py --romsrc romsrc/include/romfill.inc -o $@
 
 # Assemble the ROM source
 $(ROMSRC_OBJ): romsrc/q800rom.s $(ROMSRC_SRCS) $(MEDIA_CFG) $(MEDIA_FILES)

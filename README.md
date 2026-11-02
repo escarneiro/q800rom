@@ -93,6 +93,7 @@ src/
 │   ├── beeps2s.py         - text -> boot/error beep table (replacement, make BEEPS=)
 │   ├── icons2s.py         - PNGs -> icons and cursors source (replacement, make ICONS=)
 │   ├── fonts2s.py         - BDF <-> bitmap 'FONT' source (replacement, make FONTS=)
+│   ├── fill2s.py          - the filler in unused places (Apple's or Lorem Ipsum, make FILLER=1)
 │   ├── extract_applemedia.py - Apple's media from an original ROM -> applemedia/ (make applemedia)
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
@@ -208,11 +209,29 @@ writes the original fonts as BDF, and `fonts2s.py DIR --preview sample.png` show
 Mac OS loads its own fonts from the System file, so these are only seen when the System
 does not provide a font of the same number.
 
+#### The filler
+
+Apple's build tool filled the whole ROM image with a 152-byte block (the ROM team's
+initials, `(c) Copyright Apple Computer, Inc. 1989-1992` and the build date, `Mon, Oct 21,
+1991`) before placing code and data. Nothing reads it; it is left in 88 unused places: a
+run of 11,412 bytes before the declaration ROM data at `0x408F0000`, alignment padding and
+unused resource name fields. They are macros in `romsrc/include/romfill.inc`.
+
+```bash
+make -C src rom FILLER=1
+```
+
+fills them with Lorem Ipsum instead, in delimited blocks that are easy to find and
+replace later: every block starts with `<<` and ends with `>>`. The long run becomes 74
+copies of `<<Lorem ipsum dolor sit amet, ... Ut enim ad minim veniam.>>` (152 bytes) and
+a last block `<<q800rom: ... https://github.com/escarneiro/q800rom ---->>` (164 bytes);
+the short pieces elsewhere are slices of the Lorem Ipsum block.
+
 #### The project's own media
 
 `media/` holds an original chime, alert sound and error beeps, original icons and
 cursors, and fonts made from free fonts, for all of the above (no Apple material; see
-`media/README.md`). Build with all of them:
+`media/README.md`). `FREE_MEDIA=1` also sets `FILLER=1`. Build with all of them:
 
 ```bash
 make -C src rom FREE_MEDIA=1

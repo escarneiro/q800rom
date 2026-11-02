@@ -96,7 +96,9 @@ takes the place of the `romsrc/` file with the same path. `make CHIME=my.wav` wr
 (`tools/icons2s.py`: `boot/booticons.s`, `rsrc/icons/*.s`, `quickdraw/arrow.s`; same sizes).
 `make ALERT=file.wav` writes `sound/alertsound.s` (`'snd '` 1, 2762 bytes) and
 `make BEEPS=file.txt` writes `sound/beeptable.s` (`tools/beeps2s.py`). `make FONTS=dir` writes `rsrc/fonts/*.s` from `dir/*.bdf` (`tools/fonts2s.py`; each 'FONT'
-keeps its size). Each option has its own directory (`../build/media/chime`, `alert`, `beeps`, `icons`, `fonts`), passed
+keeps its size). `make FILLER=1` writes `romfill.inc` with Lorem Ipsum in the places of Apple's filler
+(`tools/fill2s.py`). Each option has its own directory (`../build/media/chime`, `alert`,
+`beeps`, `icons`, `fonts`, `filler`), passed
 with `-I` before `romsrc` only when the option is set.
 
 ---
@@ -165,7 +167,9 @@ make -C src rom ICONS=/path/to/icons
 make -C src rom ALERT=/path/to/alert.wav BEEPS=/path/to/beeps.txt
 # Optional: your own bitmap fonts (BDF; see README)
 make -C src rom FONTS=/path/to/fonts
-# Or the project's own sounds, icons, cursors and fonts (media/, no Apple material)
+# Optional: Lorem Ipsum instead of Apple's filler in unused places
+make -C src rom FILLER=1
+# Or the project's own sounds, icons, cursors and fonts (media/, no Apple material), and FILLER=1
 make -C src rom FREE_MEDIA=1
 ```
 
