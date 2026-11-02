@@ -15,6 +15,10 @@ Turns the ROM into labelled 68040 assembly that GNU as rebuilds byte for byte:
     other names (trap_NewHandle: NWHANDLE:), and label addresses nothing referenced.
     They are applied after the relocation analysis, so they only change names.
   * A-line trap words are written with trap macros (include/traps_gas.inc).
+  * Text in data is written as strings (add_text): resource names and types from the
+    resource map, Pascal strings with a matching length byte, reviewed text and
+    four-character code tables (TEXT_* below), 'YEAH'/'Gary' fill as .rept blocks;
+    instruction immediates that are four-character codes get a comment ('DRVR').
   * Every instruction is verified by assembling it at its exact offset. If GNU as
     picks a different encoding, alternative spellings are tried (abs.w/abs.l
     operand sizes, ...); as a last resort the raw words are emitted with the
@@ -30,6 +34,7 @@ import concurrent.futures as cf
 import hashlib
 import os
 import re
+import struct
 import subprocess
 import sys
 import tempfile
@@ -50,6 +55,21 @@ LD = os.environ.get("M68K_LD", "/usr/m68k-suse-linux/bin/ld")
 # padding before it absorbs size changes of the code and data above.
 ANCHORS = (0xF0000,)
 OBJCOPY = os.environ.get("M68K_OBJCOPY", "/usr/bin/m68k-suse-linux-objcopy")
+
+# ---- text in data (Quadra 800 ROM offsets; found with strings(1) and reviewed)
+TEXT_EXCLUDE = [(0xBD250, 0xCE250),       # boot beep patches and sound samples
+                (0x8D200, 0x957B0),       # FPSP constants
+                (0x72EE0, 0x73910),       # color tables
+                (0x7C430, 0x7EB90)]       # fonts
+TEXT_PSTR_BAD = {0x5B1A4, 0xD54BC}        # length-prefixed runs that are not text
+TEXT_PSTR_EXTRA = [(0x1D923, 5)]          # "Roman" (script name)
+TEXT_BARE = [0x0A1BC, 0x0C228, 0x0C2C8, 0x4F0EC, 0x5E3E8, 0x5F038, 0x5FC20, 0x5FC53,
+             0x96485, 0xD3C28, 0xD5B1F, 0xD9280, 0xDB7C0, 0xF0000, 0xFDFD3]
+TEXT_CODE_TABLES = [(0x169A8, 0x16AA8, 8, 2),   # Gestalt selectors: off16, 'code', 0xFFFF
+                    (0xE24CC, 0xE2524, 8, 0)]   # lmgr selector list: 'code', long
+TEXT_FILLS = [(0x8A1F4, 639, b"YEAH"), (0x3D1C, 57, b"Gary"), (0x5378, 46, b"Gary"),
+              (0x6C9C8, 5, b"Gary")]
+OSTYPE_RE = re.compile(r"#(0x[0-9a-fA-F]{8}|\d{9,10})\b")
 
 CC = "(?:t|f|hi|ls|cc|cs|ne|eq|vc|vs|pl|mi|ge|lt|gt|le|hs|lo)"
 BRANCH_RE = re.compile(rf"^(?:b(?:ra|sr|{CC})[swl]?|db(?:ra|{CC})|fb\w+|fdb\w+|jbsr|jbra)$")
@@ -270,6 +290,72 @@ def pcrel_numeric(ins):
     return [t + "\x00NUM"]
 
 
+def ostype_comment(text):
+    """Append the four-character code of an immediate that is one ('DRVR')."""
+    if "|" in text:
+        return text
+    m = OSTYPE_RE.search(text)
+    if not m or int(m.group(1), 0) > 0xFFFFFFFF:
+        return text
+    s = int(m.group(1), 0).to_bytes(4, "big").decode("latin-1")
+    if re.fullmatch(r"[A-Za-z][A-Za-z0-9 #]{3}", s) and sum(c.isalpha() for c in s) >= 3 and len(set(s)) > 1:
+        return f"{text}\t| '{s}'"
+    return text
+
+
+def add_text(src):
+    """Mark text in data (see TEXT_*): strings -> src.strings, fills -> src.fills."""
+    rom = src.rom
+    taken = bytearray(ROM_SIZE)
+    for off, ins in src.insns.items():
+        taken[off:off + ins.size] = b"\1" * ins.size
+    for k in src.data_cover:
+        taken[k] = 1
+    for off, (size, *_r) in list(src.data_block.items()) + list(src.data_expr.items()):
+        taken[off:off + size] = b"\1" * size
+    for off, n in src.strings.items():
+        taken[off:off + n] = b"\1" * n
+    free = lambda a, b: 0 <= a and b <= ROM_SIZE and not any(taken[a:b])
+    counts = {"resource names": 0, "resource types": 0, "Pascal strings": 0, "text": 0,
+              "codes": 0, "fills": 0}
+    def add(a, n, what):
+        if n > 0 and free(a, a + n):
+            src.strings[a] = n
+            taken[a:a + n] = b"\1" * n
+            counts[what] += 1
+    u32 = lambda o: struct.unpack(">I", rom[o:o + 4])[0]
+    e, seen = u32(u32(0x1A)), set()
+    while e and e not in seen and e < ROM_SIZE:
+        seen.add(e)
+        add(e + 16, 4, "resource types")
+        add(e + 24, rom[e + 23], "resource names")
+        e = u32(e + 8)
+    def wordy(t):
+        letters = sum(c.isalpha() for c in t)
+        return (sum(c.isalnum() or c in " .,:;!?()'-/&%+*#=_[]<>@" for c in t) >= 0.9 * len(t)
+                and letters >= 0.55 * len(t) and sum(c in "aeiouyAEIOUY" for c in t) >= 0.2 * max(letters, 1)
+                and len(set(t)) > 3 and not re.search(r"Nu|Nq|NV|Hn|Hz|J@|/<|YO", t))
+    for m in re.finditer(rb"[\x20-\x7e\t]{5,}", rom):
+        a, t = m.start(), m.group().decode("latin-1")
+        if (a > 0 and rom[a - 1] == len(t) and a not in TEXT_PSTR_BAD and wordy(t)
+                and not any(lo <= a < hi for lo, hi in TEXT_EXCLUDE) and free(a - 1, a)):
+            add(a, len(t), "Pascal strings")
+    for a, n in TEXT_PSTR_EXTRA:
+        add(a, n, "Pascal strings")
+    for a in TEXT_BARE:
+        n = re.match(rb"[\x20-\x7e\t]*", rom[a:]).end()
+        add(a, n, "text")
+    for lo, hi, stride, at in TEXT_CODE_TABLES:
+        for x in range(lo, hi, stride):
+            add(x + at, 4, "codes")
+    for a, n, unit in TEXT_FILLS:
+        if rom[a:a + 4 * n] == unit * n and free(a, a + 4 * n):
+            src.fills[a] = (n, unit)
+            taken[a:a + 4 * n] = b"\1" * (4 * n)
+            counts["fills"] += 1
+    return counts
+
+
 def esc_ascii(bs):
     out = []
     for b in bs:
@@ -298,6 +384,7 @@ class RomSource:
         self.trap_table_range = None
         self.post_relocs = []     # "s24 <loc> <target>" lines for tools/rom_postlink.py
         self.labels = {}
+        self.fills = {}           # off -> (count, unit): repeated 4-byte text fill
         self.aliases = {}         # off -> [extra label names at the same address]
         self.rename = {}          # generic name (sub_/loc_/dat_) -> Apple ROM map name
         for a, n in funcs.items():
@@ -380,11 +467,39 @@ class RomSource:
             return None                  # name used for several trap numbers: ambiguous
         return n
 
+    def fill_at(self, i):
+        for fs, (n, unit) in self.fills.items():
+            if fs <= i < fs + 4 * n:
+                return fs, fs + 4 * n, unit
+        return None
+
+    @property
+    def fill_starts(self):
+        return set(self.fills)
+
     # ---- data emission
     def emit_data(self, out, start, end):
         i = start
         rom = self.rom
         while i < end:
+            fill = self.fill_at(i)
+            if fill:
+                fs, fe, unit = fill
+                stop = min(end, fe)
+                k = (4 - (i - fs) % 4) % 4
+                head = rom[i:min(i + k, stop)]
+                if head:
+                    out.append(f"    .ascii  \"{esc_ascii(head)}\"\t| {ROM_BASE + i:08X}")
+                q = i + len(head)
+                n = (stop - q) // 4
+                if n:
+                    out += [f"    .rept   {n}\t| {ROM_BASE + q:08X} fill",
+                            f"    .ascii  \"{esc_ascii(unit)}\"", "    .endr"]
+                q += 4 * n
+                if q < stop:
+                    out.append(f"    .ascii  \"{esc_ascii(rom[q:stop])}\"\t| {ROM_BASE + q:08X}")
+                i = stop
+                continue
             if i in self.strings:
                 n = min(self.strings[i], end - i)
                 out.append(f"    .ascii  \"{esc_ascii(rom[i:i + n])}\"")
@@ -403,7 +518,7 @@ class RomSource:
                 continue
             line_end = min(end, (i & ~0xF) + 0x10)
             k = i + 1
-            while k < line_end and k not in self.strings:
+            while k < line_end and k not in self.strings and k not in self.fill_starts:
                 r = k
                 while r < end and rom[r] == rom[k] and r - k < RUN_MIN:
                     r += 1
@@ -427,7 +542,7 @@ class RomSource:
     # ---- whole-source emission; verify=True puts .org before every instruction
     def emit(self, verify=False, part_size=PART_SIZE):
         """Returns list of (part_index, lines, line_to_insn)."""
-        cuts = set(self.labels) | set(self.insns) | set(self.strings) | set(ANCHORS)
+        cuts = set(self.labels) | set(self.insns) | set(self.strings) | set(self.fills) | set(ANCHORS)
         for ins in self.insns.values():
             cuts.add(ins.off + ins.size)
         for off, (size, *_rest) in list(self.data_expr.items()) + list(self.data_block.items()):
@@ -461,7 +576,7 @@ class RomSource:
                 if verify:
                     out.append(f"__v_{c:X}:")
                 linemap[len(out) + 1] = ins
-                out.append(f"    {self.render(ins)}")
+                out.append(f"    {ostype_comment(self.render(ins))}")
             elif c in self.data_block:
                 size, lines, note = self.data_block[c]
                 out.append(f"| {note}")
@@ -631,6 +746,8 @@ def main():
     # strings overlapping symbolized data are dropped
     src.strings = {a: n for a, n in src.strings.items()
                    if not any(x in src.data_cover for x in range(a, a + n))}
+    tc = add_text(src)
+    print("[*] text in data: " + ", ".join(f"{v} {k}" for k, v in tc.items()))
     if rom_map:
         st = src.apply_rom_map(load_rom_map(rom_map))
         print(f"[*] Apple ROM map names: {st['renamed']} replace generated names, "
