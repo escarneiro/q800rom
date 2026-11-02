@@ -74,18 +74,20 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 
 ```
 src/
-├── include/
-│   ├── mac_types.h        - Standard Macintosh data types (Point, Rect, GrafPort, Handle, Ptr, OSErr)
-│   ├── lowmem.h           - Complete definitions of low-memory globals ($0000 - $2000)
-│   ├── traps.h            - Decoded A-Trap equates ($A000-$AFFF) with ROM routine addresses
-│   ├── hw_quadra.h        - Hardware register definitions (VIA1, VIA2, SCC, SCSI, DAFB, 68040 CACR/TC/DTT)
-│   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
-│   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
+├── romsrc/                - Generated 68040 assembly source of the ROM (not in git; make romsrc-regen)
 ├── traps/
 │   └── trap_table.c       - Table of all 1,024 Toolbox and 256 OS traps: names and handler addresses
 │                            (read by tools/rom_disasm.py and tools/rom_seeds.py for the trap names)
 ├── tools/
-│   └── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
+│   ├── regen_romsrc.sh    - Regenerates romsrc/ from an original ROM (romsrc-regen / romsrc-reanalyze)
+│   ├── rom_disasm.py      - ROM -> labelled, byte-exact GNU as source
+│   ├── rom_reloc.py       - Turns hard-coded addresses and offsets into label expressions
+│   ├── rom_seeds.py       - Code entry points and names from traces and ROM tables (for Ghidra)
+│   ├── rom_postlink.py    - Post-link: packed trap table, NuBus offsets, checksums
+│   ├── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
+│   ├── qemu_boot_test.py  - Headless QEMU boot test
+│   ├── shift_test.py      - Relocatability test (moves code, rebuilds, boots, compares traces)
+│   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
 

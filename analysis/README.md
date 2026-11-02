@@ -7,7 +7,7 @@ into the assembler source in `src/romsrc/`.
 |---|---|---|
 | `trap_tables_runtime.txt` | The real OS (256) and Toolbox (1024) trap dispatch tables | Original ROM booted in QEMU (`-M q800`, no disk) to the desktop; RAM `$0400` and `$0E00` dumped with `pmemsave` |
 | `executed_pcs.txt` | 30,551 ROM addresses that were actually executed | QEMU `-d in_asm,nochain` traces: boot to the desktop with no disk, plus a full Mac OS 8.1 boot to the Finder (`-snapshot`, read-only disk) |
-| `ghidra_seeds.txt` | Code entry points, names and known data ranges | `src/tools/rom_seeds.py` (the files above + ROM resource list + verified `rom_symbols.h` entries) |
+| `ghidra_seeds.txt` | Code entry points, names and known data ranges | `src/tools/rom_seeds.py` (the files above + ROM resource list) |
 | `ghidra_codemap.txt` | Instructions, functions and strings found by Ghidra | `analyzeHeadless` + `Q800Seed.java` (aggressive instruction finder) + `Q800Export.java` |
 | `code_hints.txt` | Code entry points found in ROM tables (Universal primitives, ROMBase offset tables, NuBus init blocks) | Written by `src/tools/rom_disasm.py`; fed back to Ghidra as seeds on the next regeneration |
 | `ghidra_atraps.txt` | A-line trap call sites | `Q800ATraps.java` (Ghidra can't decode A-line words, so it stops at every trap call; this script resumes after them) |
@@ -18,10 +18,9 @@ into the assembler source in `src/romsrc/`.
 
 * **Trap and symbol addresses were wrong and have been corrected.** Originally only 558 of
   the 1280 addresses in `src/traps/trap_table.c` matched the tables the ROM installs, and many
-  `src/include/rom_symbols.h` entries were off by multiples of 0x10000 (e.g. `_InitGraf` is at
-  `0x40831530`, not `0x40841530`). Both files, the `/* ROM: */` comments in `include/traps.h` and
-  the address comments in the READMEs now use the runtime
-  values. Other fixes: the early VBR is `0x40803D00` (`0x40803D08` is only the table entry it
+  entries of the (since removed) `rom_symbols.h` were off by multiples of 0x10000 (e.g. `_InitGraf`
+  is at `0x40831530`, not `0x40841530`). `trap_table.c` and the address comments in the READMEs
+  now use the runtime values. Other fixes: the early VBR is `0x40803D00` (`0x40803D08` is only the table entry it
   matches); the trap-table builder that actually runs starts at `0x40809A96` (`0x40809A88` only
   stores the A-line vector); the video driver is the `.Display_Video_Apple_ViSC` DRVR at
   `0x4089BCC4` (`0x4089A2EA` is its driver directory); `$A0A0`–`$A0A2` are installed in RAM.

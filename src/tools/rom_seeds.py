@@ -7,7 +7,6 @@ Evidence used (all optional except the ROM):
                    (lines "OS|TB <index hex> <address hex>")
   --trace FILE     QEMU "-d in_asm" logs (any number); every executed ROM PC
   --names FILE     trap_table.c, for trap names
-  --symbols FILE   rom_symbols.h; only symbols confirmed by other evidence are kept
   ROM structures   the ROM resource list (header offset 0x1A) and the NuBus
                    declaration ROM (format block at the end of the ROM)
 
@@ -154,7 +153,6 @@ def main():
     ap.add_argument("--traps")
     ap.add_argument("--trace", action="append", default=[])
     ap.add_argument("--names")
-    ap.add_argument("--symbols")
     ap.add_argument("--hints", help="code_hints.txt from rom_disasm.py (code found in ROM tables)")
     a = ap.parse_args()
     r = open(a.rom, "rb").read()
@@ -187,12 +185,6 @@ def main():
                     executed.add((pc - 0x40000000) % ROM_SIZE)
     for off in executed:
         seeds.add(off, "X")
-
-    if a.symbols:
-        for m in re.finditer(r"#define\s+SYM_(\w+)\s+0x([0-9A-F]+)U", open(a.symbols).read()):
-            off = int(m.group(2), 16) - ROM_BASE
-            if off in executed or off in trapaddrs:
-                seeds.add(off, "C", m.group(1).lower())
 
     # 68k exception vector table in ROM at 0x3D08... is data; reset/ROM header entries
     for o, n in ((0x2A, "reset_entry"), (0x0A, "StartBoot"), (0x0E, "BadDisk"),

@@ -22,8 +22,17 @@
  * $A0A0-$A0A2 (RAM handlers) and $A0BD (no label at its handler).
  */
 
-#include "traps.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
+
+typedef struct {
+    uint16_t trap_num;
+    const char *name;
+    uint32_t rom_address;
+    bool is_implemented;
+    bool is_toolbox;
+} MacTrapEntry;
 
 const MacTrapEntry g_mac_os_traps[256] = {
     { 0xA000U, "_Open", 0x4080B766U, true, false },

@@ -3,7 +3,7 @@
 #
 # Pipeline:
 #   1. rom_seeds.py   code entry points + names: runtime trap tables and QEMU execution
-#                     traces (analysis/), ROM resource list, verified rom_symbols.h entries
+#                     traces (analysis/), ROM resource list
 #   2. Ghidra         headless auto-analysis (+ Aggressive Instruction Finder), seeded by 1;
 #                     Q800ATraps.java follows code across A-line trap calls;
 #                     Q800Export.java writes the code map
@@ -35,7 +35,7 @@ trap 'rm -rf "$WORK"' EXIT
 if [ $REANALYZE = 1 ]; then
 python3 "$SRC/tools/rom_seeds.py" "$ROM" "$AN/ghidra_seeds.txt" \
     --traps "$AN/trap_tables_runtime.txt" --trace "$AN/executed_pcs.txt" \
-    --names "$SRC/traps/trap_table.c" --symbols "$SRC/include/rom_symbols.h" \
+    --names "$SRC/traps/trap_table.c" \
     --hints "$AN/code_hints.txt"
 
 analyzeHeadless "$WORK" q800 -import "$ROM" \
