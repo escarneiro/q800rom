@@ -81,7 +81,7 @@ Output in `src/romsrc/`: `q800rom.s` (includes `part_00.s` ... `part_0F.s`, one 
 ## 4. Step 1: Assembling and Linking the ROM Source
 
 ```bash
-/usr/m68k-suse-linux/bin/as -m68040 -I ../build/media -I romsrc -I romsrc/include romsrc/q800rom.s -o ../build/q800rom.o
+/usr/m68k-suse-linux/bin/as -m68040 [-I ../build/media/...] -I romsrc -I romsrc/include romsrc/q800rom.s -o ../build/q800rom.o
 /usr/m68k-suse-linux/bin/ld -Ttext=0x40800000 -e 0x40800000 --no-warn-rwx-segments \
     -o ../build/q800rom.elf ../build/q800rom.o
 ```
@@ -92,8 +92,10 @@ Linking at `ROMBase` (`0x40800000`) makes every label resolve to its ROM address
 takes the place of the `romsrc/` file with the same path. `make CHIME=my.wav` writes
 `media/sound/bootchime.s` and `bootchime.bin` (`tools/wav2snd.py`: uncompressed 8-bit
 `'snd '` at 22254.5 Hz, padded to `CHIME_AREA` bytes so nothing else moves), and
-`make BOOTICONS=dir` writes `media/boot/booticons.s` from `dir/happy.png`, `disk.png`,
-`diskq.png` and `diskx.png` (`tools/icons2s.py`; the four icons are always 1024 bytes).
+`make ICONS=dir` writes the icon and cursor files that have PNGs in `dir`
+(`tools/icons2s.py`: `boot/booticons.s`, `rsrc/icons/*.s`, `quickdraw/arrow.s`; same sizes).
+Each option has its own directory (`../build/media/chime`, `../build/media/icons`), passed
+with `-I` before `romsrc` only when the option is set.
 
 ---
 
@@ -155,9 +157,9 @@ make -C src rom       # or just: make -C src
 
 # Optional: your own boot chime instead of Apple's
 make -C src rom CHIME=/path/to/chime.wav
-# Optional: your own boot icons (happy.png, disk.png, diskq.png, diskx.png)
-make -C src rom BOOTICONS=/path/to/icons
-# Or the project's own chime and icons (media/, no Apple material)
+# Optional: your own icons and cursors (PNGs; see README)
+make -C src rom ICONS=/path/to/icons
+# Or the project's own chime, icons and cursors (media/, no Apple material)
 make -C src rom FREE_MEDIA=1
 ```
 

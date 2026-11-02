@@ -73,7 +73,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 ## 3. Directory Layout
 
 ```
-media/                     - Original boot chime and boot icons (make FREE_MEDIA=1)
+media/                     - Original chime, icons and cursors (make FREE_MEDIA=1)
 src/
 ├── romsrc/                - Generated 68040 assembly source of the ROM (not in git; make romsrc-regen)
 ├── traps/
@@ -89,7 +89,7 @@ src/
 │   ├── qemu_boot_test.py  - Headless QEMU boot test
 │   ├── shift_test.py      - Relocatability test (moves code, rebuilds, boots, compares traces)
 │   ├── wav2snd.py         - WAV -> uncompressed 'snd ' (boot chime replacement, make CHIME=)
-│   ├── icons2s.py         - PNGs -> boot icons source (boot icon replacement, make BOOTICONS=)
+│   ├── icons2s.py         - PNGs -> icons and cursors source (replacement, make ICONS=)
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
@@ -145,24 +145,34 @@ on every sound chip. The sound is padded to the size of the original sound area
 with a short fade-out. Any PCM WAV works (8/16/24/32-bit, mono or stereo, any rate).
 Build again without `CHIME=` to go back to the original sound.
 
-#### Your own boot icons
+#### Your own icons and cursors
 
 ```bash
-make -C src rom BOOTICONS=/path/to/icons
+make -C src rom ICONS=/path/to/icons
 ```
 
-The four icons the startup code draws are taken from `happy.png` (startup disk found),
-`disk.png`, `diskq.png` (no startup disk yet) and `diskx.png` (not a startup disk) in that
-directory instead of Apple's (`romsrc/boot/booticons.s`). They are 32x32 black and white;
-dark pixels are the icon. The mask is the opaque area of a PNG with transparency,
-otherwise the icon's outline filled in. `python3 src/tools/icons2s.py --rom QUADRA800.ROM
---png DIR` writes the original icons as PNGs, and `icons2s.py DIR --png PREVIEW --scale 6`
-shows how yours will look. `CHIME=` and `BOOTICONS=` can be combined.
+The ROM's icons and cursors are taken from PNG files in that directory instead of Apple's;
+any image without a PNG keeps the original. Get the originals as a starting point with
+`python3 src/tools/icons2s.py --romsrc src/romsrc --png DIR`.
+
+| Directory | Files | Size | What |
+|-----------|-------|------|------|
+| `boot/` | `happy`, `disk`, `diskq`, `diskx` | 32x32 | startup icons: disk found, disk, no startup disk yet, not a startup disk |
+| `sony/` | `media`, `drive01` … `drive17` | 32x32 | floppy driver: the floppy disk, and the drive icon for each group of Mac models |
+| `edisk/` | `media` | 32x32 | RAM disk |
+| `atboot/` | `frame1` … `frame3` | 32x32 | network boot animation (one mask for all frames) |
+| `cursors/` | `ibeam`, `cross`, `plus`, `watch`, `arrow` | 16x16 | the four `'CURS'` resources and QuickDraw's arrow |
+
+Dark pixels are the image. The mask is the opaque area of a PNG with transparency,
+otherwise the image's outline filled in. Red pixels invert the screen behind them (the
+I-beam and the crosshair work that way). A cursor's hotspot is the PNG text field
+`hotspot` (`x,y`). The sizes never change, so nothing else in the ROM moves.
+`CHIME=` and `ICONS=` can be combined.
 
 #### The project's own media
 
-`media/` holds an original chime and original boot icons (no Apple material; see
-`media/README.md`). Build with all of them:
+`media/` holds an original chime and original icons and cursors for all of the above
+(no Apple material; see `media/README.md`). Build with all of them:
 
 ```bash
 make -C src rom FREE_MEDIA=1
