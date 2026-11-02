@@ -91,7 +91,9 @@ Linking at `ROMBase` (`0x40800000`) makes every label resolve to its ROM address
 `../build/media/` holds replacement media generated from the `make` options; a file there
 takes the place of the `romsrc/` file with the same path. `make CHIME=my.wav` writes
 `media/sound/bootchime.s` and `bootchime.bin` (`tools/wav2snd.py`: uncompressed 8-bit
-`'snd '` at 22254.5 Hz, padded to `CHIME_AREA` bytes so nothing else moves).
+`'snd '` at 22254.5 Hz, padded to `CHIME_AREA` bytes so nothing else moves), and
+`make BOOTICONS=dir` writes `media/boot/booticons.s` from `dir/happy.png`, `disk.png`,
+`diskq.png` and `diskx.png` (`tools/icons2s.py`; the four icons are always 1024 bytes).
 
 ---
 
@@ -153,6 +155,8 @@ make -C src rom       # or just: make -C src
 
 # Optional: your own boot chime instead of Apple's
 make -C src rom CHIME=/path/to/chime.wav
+# Optional: your own boot icons (happy.png, disk.png, diskq.png, diskx.png)
+make -C src rom BOOTICONS=/path/to/icons
 ```
 
 ### Verification & Testing

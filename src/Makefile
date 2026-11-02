@@ -24,6 +24,8 @@ ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 #                       to CHIME_AREA bytes, the size of the original sound area
 #                       (romsrc/sound/bootchime.s), so nothing else in the ROM moves; a
 #                       longer sound is cut (about 3.1 s fit).
+#   make BOOTICONS=dir  boot icons from dir/happy.png, disk.png, diskq.png, diskx.png
+#                       (32x32 black and white; tools/icons2s.py)
 MEDIA_DIR = $(BUILD_DIR)/media
 MEDIA_CFG = $(BUILD_DIR)/media.cfg
 MEDIA_FILES =
@@ -31,6 +33,10 @@ CHIME_AREA ?= 0x10D8C
 ifneq ($(CHIME),)
 MEDIA_FILES += $(MEDIA_DIR)/sound/bootchime.s
 endif
+ifneq ($(BOOTICONS),)
+MEDIA_FILES += $(MEDIA_DIR)/boot/booticons.s
+endif
+MEDIA_SETTINGS = CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA) BOOTICONS=$(BOOTICONS)
 
 .PHONY: all clean rom FORCE test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
 
@@ -45,18 +51,22 @@ romsrc/q800rom.s:
 # Records the media options, so that changing them rebuilds the ROM
 $(MEDIA_CFG): FORCE
 	@mkdir -p $(BUILD_DIR)
-	@echo 'CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA)' | cmp -s - $@ || \
-		echo 'CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA)' > $@
+	@echo '$(MEDIA_SETTINGS)' | cmp -s - $@ || echo '$(MEDIA_SETTINGS)' > $@
 FORCE:
 
 $(MEDIA_DIR)/sound/bootchime.s: $(CHIME) tools/wav2snd.py $(MEDIA_CFG)
 	@mkdir -p $(dir $@)
 	python3 tools/wav2snd.py $(CHIME) $@ --asm $(CHIME_AREA)
 
+$(MEDIA_DIR)/boot/booticons.s: $(wildcard $(BOOTICONS)/*.png) tools/icons2s.py $(MEDIA_CFG)
+	@mkdir -p $(dir $@)
+	python3 tools/icons2s.py $(BOOTICONS) -o $@
+
 # Assemble the ROM source
 $(ROMSRC_OBJ): romsrc/q800rom.s $(ROMSRC_SRCS) $(MEDIA_CFG) $(MEDIA_FILES)
 	@mkdir -p $(BUILD_DIR)
 	@$(if $(CHIME),,rm -f $(MEDIA_DIR)/sound/bootchime.s $(MEDIA_DIR)/sound/bootchime.bin)
+	@$(if $(BOOTICONS),,rm -f $(MEDIA_DIR)/boot/booticons.s)
 	$(M68K_AS) -m68040 -I $(MEDIA_DIR) -I romsrc -I romsrc/include romsrc/q800rom.s -o $@
 
 # Linked at ROMBase so that label references resolve to ROM addresses

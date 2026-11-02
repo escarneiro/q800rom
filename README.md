@@ -88,6 +88,7 @@ src/
 │   ├── qemu_boot_test.py  - Headless QEMU boot test
 │   ├── shift_test.py      - Relocatability test (moves code, rebuilds, boots, compares traces)
 │   ├── wav2snd.py         - WAV -> uncompressed 'snd ' (boot chime replacement, make CHIME=)
+│   ├── icons2s.py         - PNGs -> boot icons source (boot icon replacement, make BOOTICONS=)
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
@@ -142,6 +143,20 @@ on every sound chip. The sound is padded to the size of the original sound area
 (`CHIME_AREA`), so nothing else in the ROM moves; about 3.1 s fit, longer sounds are cut
 with a short fade-out. Any PCM WAV works (8/16/24/32-bit, mono or stereo, any rate).
 Build again without `CHIME=` to go back to the original sound.
+
+#### Your own boot icons
+
+```bash
+make -C src rom BOOTICONS=/path/to/icons
+```
+
+The four icons the startup code draws are taken from `happy.png` (startup disk found),
+`disk.png`, `diskq.png` (no startup disk yet) and `diskx.png` (not a startup disk) in that
+directory instead of Apple's (`romsrc/boot/booticons.s`). They are 32x32 black and white;
+dark pixels are the icon. The mask is the opaque area of a PNG with transparency,
+otherwise the icon's outline filled in. `python3 src/tools/icons2s.py --rom QUADRA800.ROM
+--png DIR` writes the original icons as PNGs, and `icons2s.py DIR --png PREVIEW --scale 6`
+shows how yours will look. `CHIME=` and `BOOTICONS=` can be combined.
 
 ### 3. The disassembled source (`src/romsrc/`)
 
