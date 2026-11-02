@@ -28,6 +28,12 @@ Rules (all verified on the original ROM):
       0x4080CB20 that boot code copies to $1E00/$1F00 adding ROMBase)
   R11 NuBus declaration data (sResource directories/lists): entries are an id byte and a
       24-bit offset relative to the entry; patched after linking (relocs.lst "s24")
+  R12 driver headers (flags, delay, event mask, menu, then five word offsets of the
+      open/prime/control/status/close routines, then the name ".xxx")
+                                                           -> .short routine-header
+  R13 diagnostic test tables (USTTESTS, USTSUBTESTS): 24-byte entries (id, code offset,
+      name offset, ...) with offsets relative to the table start, ended by id -1
+                                                           -> .long label-table
   R6  long-range PC-relative calls:
         lea N,%aX / movel #N,%dX ; jmp|jsr|lea|pea %pc@(B,%reg:l)
                                                            -> N written as (target-B)
@@ -49,6 +55,7 @@ import struct
 ROM_BASE = 0x40800000
 ROM_SIZE = 0x100000
 UNIMPL = 0x9AE6
+TEST_TABLES = (0x46040, 0x460C6)    # USTTESTS, USTSUBTESTS (Quadra 800 ROM)
 DECLROM = 0xF0000
 
 # F4: ROM offset ranges (inclusive) of Quadra 800 data that hold numbers, not addresses;
@@ -537,14 +544,55 @@ class Relocator:
         self.r4_trap_table()
         self.r3_header()
         self.r5_resource_map()
+        self.r13_test_tables()
         self.r2_jump_tables()
         self.r6_long_calls()
         self.r1_data_pointers()
         self.r11_sresources()
         self.r10_rombase_offset_tables()
         self.r8_r9_function_offsets()
+        self.r12_driver_headers()
         self.drop_false_relocations()
         return self.stats
+
+    def r13_test_tables(self):
+        """Diagnostic test tables: code and name offsets relative to the table start."""
+        r, n = self.rom, 0
+        for base in TEST_TABLES:
+            p = base
+            while u32(r, p) != 0xFFFFFFFF and p < base + 0x1000:
+                code, name = u32(r, p + 4), u32(r, p + 8)
+                if code and code < ROM_SIZE:
+                    self.add_data(p + 4, 4, f"{self.ref((base + code) % ROM_SIZE)}-{self.ref(base)}", "R13 test table offsets")
+                if name and name < 0x1000:
+                    self.add_data(p + 8, 4, f"{self.ref(base + name)}-{self.ref(base)}", "R13 test table offsets")
+                p += 24
+                n += 1
+        self.stats["R13 test table entries"] = n
+
+    def r12_driver_headers(self):
+        """Device driver headers: the routine offsets are relative to the header."""
+        r = self.rom
+        seen = set()
+        for m in re.finditer(rb"\.[A-Za-z][\x20-\x7e]{1,30}", r):
+            p = m.start()
+            n = r[p - 1]
+            if not (2 <= n <= 31) or not all(0x20 <= c < 0x7F for c in r[p:p + n]):
+                continue
+            h = p - 1 - 0x12
+            if h < 0 or h in seen:
+                continue
+            flags = u16(r, h)
+            offs = struct.unpack(">5H", r[h + 8:h + 0x12])
+            if flags & 0xFF or not flags & 0xFF00:
+                continue
+            if sum(1 for o in offs if o) < 3 or not all(o == 0 or (0x12 < o < 0x8000 and o % 2 == 0) for o in offs):
+                continue
+            seen.add(h)
+            for k, o in enumerate(offs):
+                if o:
+                    self.add_data(h + 8 + 2 * k, 2, f"{self.ref(h + o)}-{self.ref(h)}", "R12 driver header offsets")
+        self.stats["R12 driver headers"] = len(seen)
 
     # ------------------------------------------------------------ false relocations
     def resource_ranges(self):
@@ -574,11 +622,24 @@ class Relocator:
         for off, (size, expr, note) in src.data_expr.items():
             if expr is None or off in fields:
                 continue
-            m = re.fullmatch(r"(\w+)(?:-(\w+))?", expr)
+            m = re.fullmatch(r"(\w+)(?:-(\w+|\.))?", expr)
             if not m or m.group(1) not in offs:
                 continue
             tgt, base = offs[m.group(1)], m.group(2)
             form = "abs" if base is None else ("rom" if base == "rom_start" else "rel")
+            if base == ".":                     # self-relative: base is the location itself
+                base = None
+                b = off
+                v = (tgt - b) & ((1 << (8 * size)) - 1)
+                if res_of_self := owner(off):
+                    if not (res_of_self[0] <= tgt <= res_of_self[1]):
+                        drop[off] = "F2 table-relative reference leaving its resource"
+                        continue
+                if off >= DECLROM:
+                    drop[off] = "F3 self-relative reference in the declaration ROM"
+                elif v in (0xFFFFFFFF, 0xFFFFFF00, 0xFFFF0000, 0x0000FFFF) or (v and size == 4 and v & 0xFFFF == 0):
+                    drop[off] = "F5 table-relative mask or multiple of 0x10000"
+                continue
             res_of = owner(off)
             rule = None
             if form in ("abs", "rom"):
