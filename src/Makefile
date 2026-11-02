@@ -1,21 +1,4 @@
-# Makefile for Macintosh Quadra 800 ROM Decompilation & Reconstructed Sources
-
-HOST_CC ?= gcc
-HOST_CFLAGS ?= -Wall -Wextra -O2 -Iinclude -Itraps -Itoolbox -Ideclrom -std=c11
-
-SRCS = main.c \
-       traps/trap_table.c \
-       traps/trap_unpacker.c \
-       toolbox/mem_manager.c \
-       toolbox/resource_mgr.c \
-       toolbox/quickdraw.c \
-       toolbox/slot_mgr.c \
-       toolbox/os_traps.c \
-       declrom/declrom_quadra.c \
-       declrom/video_dafb.c
-
-HOST_OBJS = $(SRCS:.c=.o)
-TARGET = quadra_rom_harness
+# Makefile for the Macintosh Quadra 800 ROM, built from the disassembled source in romsrc/
 
 # Motorola 68040 Cross-Toolchain
 M68K_AS ?= /usr/m68k-suse-linux/bin/as
@@ -31,19 +14,9 @@ ROMSRC_SRCS = $(wildcard romsrc/*.s romsrc/include/*.inc)
 ROMSRC_OBJ = $(BUILD_DIR)/q800rom.o
 ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 
-.PHONY: all clean run rom test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
+.PHONY: all clean rom test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
 
-all: $(TARGET) rom
-
-# Host Verification Harness
-$(TARGET): $(HOST_OBJS)
-	$(HOST_CC) $(HOST_CFLAGS) -o $@ $(HOST_OBJS)
-
-%.o: %.c
-	$(HOST_CC) $(HOST_CFLAGS) -c $< -o $@
-
-run: $(TARGET) rom
-	./$(TARGET) $(REBUILT_ROM)
+all: rom
 
 # Assemble the ROM source
 $(ROMSRC_OBJ): $(ROMSRC_SRCS)
@@ -97,5 +70,4 @@ test-qemu: rom
 	qemu-system-m68k -M q800 -bios $(REBUILT_ROM) -m 64M
 
 clean:
-	rm -f $(HOST_OBJS) $(TARGET) traps/*.o toolbox/*.o declrom/*.o
 	rm -rf $(BUILD_DIR)

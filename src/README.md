@@ -82,21 +82,11 @@ src/
 │   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
 │   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
 ├── traps/
-│   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A96
-│   └── trap_table.c / .h  - Complete table of all 1,024 Toolbox Traps and 256 OS Traps
-├── toolbox/
-│   ├── mem_manager.c / .h - Memory Manager (_NewPtr, _DisposPtr, _NewHandle, _DisposHandle, _HLock, _HUnlock)
-│   ├── resource_mgr.c/.h  - Resource Manager (_InitResources, _GetResource, _ReleaseResource, _CurResFile)
-│   ├── quickdraw.c / .h   - Color QuickDraw engine (_InitGraf, _InitCursor, port setup)
-│   ├── slot_mgr.c / .h    - NuBus Slot Manager (sGetFormatBlock, sRsrcInfo, directory parsing)
-│   └── os_traps.c / .h    - Device Manager and OS traps (_Open, _Close, _Read, _Write)
-├── declrom/
-│   ├── declrom_quadra.c/.h- Quadra 800 Declaration ROM structures (Motherboard and Video sResources)
-│   └── video_dafb.c / .h  - DAFB / ViSC onboard video controller driver interface
+│   └── trap_table.c       - Table of all 1,024 Toolbox and 256 OS traps: names and handler addresses
+│                            (read by tools/rom_disasm.py and tools/rom_seeds.py for the trap names)
 ├── tools/
 │   └── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
-├── main.c                 - Verification and analysis harness
-└── Makefile               - Unified build system (host verification harness, ROM generation, tests)
+└── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
 
 ---
@@ -109,7 +99,6 @@ and checked to rebuild it **byte for byte**.
 
 ### Prerequisites
 * **Motorola 68000 cross binutils**: GNU `as`, `ld`, `objcopy`, `nm`, `objdump` (`m68k-suse-linux-*`).
-* **Host C Compiler**: `gcc` (analysis harness only; the C modules are host models, not ROM code).
 * **Python 3**: ROM packaging, checksum, tests.
 * **Optional**: `qemu-system-m68k` (boot tests); Ghidra `analyzeHeadless` (only to regenerate `romsrc/`).
 
@@ -248,14 +237,3 @@ The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`
 * The binary `build/QUADRA800_REBUILT.ROM` is exactly 1,048,576 bytes ($100000).
 * It can be written directly to a standard programmable Macintosh 64-pin ROM SIMM, or split across 4 $\times$ 256KB 8-bit / 2 $\times$ 512KB 16-bit EPROMs.
 * The hardware POST verifies the 16-bit word addition checksum at offset `0x00000000` during cold startup; our automated build process ensures this checksum is verified and matches.
-
----
-
-## 6. Host Verification Harness
-
-To verify the decompiled structures, test the trap table unpacker, and inspect NuBus Declaration ROM tables locally on Linux without an m68k toolchain:
-
-```bash
-make -C src run
-```
-This builds and executes `quadra_rom_harness` on `build/QUADRA800_REBUILT.ROM`.

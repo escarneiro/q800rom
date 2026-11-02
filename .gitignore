@@ -6,7 +6,6 @@ docquadra800/
 docs/
 prompt_q800.txt
 *.o
-quadra_rom_harness
 build/
 src/romsrc/
 analysis/*.png

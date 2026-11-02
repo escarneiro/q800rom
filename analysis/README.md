@@ -20,7 +20,7 @@ into the assembler source in `src/romsrc/`.
   the 1280 addresses in `src/traps/trap_table.c` matched the tables the ROM installs, and many
   `src/include/rom_symbols.h` entries were off by multiples of 0x10000 (e.g. `_InitGraf` is at
   `0x40831530`, not `0x40841530`). Both files, the `/* ROM: */` comments in `include/traps.h` and
-  the address comments in `toolbox/*`, `traps/trap_unpacker.*` and the READMEs now use the runtime
+  the address comments in the READMEs now use the runtime
   values. Other fixes: the early VBR is `0x40803D00` (`0x40803D08` is only the table entry it
   matches); the trap-table builder that actually runs starts at `0x40809A96` (`0x40809A88` only
   stores the A-line vector); the video driver is the `.Display_Video_Apple_ViSC` DRVR at
@@ -34,9 +34,9 @@ into the assembler source in `src/romsrc/`.
 * **Packed trap table format.** Decoded by the ROM at `0x40809A96`. A byte with bit 7 set:
   `0x80` = unimplemented, `0xFF` + long = absolute ROM offset, otherwise `(b & 0x7F) * 2` bytes
   forward. A byte with bit 7 clear starts a word `w`; the delta is `sign_extend16((w * 2) & 0xFFFF)`.
-  Toolbox entries come first, then OS entries; a zero delta ends the table. `src/traps/trap_unpacker.c`
-  used plain `w * 2`, which is why only 558 entries were right; it is fixed (1264/1280 now match;
-  the other 16 are installed later at boot).
+  Toolbox entries come first, then OS entries; a zero delta ends the table. The project's
+  original C unpacker (since removed) used plain `w * 2`, which is why only 558 entries were right;
+  decoded correctly, 1264/1280 match the runtime tables (the other 16 are installed later at boot).
 * **Where the ROM keeps addresses** (all symbolized in `src/romsrc/`, see `src/tools/rom_reloc.py`):
   Universal ROM ProductInfo records (0x40 bytes, offsets relative to the record), the machine
   list at `0x4080322C` (self-relative longs), "primitives" routine tables (offsets relative to the
