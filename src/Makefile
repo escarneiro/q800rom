@@ -1,9 +1,13 @@
 # Makefile for the Macintosh Quadra 800 ROM, built from the disassembled source in romsrc/
 
-# Motorola 68040 Cross-Toolchain
+# Motorola 68040 Cross-Toolchain (GNU binutils). Override on the command line for another
+# toolchain, e.g. make M68K_AS=m68k-linux-gnu-as ...; the values are exported to the tools.
 M68K_AS ?= /usr/m68k-suse-linux/bin/as
 M68K_LD ?= /usr/m68k-suse-linux/bin/ld
+M68K_NM ?= /usr/m68k-suse-linux/bin/nm
 M68K_OBJCOPY ?= /usr/bin/m68k-suse-linux-objcopy
+M68K_OBJDUMP ?= /usr/bin/m68k-suse-linux-objdump
+export M68K_AS M68K_LD M68K_NM M68K_OBJCOPY M68K_OBJDUMP
 
 BUILD_DIR = ../build
 
@@ -18,8 +22,14 @@ ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 
 all: rom
 
+# romsrc/ is generated (not in git): explain how to create it instead of failing in the assembler
+romsrc/q800rom.s:
+	@echo "src/romsrc/ does not exist yet. Generate it from your own ROM image first:" >&2
+	@echo "    make -C src romsrc-regen ORIG_ROM=/path/to/QUADRA800.ROM" >&2
+	@exit 1
+
 # Assemble the ROM source
-$(ROMSRC_OBJ): $(ROMSRC_SRCS)
+$(ROMSRC_OBJ): romsrc/q800rom.s $(ROMSRC_SRCS)
 	@mkdir -p $(BUILD_DIR)
 	$(M68K_AS) -m68040 -I romsrc -I romsrc/include romsrc/q800rom.s -o $@
 

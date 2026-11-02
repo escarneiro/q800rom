@@ -24,10 +24,10 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.dirname(HERE)
 
-AS = "/usr/m68k-suse-linux/bin/as"
-LD = "/usr/m68k-suse-linux/bin/ld"
-NM = "/usr/m68k-suse-linux/bin/nm"
-OBJCOPY = "/usr/bin/m68k-suse-linux-objcopy"
+AS = os.environ.get("M68K_AS", "/usr/m68k-suse-linux/bin/as")
+LD = os.environ.get("M68K_LD", "/usr/m68k-suse-linux/bin/ld")
+NM = os.environ.get("M68K_NM", "/usr/m68k-suse-linux/bin/nm")
+OBJCOPY = os.environ.get("M68K_OBJCOPY", "/usr/bin/m68k-suse-linux-objcopy")
 ROM_BASE = 0x40800000
 FIXED = 0xF0000
 
