@@ -1,0 +1,9 @@
+# Boot beep (0) and error beeps 1-4, played by DOBEEP when the startup test fails.
+# Format: see src/tools/beeps2s.py. Mode 0: voices start together, 1: one after another;
+# delays between voice starts in 1/40 s; notes up to about F5.
+# beep  mode  delays    notes
+0       0     0 0 0     C5 E5 G4 -        # boot beep: C major chord
+1       1     6 6 6     E5 C5 A4 E4       # falling A minor arpeggio
+2       1     6 6 6     D4 A4 F4 C#5      # D minor with a raised seventh, broken
+3       1     5 5 5     C4 Eb4 F#4 A4     # rising diminished chord
+4       1     8 4 8     B4 G4 E4 C4       # falling C major seventh

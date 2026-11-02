@@ -73,7 +73,8 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 ## 3. Directory Layout
 
 ```
-media/                     - Original chime, icons and cursors (make FREE_MEDIA=1)
+media/                     - Original sounds, icons, cursors and fonts (make FREE_MEDIA=1)
+applemedia/                - Apple's media from your ROM, for reference (not in git; make applemedia)
 src/
 ├── romsrc/                - Generated 68040 assembly source of the ROM (not in git; make romsrc-regen)
 ├── traps/
@@ -88,8 +89,11 @@ src/
 │   ├── rom_checksum.py    - ROM checksum and byte-lane sums: calculator, verifier & patcher
 │   ├── qemu_boot_test.py  - Headless QEMU boot test
 │   ├── shift_test.py      - Relocatability test (moves code, rebuilds, boots, compares traces)
-│   ├── wav2snd.py         - WAV -> uncompressed 'snd ' (boot chime replacement, make CHIME=)
+│   ├── wav2snd.py         - WAV -> uncompressed 'snd ' (boot chime and alert sound, make CHIME= / ALERT=)
+│   ├── beeps2s.py         - text -> boot/error beep table (replacement, make BEEPS=)
 │   ├── icons2s.py         - PNGs -> icons and cursors source (replacement, make ICONS=)
+│   ├── fonts2s.py         - BDF <-> bitmap 'FONT' source (replacement, make FONTS=)
+│   ├── extract_applemedia.py - Apple's media from an original ROM -> applemedia/ (make applemedia)
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
@@ -145,6 +149,22 @@ on every sound chip. The sound is padded to the size of the original sound area
 with a short fade-out. Any PCM WAV works (8/16/24/32-bit, mono or stereo, any rate).
 Build again without `CHIME=` to go back to the original sound.
 
+#### Your own alert sound and error beeps
+
+```bash
+make -C src rom ALERT=/path/to/alert.wav BEEPS=/path/to/beeps.txt
+```
+
+`ALERT=` replaces `'snd '` 1 (Apple's "Brass Horn"), the alert sound `SysBeep` plays when
+the System file has no sound with the number chosen in the Sound control panel. It is
+converted like the chime, into the same space: 2720 samples, 0.12 s.
+
+`BEEPS=` replaces the boot beep and the four error beeps ("chimes of death", played when
+the startup test fails). The ROM plays them by mixing up to four voices of a triangle wave;
+the text file gives, for each beep, the mode (voices together or one after another), the
+delays between the voices in 1/40 s, and four notes (`A4`, `C#5`, `440Hz`, or `-`; the
+highest is about F5). See `src/tools/beeps2s.py` and `media/beeps.txt`.
+
 #### Your own icons and cursors
 
 ```bash
@@ -169,10 +189,30 @@ I-beam and the crosshair work that way). A cursor's hotspot is the PNG text fiel
 `hotspot` (`x,y`). The sizes never change, so nothing else in the ROM moves.
 `CHIME=` and `ICONS=` can be combined.
 
+#### Your own fonts
+
+```bash
+make -C src rom FONTS=/path/to/fonts
+```
+
+The ROM's four bitmap fonts are taken from BDF files in that directory: `chicago12.bdf`
+(`'FONT'` 12, the system font), `geneva9.bdf`, `geneva12.bdf` and `monaco9.bdf`
+(`'FONT'` 393, 396, 521); a missing file keeps the original. `ENCODING` is the Mac Roman
+character code, `DEFAULT_CHAR` the glyph for characters a font lacks, and `FONT_ASCENT` /
+`FONT_DESCENT` must stay as they are (12/3, 10/2, 12/3, 9/2). Each font keeps its exact
+size, so nothing else in the ROM moves: the glyph images must fit in the original strike
+(`tools/fonts2s.py` drops the optional image height table to make room when needed and
+reports when a font is too wide). `python3 src/tools/fonts2s.py --rom QUADRA800.ROM --bdf DIR`
+writes the original fonts as BDF, and `fonts2s.py DIR --preview sample.png` shows a sample.
+
+Mac OS loads its own fonts from the System file, so these are only seen when the System
+does not provide a font of the same number.
+
 #### The project's own media
 
-`media/` holds an original chime and original icons and cursors for all of the above
-(no Apple material; see `media/README.md`). Build with all of them:
+`media/` holds an original chime, alert sound and error beeps, original icons and
+cursors, and fonts made from free fonts, for all of the above (no Apple material; see
+`media/README.md`). Build with all of them:
 
 ```bash
 make -C src rom FREE_MEDIA=1
@@ -229,6 +269,16 @@ Results:
   Mac). The most likely reason: the System file's patches for this ROM version use fixed
   ROM addresses. Not proven; a remaining unsymbolized reference that only Mac OS uses is
   also possible.
+
+#### Apple's media, for reference
+
+```bash
+make -C src applemedia ORIG_ROM=/path/to/QUADRA800.ROM
+```
+
+writes Apple's sounds (`'snd '` and WAV), boot/error beep table, icons and cursors (PNG),
+fonts (BDF), pictures (PNG) and the data of every ROM resource into `applemedia/`, next to
+`media/`. It is Apple's copyrighted material, so `applemedia/` is in `.gitignore`.
 
 ### 4. Regenerating `romsrc/` (needs an original ROM)
 

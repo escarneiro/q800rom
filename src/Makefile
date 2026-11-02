@@ -24,13 +24,23 @@ ROMSRC_ELF = $(BUILD_DIR)/q800rom.elf
 #                       to CHIME_AREA bytes, the size of the original sound area
 #                       (romsrc/sound/bootchime.s), so nothing else in the ROM moves; a
 #                       longer sound is cut (about 3.1 s fit).
+#   make ALERT=my.wav   alert sound ('snd ' 1, used when the System file has none) from a
+#                       WAV file; ALERT_AREA bytes (0.12 s), cut if longer
+#   make BEEPS=file     boot beep and error beeps from a text file (tools/beeps2s.py)
 #   make ICONS=dir      icons and cursors from PNGs in dir/boot, sony, edisk, atboot and
 #                       cursors (tools/icons2s.py lists the names); a missing PNG keeps
 #                       the original. Same sizes, so nothing else moves.
-#   make FREE_MEDIA=1   the project's own chime, icons and cursors (../media, no Apple material)
+#   make FONTS=dir      bitmap fonts from dir/chicago12.bdf, geneva9.bdf, geneva12.bdf,
+#                       monaco9.bdf (tools/fonts2s.py); a missing file keeps the original.
+#                       Each font keeps its size, so nothing else moves.
+#   make FREE_MEDIA=1   the project's own sounds, icons, cursors and fonts (../media, no
+#                       Apple material)
 ifneq ($(FREE_MEDIA),)
 CHIME ?= ../media/chime.wav
+ALERT ?= ../media/alert.wav
+BEEPS ?= ../media/beeps.txt
 ICONS ?= ../media/icons
+FONTS ?= ../media/fonts
 endif
 MEDIA_DIR = $(BUILD_DIR)/media
 MEDIA_CFG = $(BUILD_DIR)/media.cfg
@@ -41,13 +51,27 @@ ifneq ($(CHIME),)
 MEDIA_FILES += $(MEDIA_DIR)/chime/sound/bootchime.s
 MEDIA_INC += -I $(MEDIA_DIR)/chime
 endif
+ALERT_AREA ?= 2762
+ifneq ($(ALERT),)
+MEDIA_FILES += $(MEDIA_DIR)/alert/sound/alertsound.s
+MEDIA_INC += -I $(MEDIA_DIR)/alert
+endif
+ifneq ($(BEEPS),)
+MEDIA_FILES += $(MEDIA_DIR)/beeps/sound/beeptable.s
+MEDIA_INC += -I $(MEDIA_DIR)/beeps
+endif
 ifneq ($(ICONS),)
 MEDIA_FILES += $(MEDIA_DIR)/icons.stamp
 MEDIA_INC += -I $(MEDIA_DIR)/icons
 endif
-MEDIA_SETTINGS = CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA) ICONS=$(ICONS)
+ifneq ($(FONTS),)
+MEDIA_FILES += $(MEDIA_DIR)/fonts.stamp
+MEDIA_INC += -I $(MEDIA_DIR)/fonts
+endif
+MEDIA_SETTINGS = CHIME=$(CHIME) CHIME_AREA=$(CHIME_AREA) ALERT=$(ALERT) ALERT_AREA=$(ALERT_AREA) \
+	BEEPS=$(BEEPS) ICONS=$(ICONS) FONTS=$(FONTS)
 
-.PHONY: all clean rom FORCE test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
+.PHONY: all clean rom applemedia FORCE test-qemu test-boot test-shift romsrc-regen romsrc-reanalyze
 
 all: rom
 
@@ -67,9 +91,22 @@ $(MEDIA_DIR)/chime/sound/bootchime.s: $(CHIME) tools/wav2snd.py $(MEDIA_CFG)
 	@mkdir -p $(dir $@)
 	python3 tools/wav2snd.py $(CHIME) $@ --asm $(CHIME_AREA)
 
+$(MEDIA_DIR)/alert/sound/alertsound.s: $(ALERT) tools/wav2snd.py $(MEDIA_CFG)
+	@mkdir -p $(dir $@)
+	python3 tools/wav2snd.py $(ALERT) $@ --asm $(ALERT_AREA) --label ALERTSOUND
+
+$(MEDIA_DIR)/beeps/sound/beeptable.s: $(BEEPS) tools/beeps2s.py $(MEDIA_CFG)
+	@mkdir -p $(dir $@)
+	python3 tools/beeps2s.py $(BEEPS) -o $@
+
 $(MEDIA_DIR)/icons.stamp: $(shell find $(ICONS) -name '*.png' 2>/dev/null) tools/icons2s.py $(MEDIA_CFG)
 	rm -rf $(MEDIA_DIR)/icons
 	python3 tools/icons2s.py $(ICONS) --romsrc romsrc -o $(MEDIA_DIR)/icons
+	@touch $@
+
+$(MEDIA_DIR)/fonts.stamp: $(wildcard $(FONTS)/*.bdf) tools/fonts2s.py $(MEDIA_CFG)
+	rm -rf $(MEDIA_DIR)/fonts
+	python3 tools/fonts2s.py $(FONTS) -o $(MEDIA_DIR)/fonts
 	@touch $@
 
 # Assemble the ROM source
@@ -101,6 +138,11 @@ romsrc-regen:
 # generated source: run "make test-shift" (several SHIFT_AT values) before committing.
 romsrc-reanalyze:
 	tools/regen_romsrc.sh --reanalyze $(ORIG_ROM)
+
+# Apple's media and resources from an original ROM, in readable formats, into ../applemedia
+# (for reference; not in git)
+applemedia:
+	python3 tools/extract_applemedia.py $(ORIG_ROM) ../applemedia
 
 # Build the 1MB ROM image and check its checksum
 rom: $(REBUILT_ROM)
