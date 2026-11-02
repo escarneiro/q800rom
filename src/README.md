@@ -81,10 +81,6 @@ src/
 │   ├── hw_quadra.h        - Hardware register definitions (VIA1, VIA2, SCC, SCSI, DAFB, 68040 CACR/TC/DTT)
 │   ├── declrom.h          - NuBus Declaration ROM structures and sResource types
 │   └── rom_symbols.h      - Complete map of decompiled ROM entry points and symbols
-├── boot/
-│   ├── cpu68040.c / .h    - 68040 processor detection, cache invalidation, and transparent translation setup
-│   ├── hwinit.c / .h      - VIA1 timer calibration, RAM sizing, and machine identification
-│   └── lowmem_init.c / .h - Initialization of low-memory globals and vector table
 ├── traps/
 │   ├── trap_unpacker.c/.h - Compressed ROM trap table unpacker decompiled from 0x40809A96
 │   └── trap_table.c / .h  - Complete table of all 1,024 Toolbox Traps and 256 OS Traps

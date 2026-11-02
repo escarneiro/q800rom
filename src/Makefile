@@ -1,14 +1,11 @@
 # Makefile for Macintosh Quadra 800 ROM Decompilation & Reconstructed Sources
 
 HOST_CC ?= gcc
-HOST_CFLAGS ?= -Wall -Wextra -O2 -Iinclude -Iboot -Itraps -Itoolbox -Ideclrom -std=c11
+HOST_CFLAGS ?= -Wall -Wextra -O2 -Iinclude -Itraps -Itoolbox -Ideclrom -std=c11
 
 SRCS = main.c \
        traps/trap_table.c \
        traps/trap_unpacker.c \
-       boot/cpu68040.c \
-       boot/hwinit.c \
-       boot/lowmem_init.c \
        toolbox/mem_manager.c \
        toolbox/resource_mgr.c \
        toolbox/quickdraw.c \
@@ -100,5 +97,5 @@ test-qemu: rom
 	qemu-system-m68k -M q800 -bios $(REBUILT_ROM) -m 64M
 
 clean:
-	rm -f $(HOST_OBJS) $(TARGET) boot/*.o traps/*.o toolbox/*.o declrom/*.o
+	rm -f $(HOST_OBJS) $(TARGET) traps/*.o toolbox/*.o declrom/*.o
 	rm -rf $(BUILD_DIR)

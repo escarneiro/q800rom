@@ -9,12 +9,8 @@
 
 #include "mac_types.h"
 #include "hw_quadra.h"
-#include "rom_symbols.h"
 #include "traps.h"
 #include "trap_unpacker.h"
-#include "cpu68040.h"
-#include "hwinit.h"
-#include "lowmem_init.h"
 #include "mem_manager.h"
 #include "resource_mgr.h"
 #include "quickdraw.h"
@@ -65,33 +61,8 @@ int main(int argc, char **argv) {
                reset_pc, QUADRA_ROM_BASE + reset_pc);
     }
 
-    /* 2. CPU 68040 Detection & Setup */
-    printf("\n[2] Testing Motorola 68040 Detection & MMU Setup...\n");
-    MacCpuType cpu = EarlyCpuDetect();
-    printf("    Detected CPU Type: %s (%d)\n",
-           cpu == CPU_TYPE_68040 ? "Motorola 68040" : "Other M68K", cpu);
-    printf("    DTT0 configured:   0x%08X ($80000000-$FFFFFFFF Serialized)\n", QUADRA_ROM_DTT0_INIT);
-    printf("    DTT1 configured:   0x%08X ($50000000-$50FFFFFF I/O Space)\n", QUADRA_ROM_DTT1_INIT);
-
-    /* 3. Hardware Initialization */
-    printf("\n[3] Testing Hardware Controller Initialization...\n");
-    QuadraSystemConfig hw_cfg = InitQuadraHardware();
-    printf("    Machine ID:        0x%04X (Quadra 800 / BoxFlag 35)\n", hw_cfg.machine_id);
-    printf("    Physical RAM:      %u MB\n", hw_cfg.ram_size_bytes / (1024 * 1024));
-    printf("    Onboard VRAM:      %u KB\n", hw_cfg.vram_size_bytes / 1024);
-    printf("    Integrated FPU:    %s\n", hw_cfg.has_fpu ? "YES (68040 FPU)" : "NO");
-    printf("    SONIC Ethernet:    %s\n", hw_cfg.has_ethernet ? "YES (DP83932)" : "NO");
-
-    /* 4. Low-Memory Initialization */
-    printf("\n[4] Initializing Low-Memory Globals ($0000 - $2000)...\n");
-    InitLowMemoryGlobals(&hw_cfg);
-    InitExceptionVectors(SYM_TRAP_DISPATCHER);
-    printf("    MemTop:            0x%08X\n", QUADRA_RAM_BASE + hw_cfg.ram_size_bytes);
-    printf("    ROMBase:           0x%08X\n", QUADRA_ROM_BASE);
-    printf("    Vector 10 (A-Trap):0x%08X\n", SYM_TRAP_DISPATCHER);
-
-    /* 5. Trap Table Unpacking & Verification */
-    printf("\n[5] Unpacking ROM Compressed Trap Table (1,280 Traps)...\n");
+    /* 2. Trap Table Unpacking & Verification */
+    printf("\n[2] Unpacking ROM Compressed Trap Table (1,280 Traps)...\n");
     uint32_t os_table[256] = {0};
     uint32_t tb_table[1024] = {0};
 
@@ -114,12 +85,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* 6. NuBus Declaration ROM Verification */
-    printf("\n[6] Inspecting NuBus Declaration ROM Structures...\n");
+    /* 3. NuBus Declaration ROM Verification */
+    printf("\n[3] Inspecting NuBus Declaration ROM Structures...\n");
     DumpQuadraDeclRomInfo();
 
-    /* 7. Memory Manager & QuickDraw verification */
-    printf("\n[7] Testing Decompiled Memory Manager & QuickDraw...\n");
+    /* 4. Memory Manager & QuickDraw verification */
+    printf("\n[4] Testing Decompiled Memory Manager & QuickDraw...\n");
     Ptr test_ptr = MacNewPtr(256);
     printf("    MacNewPtr(256):    %p\n", (void *)test_ptr);
     if (test_ptr) {

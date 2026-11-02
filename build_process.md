@@ -163,7 +163,7 @@ make -C src rom       # ROM only
   # or directly:
   qemu-system-m68k -M q800 -bios build/QUADRA800_REBUILT.ROM -m 64M
   ```
-* **Host verification harness** (`src/quadra_rom_harness`, built from `main.c` and the C models in `boot/`, `traps/`, `toolbox/`, `declrom/`): decodes the packed trap table, inspects the declaration ROM and exercises the C Memory Manager and QuickDraw models against a ROM file:
+* **Host verification harness** (`src/quadra_rom_harness`, built from `main.c` and the C models in `traps/`, `toolbox/`, `declrom/`): checks the ROM header checksum, decodes the packed trap table, inspects the declaration ROM and exercises the C Memory Manager and QuickDraw models against a ROM file:
   ```bash
   make -C src run
   ```
