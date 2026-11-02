@@ -41,7 +41,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 
 3. **Temporary Exception Vector Table (`0x40802E00`)**:
    * Sets temporary stack pointer `%sp = $2600`.
-   * Points `VBR` to ROM exception vector table at `0x40803D00`, pre-populated with Gary Davidian's trap handler (`0x47617279` / `'Gary'`).
+   * Uses a small table at `0x40803D00` whose bus error entry points to `GOTBUSERROR` (used while probing hardware); the 228 bytes after it are padding filled with the word `'Gary'` (`0x47617279`), see "The filler" below.
 
 4. **Hardware Identification & RAM Sizing**:
    * Looks up motherboard configuration table at `0x4080322C`. Quadra 800 is identified by Machine ID `0x0023` (BoxFlag 35).
@@ -215,7 +215,9 @@ Apple's build tool filled the whole ROM image with a 152-byte block (the ROM tea
 initials, `(c) Copyright Apple Computer, Inc. 1989-1992` and the build date, `Mon, Oct 21,
 1991`) before placing code and data. Nothing reads it; it is left in 88 unused places: a
 run of 11,412 bytes before the declaration ROM data at `0x408F0000`, alignment padding and
-unused resource name fields. They are macros in `romsrc/include/romfill.inc`.
+unused resource name fields. Six more areas after the end of some code are padded with a
+repeated word, `Gary`, `YEAH` or `NEAT` (20 to 2,816 bytes). All of them are macros in
+`romsrc/include/romfill.inc`.
 
 ```bash
 make -C src rom FILLER=1
@@ -225,7 +227,8 @@ fills them with Lorem Ipsum instead, in delimited blocks that are easy to find a
 replace later: every block starts with `<<` and ends with `>>`. The long run becomes 74
 copies of `<<Lorem ipsum dolor sit amet, ... Ut enim ad minim veniam.>>` (152 bytes) and
 a last block `<<q800rom: ... https://github.com/escarneiro/q800rom ---->>` (164 bytes);
-the short pieces elsewhere are slices of the Lorem Ipsum block.
+the short pieces elsewhere are slices of the Lorem Ipsum block, and each word fill
+becomes whole Lorem Ipsum blocks plus one shorter `<<Lorem ipsum ...>>` block.
 
 #### The project's own media
 
