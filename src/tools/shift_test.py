@@ -101,7 +101,7 @@ def main():
         shutil.copytree(os.path.join(SRC, "romsrc"), shifted, ignore=shutil.ignore_patterns(".git"))
         best = None
         for fn in sorted(os.listdir(shifted)):
-            if not fn.startswith("part_"):
+            if not fn.endswith(".s") or fn == "q800rom.s":
                 continue
             lines = open(os.path.join(shifted, fn)).read().split("\n")
             prev = ""
