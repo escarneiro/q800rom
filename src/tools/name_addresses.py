@@ -27,7 +27,7 @@ AS = os.environ.get('M68K_AS', '/usr/m68k-suse-linux/bin/as')
 LD = os.environ.get('M68K_LD', '/usr/m68k-suse-linux/bin/ld')
 NM = os.environ.get('M68K_NM', '/usr/m68k-suse-linux/bin/nm')
 LABEL = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*):')
-GENERIC = re.compile(r'^(sub|loc|dat|thunk_FUN|caseD)_[0-9A-Fa-f]{8}$')
+GENERIC = re.compile(r'^((sub|loc|dat|thunk_FUN)_[0-9A-Fa-f]{8}|caseD_[0-9A-Fa-f]+)$')
 
 
 def src_files(root):
@@ -63,6 +63,9 @@ def line_addresses(root):
         src = os.path.join(tmp, 'src')
         subprocess.run([AS, '-m68040', '-I', src, '-I', os.path.join(src, 'include'),
                         os.path.join(src, 'q800rom.s'), '-o', obj], check=True, cwd=tmp)
+        und = subprocess.run([NM, '-u', obj], capture_output=True, text=True, check=True).stdout.strip()
+        if und:
+            sys.exit('undefined symbols in romsrc (addresses would be wrong):\n' + und)
         subprocess.run([LD, '-Ttext=0x40800000', '-e', '0x40800000', '--no-warn-rwx-segments',
                         '-o', elf, obj], check=True)
         nm = subprocess.run([NM, elf], capture_output=True, text=True, check=True).stdout

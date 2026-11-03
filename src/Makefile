@@ -125,6 +125,8 @@ $(MEDIA_DIR)/filler/romfill.inc: romsrc/include/romfill.inc tools/fill2s.py $(ME
 $(ROMSRC_OBJ): romsrc/q800rom.s $(ROMSRC_SRCS) $(MEDIA_CFG) $(MEDIA_FILES)
 	@mkdir -p $(BUILD_DIR)
 	$(M68K_AS) -m68040 $(MEDIA_INC) -I romsrc -I romsrc/include romsrc/q800rom.s -o $@
+	@if [ -n "$$($(M68K_NM) -u $@)" ]; then echo "undefined symbols:" >&2; \
+		$(M68K_NM) -u $@ >&2; rm -f $@; exit 1; fi
 
 # Linked at ROMBase so that label references resolve to ROM addresses
 $(ROMSRC_ELF): $(ROMSRC_OBJ)
