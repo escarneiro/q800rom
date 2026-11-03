@@ -1,6 +1,6 @@
 # Macintosh Quadra 800 ROM Reverse Engineering & Reconstructed Source
 
-This repository contains the decompiled and reconstructed C and Motorola 68040 assembly source code for the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`), based on reverse engineering with REA, Ghidra, and official Apple technical documentation.
+This repository contains the tools to turn the **Macintosh Quadra 800 ROM** (`QUADRA800.ROM`) into Motorola 68040 assembly source and to build the ROM from it again, byte for byte, plus original replacements for Apple's sounds, icons, cursors and fonts. The source itself is generated from your own ROM image and is not in the repository (it contains Apple's code). The analysis uses REA, Ghidra, Apple's MPW ROM map for this ROM and Apple's published technical documentation.
 
 ---
 
@@ -11,53 +11,64 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 ### Physical & Virtual Memory Map
 * **RAM Base**: `0x00000000` (8 MB fixed interleaved RAM on motherboard, expandable to 136 MB)
 * **ROM Base (`ROMBase`)**: `0x40800000` (ends at `0x408FFFFF`)
-* **I/O Space Base**: `0x50F00000`
-  * **VIA1**: `0x50F00000` (ADB, Timer 1/2, VBL, RTC clock line, ROM overlay control)
-  * **VIA2 / OSS**: `0x50F02000` (NuBus slot interrupts, SCSI DRQ/IRQ, Ethernet IRQ)
-  * **SCC (Z8530)**: `0x50F04000` (read) / `0x50F06000` (write)
-  * **SCSI (NCR 53C96)**: `0x50F10000` (Controller), `0x50F12000` (Handshake), `0x50F14000` (DMA)
-  * **DAFB Video Controller**: `0x50F16000` (CLUT DAC, resolution sensing, frame buffer control)
+* **I/O Space Base**: `0x50F00000`. The addresses below are those in the ROM's decoder table for
+  this machine family (`DJMEMCTABLE`, the djMEMC memory controller of the Quadra 610/650/800):
+  * **VIA1**: `0x50F00000` (ADB, timers, VBL, real-time clock)
+  * **VIA2**: `0x50F02000` (NuBus slot and SCSI interrupts)
   * **SONIC Ethernet (DP83932)**: `0x50F0A000`
-* **NuBus Standard Slots**: `$F9000000` - `$FE000000` (Slots 9 through E)
+  * **SCC (Z8530 serial)**: `0x50F0C020`
+  * **SCSI (NCR 53C96)**: `0x50F10000`
+  * **Sound chip**: `0x50F14000`
+  * **Floppy controller (SWIM)**: `0x50F1E000`
+  * **Built-in video**: `0xF9800000` (most likely the DAFB video controller)
+* **NuBus slot space**: `$F9000000` - `$FEFFFFFF` (slots 9 to E; the built-in video uses
+  slot 9's space)
 
 ---
 
 ## 2. Boot & Initialization Sequence
 
 1. **Hardware Power-On Reset**:
-   * The 68040 processor fetches initial SSP from address `0x00000000` (`0xF1ACAD13`, serving also as the ROM checksum) and initial PC from address `0x00000004` (`0x0000002A`).
-   * At power-on, hardware overlay maps ROM to address `0x00000000`.
-   * Address `0x0000002A` branches immediately to `0x4080008C` (`_reset_startup`).
+   * At power-on the ROM also appears at address `0x00000000` (overlay). The 68040 fetches the
+     initial SSP from `0x00000000` (`0xF1ACAD13`, which is also the ROM checksum) and the initial
+     PC from `0x00000004` (`0x0000002A`).
+   * The instruction at `0x0000002A` (`jmp %pc@(0x60)`) jumps to `0x0000008C`, `STARTBOOT`,
+     still in the low copy of the ROM; the code moves to the ROM's real addresses later
+     (`JUMPINTOROM`, step 3).
 
-2. **CPU Detection & Cache/MMU Setup (`0x40804052`)**:
-   * Puts CPU in supervisor mode and disables interrupts (`move.w #$2700, %sr`).
-   * Tests bit 31 of `CACR` to detect Motorola 68040 vs 68030.
-   * On 68040:
-     * Issues `cinva bc` (`0xF4D8`) to invalidate all cache lines.
-     * Clears `CACR` (caches disabled during boot) and `TC` (MMU disabled).
-     * Configures Data Transparent Translation register `DTT0` to `0x807FC040` (maps $80000000-$FFFFFFFF as non-cacheable serialized memory).
-     * Configures `DTT1` to `0x500FC040` (maps Apple internal I/O space $50000000-$50FFFFFF).
-   * Asserts the `reset` CPU instruction to reset external bus peripherals.
+2. **CPU Setup (`STARTBOOT`, `0x4080008C`, and `early_cpu_detect`, `0x40804052`)**:
+   * `STARTBOOT` puts the CPU in supervisor mode with interrupts masked (`move.w #$2700, %sr`)
+     and calls `early_cpu_detect`, which:
+     * sets bit 31 of `CACR` and reads it back, to tell a 68040 from a 68030;
+     * on a 68040, invalidates the caches (`cinva bc`), clears `CACR` (caches off) and `TC`
+       (MMU off), and sets the transparent translation registers: `DTT0` = `0x807FC040`
+       ($80000000-$FFFFFFFF, non-cacheable, serialized) and `DTT1` = `0x500FC040`
+       ($50000000-$5FFFFFFF, the I/O space).
+   * Back in `STARTBOOT`, the `reset` instruction resets the external devices.
 
-3. **Temporary Exception Vector Table (`0x40802E00`)**:
-   * Sets temporary stack pointer `%sp = $2600`.
-   * Uses a small table at `0x40803D00` whose bus error entry points to `GOTBUSERROR` (used while probing hardware); the 228 bytes after it are padding filled with the word `'Gary'` (`0x47617279`), see "The filler" below.
+3. **Into the ROM (`JUMPINTOROM`, `0x40802E00`)**:
+   * Sets a temporary stack pointer (`%sp = $2600`) and makes `GOTBUSERROR` the bus error
+     handler (`BusErrorVector`, used while probing the hardware). Next to it, the 228 bytes after
+     a small table at `0x40803D00` are padding filled with the word `'Gary'` (`0x47617279`), see
+     "The filler" below.
 
 4. **Hardware Identification & RAM Sizing**:
-   * Looks up motherboard configuration table at `0x4080322C`. Quadra 800 is identified by Machine ID `0x0023` (BoxFlag 35).
-   * Disables ROM overlay via VIA1 Port B bit 4 so physical RAM is mapped to address `0x00000000`.
-   * Sizes RAM banks and sets up parity/interleaving registers.
+   * Identifies the machine with the Universal ROM's decoder and product tables (the list at
+     `0x4080322C` starts with `UNKNOWNDECODERTABLE`). The Quadra 800 is box flag 35 (`0x23`).
+   * The ROM overlay is turned off, so that RAM appears at address `0x00000000` (where exactly
+     in the code has not been traced).
+   * Sizes the RAM banks and sets up the memory controller.
 
 5. **Low-Memory Globals & Exception Vectors**:
-   * Sets `CPUFlag` ($012F) = `4` (Motorola 68040).
-   * Sets `MMUFlags` ($0CB3) = `1` (32-bit clean mode).
-   * Sets `MemTop` ($0108) = top of detected RAM.
-   * Sets `BufPtr` ($010C) = bottom of video/sound buffers.
-   * Sets `ROMBase` ($02AE) and `ROMBaseCopy` ($0DDC) = `0x40800000`.
+   * Sets `CPUFlag` ($012F) = `4` (Motorola 68040) and `BoxFlag` ($0CB3) = the machine's box
+     flag (35 for the Quadra 800).
+   * Sets `MemTop` ($0108) = top of detected RAM and `BufPtr` ($010C) = bottom of the
+     video/sound buffers.
+   * Sets `ROMBase` ($02AE) = `0x40800000`.
    * Sets `SysZone` ($02A6) and `ApplZone` ($02AA).
 
 6. **Trap Dispatcher Installation & Unpacking (`0x40809A96`)**:
-   * Installs `_trap_dispatcher` (`0x408099B0`) at Vector 10 (`$0028`, Line 1010 Emulator).
+   * Installs `trap_dispatcher` (`0x408099B0`) at Vector 10 (`$0028`, Line 1010 Emulator).
    * Reads relative table offset at ROM header byte 34 (`$0022` -> `$000D3370`).
    * Unpacks 1,024 Toolbox Traps into `ToolboxTable` ($0E00).
    * Unpacks 256 OS Traps into `OSTable` ($0400).
@@ -66,7 +77,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
    * Calls `_SwapMMUMode` (`$A05D`) to enter 32-bit addressing mode.
    * Initializes Color QuickDraw (`_InitGraf` at `0x40831530`), cursor, fonts, windows, menus, and Dialog Manager.
    * Traverses NuBus Declaration ROM and mounts ROM Resource Map (`ROMMapHndl` at `$0B06`).
-   * Invokes `'boot'` resource to locate startup volume (SCSI, Floppy, or CD-ROM).
+   * Looks for a startup disk (SCSI, floppy) and reads its boot blocks, which load the System.
 
 ---
 
@@ -95,6 +106,11 @@ src/
 │   ├── fonts2s.py         - BDF <-> bitmap 'FONT' source (replacement, make FONTS=)
 │   ├── fill2s.py          - the filler in unused places (Apple's or Lorem Ipsum, make FILLER=1)
 │   ├── extract_applemedia.py - Apple's media from an original ROM -> applemedia/ (make applemedia)
+│   ├── declrom_names.py   - Names for the declaration ROM (sResources, drivers, video modes)
+│   ├── context_names.py   - Names for remaining sub_/loc_/dat_ labels from their context
+│   ├── name_addresses.py  - Give a name to any ROM address in romsrc/ (adds or renames the label)
+│   ├── rename_labels.py   - Apply a rename map to romsrc/
+│   ├── disasm_raw.py      - Turn code that is still raw data in romsrc/ into instructions
 │   └── ghidra/            - Ghidra headless scripts (Q800Seed, Q800ATraps, Q800Export)
 └── Makefile               - Build system (ROM generation, source regeneration, tests)
 ```
@@ -103,9 +119,10 @@ src/
 
 ## 4. Building the ROM
 
-The build no longer needs the original `QUADRA800.ROM`. The whole ROM exists as
-68040 assembly source in `src/romsrc/`, produced by disassembling the original
-and checked to rebuild it **byte for byte**.
+The whole ROM exists as 68040 assembly source in `src/romsrc/`, produced by
+disassembling the original and checked to rebuild it **byte for byte**. `src/romsrc/` is
+not in the repository: on a fresh clone, generate it once from your own ROM image (see
+"Regenerating `romsrc/`" below). After that the build does not need the ROM image.
 
 ### Prerequisites
 * **Motorola 68000 cross binutils**: GNU `as`, `ld`, `objcopy`, `nm`, `objdump` (`m68k-suse-linux-*`).
@@ -118,8 +135,10 @@ and checked to rebuild it **byte for byte**.
 make -C src rom
 ```
 
-1. Assembles `src/romsrc/q800rom.s` (which includes `part_00.s` … `part_0F.s`) and links it
-   at `0x40800000` (`build/q800rom.elf`).
+1. Assembles `src/romsrc/q800rom.s`, which includes the source files in ROM order
+   (`boot/`, `os/`, `toolbox/`, `quickdraw/`, `sound/`, `hw/`, `video/`, `patches/`, `diag/`,
+   `misc/`, `rsrc/` with one file per ROM resource, and `declrom/`), and links it at
+   `0x40800000` (`build/q800rom.elf`). The build stops if any symbol is undefined.
 2. Writes the binary image, re-encodes the packed trap table and the NuBus offsets from the
    linked addresses, stamps the byte-lane sums and the checksum (`tools/rom_postlink.py`) and
    writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently identical to the original
@@ -244,9 +263,16 @@ make -C src rom FREE_MEDIA=1
 
 * Real instructions (MIT syntax, GNU as) with labels for every branch and PC-relative
   target: `trap_GetResource`, `trap_InitGraf`, … for trap handlers (named from the live
-  trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources, `sub_XXXXXXXX` for other
-  functions, `loc_`/`dat_` for branch and data targets (the hex number is the address in
-  the original ROM; it does not change when code moves).
+  trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources; in the generated source,
+  `sub_XXXXXXXX` for other functions and `loc_`/`dat_` for branch and data targets (the
+  hex number is the address in the original ROM; it does not change when code moves).
+* Separate tools, run after generating, name more of the source: `declrom_names.py` (the
+  declaration ROM's structure), `name_addresses.py` (any address, e.g. dispatch-table
+  handlers named from documented `csCode`s and selectors), `context_names.py` (the
+  remaining `sub_`/`loc_`/`dat_` labels, after the routine or resource that contains them),
+  all applied with `rename_labels.py`; and `disasm_raw.py` turns code that the generator
+  left as data into instructions. Each change is checked by rebuilding the ROM byte for
+  byte.
 * Apple's own names from the MPW 3.5 ROM map for this ROM (`analysis/Quadra800ROM.lst`,
   2,672 labels such as `GETRESOURCE`, `SETPORT`, `WAITFORINTNOTIME`) are used wherever
   they apply: 1,099 `sub_`/`loc_`/`dat_` names are replaced by them, 1,148 are added as
@@ -285,12 +311,12 @@ Results:
 
 * Inserting 2, 6, 0x10, 0x40, 0x82, 0x400 or 0xF00 bytes at points from `0x40801000` to
   `0x408E0000` (moving up to the whole ROM below `0x408F0000`): boots to the desktop.
-* Mac OS 8.1 boots normally with the change at `0x40880000` or `0x408E0000` (the points tested
-  in that range). With changes at `0x40840000` or lower
-  Mac OS fails during startup (bus error after "Welcome to Mac OS", or a Sad
-  Mac). The most likely reason: the System file's patches for this ROM version use fixed
-  ROM addresses. Not proven; a remaining unsymbolized reference that only Mac OS uses is
-  also possible.
+* Mac OS 8.1 boots normally with the change at `0x40860000`, `0x40880000` or `0x408E0000`
+  (the points tested in that range). Earlier failures with lower points were relocation gaps
+  (hard-coded offsets in driver headers and the startup test tables, now handled by
+  `tools/rom_reloc.py`), not fixed addresses in the System file. Mac OS still fails to start
+  with insertions at `0x40801050`, `0x4082002E` and `0x40840CD4`; the cause is not found yet
+  (the first difference in execution is in reading the startup disk's boot blocks).
 
 #### Apple's media, for reference
 
@@ -345,9 +371,13 @@ Or run QEMU directly:
 qemu-system-m68k -M q800 -bios build/QUADRA800_REBUILT.ROM -m 64M
 ```
 
-The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`, executes the early CPU detection routine at `0x40804052` (`early_cpu_detect`), configures 68040 caches, sets up transparent translation registers `DTT0`/`DTT1`, and proceeds with system initialization.
+The machine starts at `0x0000002A` (the ROM's low copy), jumps to `STARTBOOT`, calls
+`early_cpu_detect` (`0x40804052`) to set up the 68040's caches and transparent translation
+registers, and continues with the steps described in section 2.
 
 ### B. Testing in Basilisk II
+Not tested with this project. Basilisk II patches the ROM it loads, so a modified ROM may not
+work there.
 1. Open or edit your `~/.basilisk_ii_prefs`:
    ```text
    rom /path/to/q800rom/build/QUADRA800_REBUILT.ROM
@@ -357,7 +387,11 @@ The virtual machine executes from address `0x4080002A`, branches to `0x4080008C`
    BasiliskII
    ```
 
-### C. Testing on Real Hardware (Macintosh Quadra 800)
+### C. Real Hardware (Macintosh Quadra 800)
+Not tested on real hardware.
 * The binary `build/QUADRA800_REBUILT.ROM` is exactly 1,048,576 bytes ($100000).
-* It can be written directly to a standard programmable Macintosh 64-pin ROM SIMM, or split across 4 $\times$ 256KB 8-bit / 2 $\times$ 512KB 16-bit EPROMs.
-* The hardware POST verifies the 16-bit word addition checksum at offset `0x00000000` during cold startup; our automated build process ensures this checksum is verified and matches.
+* How to put it on a machine depends on the board (ROM chips or a ROM SIMM socket); check your
+  hardware before programming anything.
+* The ROM's startup test checks the checksum stored at offset `0x00000000` (a 32-bit sum of
+  the ROM's 16-bit words) on every boot; the build recomputes it, and the byte-lane sums, for
+  any modified source (`make -C src rom` verifies it).
