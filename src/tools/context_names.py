@@ -17,7 +17,9 @@ With --dat ROM, the dat_XXXXXXXX labels instead: data that starts with readable 
 (a C string, or a Pascal string with its length byte) is named after the text, STR_... or
 PSTR_...; other data by its context as above. ROM is the image the ELF was built into.
 
-Usage:  context_names.py ELF ROMSRC APPLEMAP [--dat ROM] > names.map
+With --loc, the loc_XXXXXXXX labels (branch targets) the same way, by context.
+
+Usage:  context_names.py ELF ROMSRC APPLEMAP [--dat ROM | --loc] > names.map
         then: rename_labels.py names.map ROMSRC --locals ELF
 """
 import bisect
@@ -57,6 +59,9 @@ def text_at(rom, o):
 def main():
     args = sys.argv[1:]
     rom = None
+    loc = '--loc' in args
+    if loc:
+        args.remove('--loc')
     if '--dat' in args:
         i = args.index('--dat')
         rom = open(args[i + 1], 'rb').read()
@@ -64,7 +69,7 @@ def main():
     if len(args) != 3:
         sys.exit(__doc__)
     elf, root, mapfile = args
-    kind = 'dat' if rom else 'sub'
+    kind = 'dat' if rom else 'loc' if loc else 'sub'
     apple = {}
     for line in open(mapfile):
         f = line.split()
@@ -117,12 +122,52 @@ def main():
         i = bisect.bisect_right(keys, a) - 1
         return lst[i] if i >= 0 else None
 
+    # for branch targets: the routine a loc_ label is in = the nearest code label before it
+    # in the same file (a label other than loc_ whose next statement is an instruction)
+    in_routine = {}
+    if kind == 'loc':
+        for dp, dn, fn in os.walk(root):
+            dn[:] = [d for d in dn if d != '.git']
+            for f in fn:
+                if not f.endswith('.s'):
+                    continue
+                lines = open(os.path.join(dp, f)).read().split('\n')
+                cur = None
+                for i, line in enumerate(lines):
+                    m = re.match(r'^([A-Za-z_][A-Za-z0-9_]*):', line)
+                    if not m:
+                        continue
+                    lab = m.group(1)
+                    if lab.startswith('loc_'):
+                        if cur:
+                            in_routine[lab] = cur
+                        continue
+                    nxt = next((x.split('|')[0].strip() for x in lines[i + 1:i + 6]
+                                if x.split('|')[0].strip() and not re.match(r'^[A-Za-z_]\w*:', x)), '')
+                    if nxt and not nxt.startswith('.') and lab in addr:
+                        cur = lab
+                    elif nxt.startswith(('.long', '.short', '.byte', '.ascii', '.fill', '.rept')):
+                        cur = None
+
     out = []
     for n, a in sorted(addr.items(), key=lambda x: x[1]):
         if not re.match(r'^%s_[0-9A-F]{8}$' % kind, n):
             continue
         f = where.get(n, '')
-        what = 'routine' if kind == 'sub' else 'data'
+        if kind == 'loc' and n in in_routine and addr[in_routine[n]] < a:
+            base = in_routine[n]
+            while True:                    # X_off is itself "off bytes into X": use X
+                m = re.match(r'^(.*)_([0-9A-F]+)$', base)
+                if m and m.group(1) in addr and addr[m.group(1)] + int(m.group(2), 16) == addr[base]:
+                    base = m.group(1)
+                else:
+                    break
+            new = '%s_%X' % (base, a - addr[base])
+            if new not in used:
+                used.add(new)
+                out.append('%s %s  # branch target inside routine %s' % (n, new, base))
+                continue
+        what = {'sub': 'routine', 'dat': 'data', 'loc': 'branch target'}[kind]
         if rom:
             t = text_at(rom, a - ROM_BASE)
             if t:
@@ -140,7 +185,7 @@ def main():
             if b and where.get(b[1]) == f and a - b[0] < 0x4000:
                 how = 'in driver %s' % b[1]
             else:
-                b = nearest(decl_code_b if kind == 'sub' else decl_any_b, a)
+                b = nearest(decl_any_b if kind == 'dat' else decl_code_b, a)
                 how = 'after %s' % (b[1] if b else '?')
         else:
             b = nearest(apple_b, a)
