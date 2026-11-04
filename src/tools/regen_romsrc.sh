@@ -13,6 +13,11 @@
 #                     (used as extra seeds by the next run of this script); labels from
 #                     Apple's MPW ROM map (analysis/Quadra800ROM.lst) name their addresses
 #   4. declrom_names.py names for the declaration ROM, applied with rename_labels.py
+#   5. apply_fixups.py  what the hand-maintained source knows and the generator does not
+#                     (analysis/romsrc_fixups.txt, by ROM address): data decoded as
+#                     instructions, code left as data, offset tables and pointers that are
+#                     plain numbers, numbers taken for label differences. Refresh it with
+#                     tools/export_fixups.py after changing the hand-maintained source.
 #
 # The QEMU evidence in analysis/ (trap_tables_runtime.txt, executed_pcs.txt) was captured
 # by booting the original ROM with "-d in_asm" (to the desktop and into Mac OS 8.1).
@@ -80,3 +85,9 @@ if [ "$(sha256sum < "$WORK/r.bin" | cut -d' ' -f1)" != "$(cut -d' ' -f1 "$SRC/ro
     exit 1
 fi
 echo "[*] declaration ROM names applied; image unchanged"
+
+# Fix-ups from the hand-maintained source (tools/export_fixups.py), checked to leave the
+# image unchanged
+if [ -f "$AN/romsrc_fixups.txt" ]; then
+    TMPDIR="$WORK" python3 "$SRC/tools/apply_fixups.py" "$SRC/romsrc" "$ROM" "$AN/romsrc_fixups.txt"
+fi

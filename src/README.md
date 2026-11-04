@@ -357,7 +357,13 @@ evidence in `analysis/`, the ROM resource list, verified symbols and code found 
 tables by the previous run) → Ghidra headless analysis (`tools/ghidra/Q800Seed.java`,
 `Q800ATraps.java`, `Q800Export.java`) → `tools/rom_disasm.py` + `tools/rom_reloc.py`
 (source generation, symbolization and per-instruction verification) → `tools/declrom_names.py`
-(declaration ROM names, checked to leave the image unchanged). A new code map
+(declaration ROM names, checked to leave the image unchanged) → `tools/apply_fixups.py`
+(`analysis/romsrc_fixups.txt`: what the hand-maintained source knows and the generator does
+not, by ROM address: data decoded as instructions, code left as data, offset tables and
+pointers written as numbers, numbers taken for label differences; also checked to leave
+the image unchanged). After changing the hand-maintained source, refresh the fix-ups with
+`tools/export_fixups.py HAND_ROMSRC GENERATED_ROMSRC` (generated without the fix-ups).
+A new code map
 changes the generated source, so run `make -C src test-shift` with several `SHIFT_AT`
 values before committing the updated `analysis/` files. See `analysis/README.md`.
 

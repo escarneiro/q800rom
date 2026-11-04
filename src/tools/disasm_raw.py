@@ -23,7 +23,12 @@ code are added first with tools/name_addresses.py.
 With --lea, also the targets of lea/pea %pc@(X) inside raw data whose bytes decode as
 code (completion routines, continuations).
 
-Usage:  disasm_raw.py ROMSRC ROM FILE.s... [--seeds FILE] [--lea] [--dry-run]
+With --seeds-only, exactly the instructions at the addresses listed with --seeds (one
+each, no control flow followed: for a list of every instruction start, e.g. from
+tools/export_fixups.py).
+With --stop FILE ("START END" lines, hex), decoding never enters those bytes.
+
+Usage:  disasm_raw.py ROMSRC ROM FILE.s... [--seeds FILE] [--seeds-only] [--lea] [--dry-run]
         (FILE.s relative to ROMSRC; ROM: the image the current source builds)
 """
 import bisect
@@ -50,7 +55,7 @@ STOP = {'rts', 'rte', 'rtr', 'rtd', 'jmp', 'bras', 'braw', 'bral', 'stop', 'ille
 
 
 def numeric_data(line):
-    m = DATA.match(line)
+    m = DATA.match(re.sub(r'/\*.*?\*/', '', line))
     if not m:
         return None
     size = {'long': 4, 'short': 2, 'byte': 1}[m.group(1)]
@@ -226,8 +231,17 @@ def header_routines(rom, hdr):
 def main():
     args = sys.argv[1:]
     dry = '--dry-run' in args
-    args = [x for x in args if x not in ('--dry-run', '--lea')]
+    only = '--seeds-only' in args
+    args = [x for x in args if x not in ('--dry-run', '--lea', '--seeds-only')]
     extra = []
+    stops = []
+    if '--stop' in args:
+        i = args.index('--stop')
+        for l in open(args[i + 1]):
+            f = l.split('#')[0].split()
+            if len(f) >= 2:
+                stops.append((int(f[0], 16), int(f[1], 16)))
+        del args[i:i + 2]
     if '--seeds' in args:
         i = args.index('--seeds')
         extra = [int(l.split()[0], 16) for l in open(args[i + 1]) if l.split() and not l.startswith('#')]
@@ -249,8 +263,8 @@ def main():
     built = open(romfile, 'rb').read()
 
     # seeds: code references into raw data, driver routines, extra
-    seeds = set(a for a in extra if src.line_at(a))
-    for f in files:
+    seeds = set(a for a in extra if src.line_at(a) and a % 2 == 0)
+    for f in ([] if only else files):
         for line in open(os.path.join(root, f)):
             s = line.split('|')[0].strip()
             if not s or s.startswith('.') or LABEL.match(s):
@@ -261,7 +275,7 @@ def main():
             for n in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', s.split(None, 1)[1] if ' ' in s else ''):
                 if n in by_name and src.line_at(by_name[n]):
                     seeds.add(by_name[n])
-    for a in drvr_entries(built, src):
+    for a in ([] if only else drvr_entries(built, src)):
         if src.line_at(a):
             seeds.add(a)
     # lea/pea of a PC-relative address inside raw data: a continuation or completion
@@ -283,16 +297,20 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         while todo:
             a = todo.pop()
-            while a not in code:
+            while a not in code and a % 2 == 0:
                 d = decode(romfile, a)
                 if not d or not src.raw_run(a, d[1]):
                     break
                 text, n = d
+                if any(lo < a + n and a < hi for lo, hi in stops):
+                    break
                 # a label strictly inside the instruction: not code
                 if any(x in label_addrs for x in range(a + 1, a + n)):
                     break
                 ok, srctext = check(text, a, n, built, tmp)
                 code[a] = (text, n, ok)
+                if only:
+                    break
                 for kind, t in targets(text):
                     if kind == 'branch' and src.line_at(t) and t not in code:
                         todo.append(t)

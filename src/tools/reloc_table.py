@@ -12,7 +12,9 @@ rewrites the words as ".short TARGET-BASE". The image must not change.
 
 Input lines:  TABLE COUNT BASE [STRIDE [POS [SIZE]]] [# comment]
   TABLE is a hex address or a label.
-  BASE ".+N": each offset counts from N bytes after its own entry (written TARGET-.-N).
+  BASE ".+N": each offset counts from N bytes after its own entry (written TARGET-.-N);
+  0xADDR or 0xADDR+N: an address (a label is used or made there, or at the line start
+  before it when ADDR is inside an instruction); abs: the items are absolute addresses.
   SIZE 4: the offsets are longs (.long; the record is then just the long).
   BASE is a label or label+N (e.g. FOO_20+2 for "jmp %pc@(0,%d0:w)" at FOO_20).
   Records of STRIDE bytes (default 2) with the offset word at byte POS (default 0): the
@@ -84,15 +86,25 @@ def main():
                     defined[m.group(1)] = p
     sym, img = build(root, work)
     byaddr = {}
+    aliases = {}                          # .set names: fine in expressions, not as line labels
     for n, a in sym.items():
-        if n in defined and not n.startswith('RELOC_TABLE_END_'):
+        if n.startswith(('RELOC_TABLE_END_', '__')):
+            continue
+        if n in defined:
             byaddr.setdefault(a, []).append(n)
+        else:
+            aliases.setdefault(a, []).append(n)
     order = sorted((a, n) for n, a in sym.items() if n in defined)
     keys = [a for a, _ in order]
 
     def base_addr(expr, entry=None):
         if expr.startswith('.'):                    # relative to the entry itself
             return entry + (int(expr[2:], 0) if len(expr) > 1 else 0)
+        if expr == 'abs':
+            return 0
+        if expr.startswith('0x'):
+            a, _, n = expr.partition('+')
+            return int(a, 16) + (int(n, 0) if n else 0)
         m = re.match(r'^(\w+)(?:\+(\w+))?$', expr)
         return sym[m.group(1)] + (int(m.group(2), 0) if m.group(2) else 0)
 
@@ -103,7 +115,9 @@ def main():
     used = set(sym)
     new = {}
 
-    def name_for(a, fallback_root=None):
+    def name_for(a, line_label=False):
+        if a in aliases and a not in byaddr and not line_label and a not in new:
+            return sorted(aliases[a], key=len)[0]
         if a in byaddr:
             good = [n for n in byaddr[a] if not GENERIC.match(n)]
             return sorted(good or byaddr[a], key=len)[0]
@@ -118,7 +132,10 @@ def main():
             else:
                 break
         n = '%s_%X' % (s, a - sym[s])
-        assert n not in used, n
+        k = 2
+        while n in used:
+            n = '%s_%X_%d' % (s, a - sym[s], k)
+            k += 1
         used.add(n)
         new[a] = n
         return n
@@ -134,11 +151,27 @@ def main():
             for k in range(count):
                 print('%X  # %X entry %d' % (target(t, k, bexpr, stride, pos, size), t, k))
         return
+    hexbases = [b for _, _, b, _, _, _ in tables if b.startswith('0x')]
+    starts = []
+    if hexbases:
+        sys.path.insert(0, HERE)
+        import name_addresses as na
+        starts = sorted(set(na.line_addresses(root)[0].values()))
+    base_label = {}
+    for b in hexbases:
+        a = base_addr(b)
+        if a in byaddr or a in starts:
+            base_label[b] = (a, 0)
+        else:
+            p = starts[bisect.bisect_right(starts, a) - 1]
+            base_label[b] = (p, a - p)
     for t, count, bexpr, stride, pos, size in tables:
         t = sym[t] if t in sym else int(t, 16)
-        start = name_for(t)
+        if bexpr in base_label:
+            name_for(base_label[bexpr][0])
+        start = name_for(t, line_label=True)
         e = t + stride * count               # end marker: a label there, else a temporary one
-        end = name_for(e) if e in byaddr else 'RELOC_TABLE_END_%X' % t
+        end = name_for(e, line_label=True) if e in byaddr else 'RELOC_TABLE_END_%X' % t
         targets = [target(t, k, bexpr, stride, pos, size) for k in range(count)]
         for a in targets:
             name_for(a)
@@ -174,21 +207,31 @@ def main():
             if m:
                 inside.setdefault(sym[m.group(1)], []).append(l)
         if bexpr.startswith('.'):
-            bt = '.' + ('-' + bexpr[2:] if len(bexpr) > 1 else '')
+            bt = '-.' + ('-' + bexpr[2:] if len(bexpr) > 1 else '')
+        elif bexpr == 'abs':
+            bt = ''
+        elif bexpr in base_label:
+            la, n = base_label[bexpr]
+            bt = '-(%s+%d)' % (name_for(la), n) if n else '-' + name_for(la)
         else:
-            bt = '(%s)' % bexpr if '+' in bexpr else bexpr
+            bt = '-(%s)' % bexpr if '+' in bexpr else '-' + bexpr
         out = []
         for k in range(count):
             a = t + stride * k
             out += inside.pop(a, [])
             if size == 4:
-                out.append('    .long   %s-%s\t| %08X' % (name_for(targets[k]), bt, a))
+                out.append('    .long   %s%s\t| %08X' % (name_for(targets[k]), bt, a))
                 continue
-            w = ['0x%04X' % (word(a + j) & 0xFFFF) for j in range(0, stride, 2)]
-            w[pos // 2] = '%s-%s' % (name_for(targets[k]), bt)
-            out.append('    .short  %s\t| %08X' % (', '.join(w), a))
-            for j in range(2, stride, 2):
-                assert a + j not in inside, 'label inside a record at %X' % (a + j)
+            if stride == 2 or not any(a + j in inside for j in range(2, stride, 2)):
+                w = ['0x%04X' % (word(a + j) & 0xFFFF) for j in range(0, stride, 2)]
+                w[pos // 2] = '%s%s' % (name_for(targets[k]), bt)
+                out.append('    .short  %s\t| %08X' % (', '.join(w), a))
+                continue
+            for j in range(0, stride, 2):            # a label inside the record
+                if j:
+                    out += inside.pop(a + j, [])
+                v = '%s%s' % (name_for(targets[k]), bt) if j == pos else '0x%04X' % (word(a + j) & 0xFFFF)
+                out.append('    .short  %s\t| %08X' % (v, a + j))
         out += inside.pop(t + stride * count, [])       # labels at the end stay after the table
         assert not inside, 'labels not at an entry: %s' % inside
         L[i0:i1 + (1 if temp else 0)] = out

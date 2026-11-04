@@ -50,11 +50,12 @@ def line_addresses(root):
             out, depth = [], 0
             for i, l in enumerate(lines):
                 s = l.split('|')[0].strip()
-                if re.match(r'\.(rept|macro|irp|irpc)\b', s):
-                    depth += 1
+                # the first line of a .rept/.macro block has an address (its body not)
                 if depth == 0 and not s.startswith('.set') and not s.startswith('.endr'):
                     out.append('__ln_%d_%d:' % (k, i))
                     ids[(k, i)] = rel
+                if re.match(r'\.(rept|macro|irp|irpc)\b', s):
+                    depth += 1
                 out.append(l)
                 if re.match(r'\.(endr|endm)\b', s):
                     depth -= 1
@@ -115,6 +116,12 @@ def main():
     root = args[1]
     lines, labels = line_addresses(root)
     existing = {n for ns in labels.values() for n in ns}
+    # labels written as "NAME:" (not .set aliases, which may point inside an instruction
+    # that has since become data: a real label can still be added there)
+    defined = set()
+    for rel in src_files(root):
+        defined.update(re.findall(r'^([A-Za-z_][A-Za-z0-9_]*):', open(os.path.join(root, rel)).read(), re.M))
+    labels = {a: [n for n in ns if n in defined] for a, ns in labels.items()}
     by_addr = {}
     for (rel, i), a in lines.items():
         by_addr.setdefault(a, []).append((rel, i))
@@ -144,8 +151,11 @@ def main():
             continue
         k = bisect.bisect_right(starts, a) - 1
         start = starts[k]
-        rel, i = sorted(by_addr[start], key=lambda x: x[1])[-1]
-        text = open(os.path.join(root, rel)).read().split('\n')[i]
+        b, rel, i, text = None, None, None, ''
+        for r_, i_ in sorted(by_addr[start], key=lambda x: x[1]):      # the data line there
+            t_ = open(os.path.join(root, r_)).read().split('\n')[i_]
+            if data_bytes(t_) is not None or (b is None and rel is None):
+                b, rel, i, text = data_bytes(t_), r_, i_, t_
         b = data_bytes(text)
         if b is None or not (start < a < start + len(b)):
             skipped.append((a, name, 'inside: %s' % text.strip()[:60]))

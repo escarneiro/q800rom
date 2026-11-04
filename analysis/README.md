@@ -12,6 +12,7 @@ into the assembler source in `src/romsrc/`.
 | `code_hints.txt` | Code entry points found in ROM tables (Universal primitives, ROMBase offset tables, NuBus init blocks) | Written by `src/tools/rom_disasm.py`; fed back to Ghidra as seeds on the next regeneration |
 | `ghidra_atraps.txt` | A-line trap call sites | `Q800ATraps.java` (Ghidra can't decode A-line words, so it stops at every trap call; this script resumes after them) |
 | `Quadra800ROM.lst` | Apple's symbol map of this ROM (2,672 labels; Apple used it for the Quadra 800 and Centris 610/650) | MPW 3.5 GM `ROM Maps/ROM.List`, via [cy384/68k-mac-rom-maps](https://github.com/cy384/68k-mac-rom-maps); line endings converted to LF. Gives `trap_table.c` its names and `src/romsrc/` its Apple labels |
+| `romsrc_fixups.txt` | Corrections to the generated source, by ROM address (data ranges, code starts, offset tables and pointers, numbers); no ROM content | `src/tools/export_fixups.py` (the hand-maintained source compared with the generated one); applied by `src/tools/apply_fixups.py` as the last step of `regen_romsrc.sh` |
 | `qemu_macos81_boot_*.png` | Mac OS 8.1 Finder screenshots with the original and the rebuilt ROM | QEMU `screendump` (local only, not in git) |
 
 ## Findings worth knowing
