@@ -5,7 +5,8 @@ SPEC format:
   #TOP                 following lines: text appended to the file's leading comment
   ## LABEL             following lines: block comment placed above LABEL
   - LABEL: text        inline comment on LABEL's line
-Lines of text are written as "| text". Blank text lines become "|".
+Comments are written C style: a block as "/*", the text lines indented one space, "*/"
+(a one-line block as "/* text */"); inline comments as "/* text */".
 """
 import re, sys
 spec, path = sys.argv[1], sys.argv[2]
@@ -24,29 +25,44 @@ for l in open(spec).read().split('\n'):
 for d in list(blocks.values()) + [top]:
     while d and not d[-1].strip():
         d.pop()
-bad = [t for t in list(inline.values()) if ';' in t]
+bad = [t for t in list(inline.values()) + sum(blocks.values(), top[:]) if '*/' in t]
 if bad:
-    sys.exit('";" in inline comment: %s' % bad[:3])
-cm = lambda t: '| ' + t if t.strip() else '|'
+    sys.exit('"*/" in comment text: %s' % bad[:3])
+def cblock(lines):
+    if len(lines) == 1:
+        return ['/* %s */' % lines[0].strip()]
+    return ['/*'] + [(' ' + t).rstrip() for t in lines] + ['*/']
 L = open(path).read().split('\n')
 out, seen = [], set()
 i = 0
-while i < len(L) and L[i].startswith('|'):     # leading comment
-    out.append(L[i]); i += 1
-if top:
-    out.append('|')
-    out.extend(cm(t) for t in top)
+if L and L[0].startswith('/*'):                 # leading comment: add before its "*/"
+    while i < len(L) and not L[i].rstrip().endswith('*/'):
+        out.append(L[i]); i += 1
+    if top:
+        if L[i].strip() == '*/':
+            out.append('')
+            out.extend((' ' + t).rstrip() for t in top)
+        else:                                   # "/* one line */": reopen as a block
+            out.append(L[i].rstrip()[:-2].rstrip())
+            out.append('')
+            out.extend((' ' + t).rstrip() for t in top)
+            out.append('*/'); i += 1
+            top = None
+    if top is not None and i < len(L):
+        out.append(L[i]); i += 1
+elif top:
+    out.extend(cblock(top))
 for l in L[i:]:
-    m = re.match(r'^([A-Za-z_]\w*):(\s*)(\|.*)?$', l)
+    m = re.match(r'^([A-Za-z_]\w*):(\s*)(\|.*|/\*.*)?$', l)
     if m and (m.group(1) in blocks or m.group(1) in inline):
         lab = m.group(1); seen.add(lab)
         if lab in blocks:
             while out and out[-1] == '':
                 out.pop()
             out.append('')
-            out.extend(cm(t) for t in blocks[lab])
+            out.extend(cblock(blocks[lab]))
         if lab in inline and not m.group(3):
-            l = '%s:%s| %s' % (lab, ' ' * max(2, 23 - len(lab)), inline[lab])
+            l = '%s:%s/* %s */' % (lab, ' ' * max(2, 23 - len(lab)), inline[lab])
     out.append(l)
 missing = (set(blocks) | set(inline)) - seen
 if missing:

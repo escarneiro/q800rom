@@ -8,6 +8,13 @@ for s in specs:
     for l in open(s):
         m=re.match(r'^(?:## |- )([A-Za-z_]\w*)',l)
         if m: done.add(m.group(1))
+def code(l):
+    """the line without its comment (C style or '|')"""
+    return re.sub(r'/\*.*?\*/', '', l).split('|')[0].split('/*')[0]
+def comment(l):
+    m=re.search(r'/\*(.*?)\*/', l)
+    if m: return m.group(1).strip()
+    return l.split('|',1)[1].strip() if '|' in l else ''
 L=open(path).read().split('\n')
 labidx={}
 for i,l in enumerate(L):
@@ -16,15 +23,15 @@ for i,l in enumerate(L):
 # loop targets: a db<cc>/branch back to the label from below
 back=set()
 for i,l in enumerate(L):
-    s=l.split('|')[0].strip()
+    s=code(l).strip()
     m=re.match(r'^(db\w+|jb\w+|b\w+)\s+(?:%d\d,)?([A-Za-z_]\w*)$',s)
     if m and m.group(2) in labidx and labidx[m.group(2)]<i: back.add(m.group(2))
 def ins(i):
     out=[]
     for l in L[i+1:i+12]:
         if re.match(r'^[A-Za-z_]\w*:',l): break
-        s=l.split('|')[0].strip()
-        if s: out.append((s, l.split('|',1)[1].strip() if '|' in l else ''))
+        s=code(l).strip()
+        if s: out.append((s, comment(l)))
     return out
 TRAP=re.compile(r'^_(\w+)')
 def describe(lab,i):
@@ -73,9 +80,9 @@ def describe(lab,i):
     if s.startswith(('jmp','jsr')): return 'jump through %s'%s.split(None,1)[1]
     return 'from here: %s'%s
 for lab,i in labidx.items():
-    if lab in done or L[i].split(':',1)[1].strip().startswith('|'): continue
+    if lab in done or L[i].split(':',1)[1].strip().startswith(('|','/*')): continue
     j=i-1
     while j>0 and re.match(r'^[A-Za-z_]\w*:',L[j]): j-=1
-    if L[j].startswith('|'): continue
+    if L[j].startswith(('|','*/')) or L[j].rstrip().endswith('*/'): continue
     d=describe(lab,i)
-    if d: print('- %s: %s'%(lab,d.replace(';',',')))
+    if d: print('- %s: %s'%(lab,d.replace('*/','* /')))
