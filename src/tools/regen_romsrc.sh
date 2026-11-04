@@ -12,6 +12,7 @@
 #                     writes code locations found in ROM tables to analysis/code_hints.txt
 #                     (used as extra seeds by the next run of this script); labels from
 #                     Apple's MPW ROM map (analysis/Quadra800ROM.lst) name their addresses
+#   4. declrom_names.py names for the declaration ROM, applied with rename_labels.py
 #
 # The QEMU evidence in analysis/ (trap_tables_runtime.txt, executed_pcs.txt) was captured
 # by booting the original ROM with "-d in_asm" (to the desktop and into Mac OS 8.1).
@@ -57,3 +58,25 @@ fi
 python3 "$SRC/tools/rom_disasm.py" "$ROM" "$AN/ghidra_codemap.txt,$AN/ghidra_atraps.txt" \
     "$AN/ghidra_seeds.txt" "$SRC/traps/trap_table.c" "$SRC/romsrc" \
     --rom-map "$AN/Quadra800ROM.lst"
+
+# Names for the declaration ROM (sResources, drivers, video modes...): tools/declrom_names.py
+# on the generated source, applied with tools/rename_labels.py; the result must still
+# rebuild the same image.
+AS=${M68K_AS:-/usr/m68k-suse-linux/bin/as}
+LD=${M68K_LD:-/usr/m68k-suse-linux/bin/ld}
+OBJCOPY=${M68K_OBJCOPY:-/usr/bin/m68k-suse-linux-objcopy}
+build() {
+    "$AS" -m68040 -I "$SRC/romsrc" -I "$SRC/romsrc/include" "$SRC/romsrc/q800rom.s" -o "$WORK/r.o"
+    "$LD" -Ttext=0x40800000 -e 0x40800000 --no-warn-rwx-segments -o "$WORK/r.elf" "$WORK/r.o"
+}
+build
+python3 "$SRC/tools/declrom_names.py" "$ROM" "$WORK/r.elf" > "$WORK/declrom.map"
+python3 "$SRC/tools/rename_labels.py" "$WORK/declrom.map" "$SRC/romsrc" --locals "$WORK/r.elf"
+build
+"$OBJCOPY" -O binary --only-section=.text "$WORK/r.elf" "$WORK/r.bin"
+python3 "$SRC/tools/rom_postlink.py" "$WORK/r.elf" "$WORK/r.bin" "$SRC/romsrc" > /dev/null
+if [ "$(sha256sum < "$WORK/r.bin" | cut -d' ' -f1)" != "$(cut -d' ' -f1 "$SRC/romsrc/q800rom.sha256")" ]; then
+    echo "declaration ROM names changed the image" >&2
+    exit 1
+fi
+echo "[*] declaration ROM names applied; image unchanged"

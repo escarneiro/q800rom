@@ -34,6 +34,12 @@ Rules (all verified on the original ROM):
   R13 diagnostic test tables (USTTESTS, USTSUBTESTS): 24-byte entries (id, code offset,
       name offset, ...) with offsets relative to the table start, ended by id -1
                                                            -> .long label-table
+  R14 the declaration ROM's format block and the extended format header below it: the
+      format block's directory offset; a list (id 1 -> an SExecBlock, DECL_SUPERINIT,
+      whose code picks the sResource directory; id 0xFE -> the list of directories,
+      DECL_DIRECTORIES), "s24" like R11; the SExecBlock's size and code offset as label
+      expressions; every directory in the list is walked by R11. Names: DECL_FORMAT_BLOCK,
+      DECL_EXT_HEADER, DECL_SUPERINIT(_code), DECL_DIRECTORIES, DECL_SRSRC_DIR
   R6  long-range PC-relative calls:
         lea N,%aX / movel #N,%dX ; jmp|jsr|lea|pea %pc@(B,%reg:l)
                                                            -> N written as (target-B)
@@ -56,6 +62,38 @@ ROM_BASE = 0x40800000
 ROM_SIZE = 0x100000
 UNIMPL = 0x9AE6
 TEST_TABLES = (0x46040, 0x460C6)    # USTTESTS, USTSUBTESTS (Quadra 800 ROM)
+TEST_PATTERN = 0x5A932BC7           # NuBus declaration ROM test pattern
+
+
+def s24_target(r, q):
+    v = int.from_bytes(r[q + 1:q + 4], "big")
+    return q + (v - 0x1000000 if v & 0x800000 else v)
+
+
+def extended_header(r):
+    """The declaration ROM's extended format header, or None:
+    {'fb', 'eh', 'superinit', 'code', 'dirlist', 'dirs': [(entry, id, directory)]}.
+    Layout below the 20-byte format block: entry id 1 -> SExecBlock, entry id 0xFE ->
+    list of sResource directories, 0xFF000000, test pattern."""
+    fb = ROM_SIZE - 20
+    eh = fb - 16
+    if u32(r, eh + 12) != TEST_PATTERN or u32(r, eh + 8) != 0xFF000000:
+        return None
+    if r[eh] != 0x01 or r[eh + 4] != 0xFE:
+        return None
+    sx, dl = s24_target(r, eh), s24_target(r, eh + 4)
+    if not (0 <= sx < eh and 0 <= dl < eh):
+        return None
+    size = u32(r, sx)
+    code = sx + 8 + struct.unpack(">i", r[sx + 8:sx + 12])[0]
+    if sx + size != eh or not sx + 12 <= code < eh or r[sx + 4] != 2:
+        return None
+    dirs = []
+    q = dl
+    while r[q] != 0xFF and len(dirs) < 32:
+        dirs.append((q, r[q], s24_target(r, q)))
+        q += 4
+    return {"fb": fb, "eh": eh, "superinit": sx, "code": code, "dirlist": dl, "dirs": dirs}
 DECLROM = 0xF0000
 
 # F4: ROM offset ranges (inclusive) of Quadra 800 data that hold numbers, not addresses;
@@ -487,6 +525,9 @@ class Relocator:
         roots = [fb + (d - 0x1000000 if d & 0x800000 else d)]
         roots += [p for p in range(0, ROM_SIZE - 8, 2)
                   if r[p] not in (0, 0xFF) and r[p + 4] != 0 and is_dir(p)]
+        xh = extended_header(r)
+        if xh:
+            roots += [d for _, _, d in xh["dirs"]]
         roots = [p for p in roots if is_dir(p)]
         seen = set()
         relocs = []
@@ -540,6 +581,7 @@ class Relocator:
     def run(self):
         self.code_hints = set()
         self.exec_code = set()
+        self.verified = set()       # offsets whose expression a rule checked structurally
         self.r7_universal_tables()
         self.r4_trap_table()
         self.r3_header()
@@ -548,12 +590,43 @@ class Relocator:
         self.r2_jump_tables()
         self.r6_long_calls()
         self.r1_data_pointers()
+        self.r14_extended_header()
         self.r11_sresources()
         self.r10_rombase_offset_tables()
         self.r8_r9_function_offsets()
         self.r12_driver_headers()
         self.drop_false_relocations()
         return self.stats
+
+    def r14_extended_header(self):
+        """Format block and extended format header of the declaration ROM (R14)."""
+        src, r = self.src, self.rom
+        xh = extended_header(r)
+        if not xh:
+            return
+        names = {xh["fb"]: "DECL_FORMAT_BLOCK", xh["eh"]: "DECL_EXT_HEADER",
+                 xh["eh"] + 4: "DECL_EXT_HEADER_FE_entry", xh["superinit"]: "DECL_SUPERINIT",
+                 xh["code"]: "DECL_SUPERINIT_code", xh["dirlist"]: "DECL_DIRECTORIES"}
+        for q, i, d in xh["dirs"]:
+            if q != xh["dirlist"]:
+                names[q] = "DECL_DIRECTORIES_%02X_entry" % i
+            if i == 1:
+                names[d] = "DECL_SRSRC_DIR"
+        for off, n in names.items():
+            src.labels[off] = n
+        n = 0
+        rel = [(xh["fb"], s24_target(r, xh["fb"])), (xh["eh"], xh["superinit"]),
+               (xh["eh"] + 4, xh["dirlist"])] + [(q, d) for q, _, d in xh["dirs"]]
+        for q, t in rel:
+            if self.add_data(q, 4, None, "R14 extended format header", f"s24 -> {self.ref(t)}"):
+                src.post_relocs.append(f"s24 {self.ref(q)} {self.ref(t)}")
+                n += 1
+        sx = xh["superinit"]
+        self.add_data(sx, 4, "DECL_EXT_HEADER-DECL_SUPERINIT", "R14 extended format header",
+                      "physical block size")
+        self.add_data(sx + 8, 4, "DECL_SUPERINIT_code-.", "R14 extended format header", "code offset")
+        self.verified.update((sx, sx + 8))    # checked by extended_header(): not false ones
+        self.exec_code.add(xh["code"])
 
     def r13_test_tables(self):
         """Diagnostic test tables: code and name offsets relative to the table start."""
@@ -620,7 +693,7 @@ class Relocator:
             return None
         drop = {}
         for off, (size, expr, note) in src.data_expr.items():
-            if expr is None or off in fields:
+            if expr is None or off in fields or off in getattr(self, "verified", ()):
                 continue
             m = re.fullmatch(r"(\w+)(?:-(\w+|\.))?", expr)
             if not m or m.group(1) not in offs:

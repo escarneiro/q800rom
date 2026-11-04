@@ -135,10 +135,11 @@ not in the repository: on a fresh clone, generate it once from your own ROM imag
 make -C src rom
 ```
 
-1. Assembles `src/romsrc/q800rom.s`, which includes the source files in ROM order
-   (`boot/`, `os/`, `toolbox/`, `quickdraw/`, `sound/`, `hw/`, `video/`, `patches/`, `diag/`,
-   `misc/`, `rsrc/` with one file per ROM resource, and `declrom/`), and links it at
-   `0x40800000` (`build/q800rom.elf`). The build stops if any symbol is undefined.
+1. Assembles `src/romsrc/q800rom.s`, which includes the source files in ROM order, and links
+   it at `0x40800000` (`build/q800rom.elf`). The generator writes 16 files, `part_00.s` …
+   `part_0F.s` (64 KB of ROM each); a hand-maintained copy can split them further, e.g. into
+   `boot/`, `os/`, `toolbox/`, … and one file per ROM resource. The build stops if any symbol
+   is undefined.
 2. Writes the binary image, re-encodes the packed trap table and the NuBus offsets from the
    linked addresses, stamps the byte-lane sums and the checksum (`tools/rom_postlink.py`) and
    writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently identical to the original
@@ -266,8 +267,13 @@ make -C src rom FREE_MEDIA=1
   trap tables), `rsrc_DRVR_4__Sony_open` etc. for ROM resources; in the generated source,
   `sub_XXXXXXXX` for other functions and `loc_`/`dat_` for branch and data targets (the
   hex number is the address in the original ROM; it does not change when code moves).
-* Separate tools, run after generating, name more of the source: `declrom_names.py` (the
-  declaration ROM's structure), `name_addresses.py` (any address, e.g. dispatch-table
+* The declaration ROM is named as part of generating (`declrom_names.py`, applied with
+  `rename_labels.py`): the sResource directories and pools, every sResource after its own
+  name, drivers, video modes, and the extended format header below the format block
+  (`DECL_SUPERINIT`, whose code picks the sResource directory for the machine,
+  `DECL_EXT_HEADER`, `DECL_DIRECTORIES`, `DECL_FORMAT_BLOCK`), with all their 24-bit offsets
+  relocated.
+* Separate tools, run by hand afterwards, name more of the source: `name_addresses.py` (any address, e.g. dispatch-table
   handlers named from documented `csCode`s and selectors), `context_names.py` (the
   remaining `sub_`/`loc_`/`dat_` labels, after the routine or resource that contains them),
   all applied with `rename_labels.py`; and `disasm_raw.py` turns code that the generator
@@ -350,7 +356,8 @@ make -C src romsrc-reanalyze ORIG_ROM=/path/to/QUADRA800.ROM
 evidence in `analysis/`, the ROM resource list, verified symbols and code found in ROM
 tables by the previous run) → Ghidra headless analysis (`tools/ghidra/Q800Seed.java`,
 `Q800ATraps.java`, `Q800Export.java`) → `tools/rom_disasm.py` + `tools/rom_reloc.py`
-(source generation, symbolization and per-instruction verification). A new code map
+(source generation, symbolization and per-instruction verification) → `tools/declrom_names.py`
+(declaration ROM names, checked to leave the image unchanged). A new code map
 changes the generated source, so run `make -C src test-shift` with several `SHIFT_AT`
 values before committing the updated `analysis/` files. See `analysis/README.md`.
 

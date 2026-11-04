@@ -111,9 +111,9 @@ def rom_resources(r, seeds):
 
 def decl_rom(r, seeds):
     fb = ROM_SIZE - 20
-    seeds.add(fb, "L", "decl_format_block")
+    seeds.add(fb, "L", "DECL_FORMAT_BLOCK")
     d = fb + s24(r, fb)
-    seeds.add(d, "L", "decl_sresource_dir")
+    seeds.add(d, "L", "DECL_SRSRC_DIR")
     found = 0
     o = d
     while r[o] != 0xFF and o < ROM_SIZE:

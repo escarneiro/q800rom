@@ -39,7 +39,7 @@ import subprocess
 import sys
 import tempfile
 
-from rom_reloc import Relocator
+from rom_reloc import Relocator, extended_header
 
 ROM_BASE = 0x40800000
 ROM_SIZE = 0x100000
@@ -716,7 +716,13 @@ def main():
         del insns[a]
     funcs = {a: n for a, n in funcs.items() if a in insns}
     print(f"[*] {len(dropped)} instructions inside known data resources kept as data")
-    items = disassemble(rom_path, code_runs(insns), os.cpu_count() or 4)
+    runs = code_runs(insns)
+    # code the code map may lack: the declaration ROM's SuperInit routine (rom_reloc R14)
+    xh = extended_header(rom)
+    if xh and not any(xh["code"] < e and s < xh["eh"] for s, e in runs):
+        runs.append((xh["code"], xh["eh"]))
+        print(f"[*] declaration ROM SuperInit code at 0x{ROM_BASE + xh['code']:08X} added")
+    items = disassemble(rom_path, sorted(runs), os.cpu_count() or 4)
     # objdump's own boundaries win; drop anything overlapping a previous insn
     clean, last_end = {}, 0
     for a in sorted(items):
