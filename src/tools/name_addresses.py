@@ -88,7 +88,7 @@ def line_addresses(root):
 
 def data_bytes(line):
     """Bytes of a data line with plain numbers, or None."""
-    s = line.split('|')[0].strip()
+    s = re.sub(r'/\*.*?\*/', '', line).split('|')[0].strip()
     m = re.match(r'\.(long|short|byte)\s+(.*)$', s)
     if not m:
         return None
@@ -168,6 +168,9 @@ def main():
                 continue
             b = data_bytes(L[i])
             start = lines[(rel, i)]
+            if off >= len(b):          # a second label at the same split point: L[i] is now the head
+                L.insert(i + 1, name + ':')
+                continue
             head, tail = b[:off], b[off:]
             new = []
             if head:
