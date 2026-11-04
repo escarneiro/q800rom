@@ -123,7 +123,8 @@ def decode(romfile, a, cache={}):
                          capture_output=True, text=True).stdout
     ins = []
     for line in out.splitlines():
-        m = re.match(r'^\s*([0-9a-f]+):\s+((?:[0-9a-f]{4} ?)+)\s+(\S.*)$', line)
+        # address, tab, bytes, tab, text (continuation lines: bytes only, no second tab)
+        m = re.match(r'^\s*([0-9a-f]+):\t((?:[0-9a-f]{4} ?)+)\s*\t(\S.*)$', line)
         if m:                                   # (continuation lines carry only bytes)
             ins.append((int(m.group(1), 16), m.group(3).strip()))
     res = None

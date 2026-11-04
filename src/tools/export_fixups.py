@@ -145,8 +145,8 @@ def main():
     for ia, (n, ev) in sorted(gitems.items()):
         if ia in hitems:
             continue
-        h = at(hc, ia)
-        if h is not None and h['kind'] == 'data':
+        h = at(hc, ia)                             # data, or code the generator left
+        if h is not None and h['kind'] in ('data', 'insn'):    # as data with an expression
             out.append('number 0x%08X %d' % (ia, n))
     todo = [(ia, n, ev) for ia, (n, ev) in sorted(hitems.items()) if gitems.get(ia) != (n, ev)]
     # group runs: same size and base kind, constant stride, same base address (or the same
