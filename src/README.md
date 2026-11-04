@@ -143,7 +143,12 @@ make -C src rom
 2. Writes the binary image, re-encodes the packed trap table and the NuBus offsets from the
    linked addresses, stamps the byte-lane sums and the checksum (`tools/rom_postlink.py`) and
    writes **`build/QUADRA800_REBUILT.ROM`** (bootable, currently identical to the original
-   ROM, checksum `0xF1ACAD13`; checked against `romsrc/q800rom.sha256`).
+   ROM, checksum `0xF1ACAD13`; checked against `romsrc/q800rom.sha256`). When moved code
+   puts a trap's routine too far away for its entry's encoding (byte, word or long form),
+   the entry is promoted in `romsrc/traptable.lst` and `romsrc/os/disptable.s` and the ROM
+   is assembled and linked again; an unmodified source never needs this. Code inserted
+   anywhere moves everything up to the fixed region at `0xF0000`, and only about 3.9 KB
+   are free before it.
 
 ### 2. Test it
 

@@ -133,11 +133,15 @@ $(ROMSRC_ELF): $(ROMSRC_OBJ)
 	$(M68K_LD) -Ttext=0x40800000 -e 0x40800000 --no-warn-rwx-segments -o $@ $<
 
 # Post-link: the packed trap table is re-encoded from the linked label addresses and the
-# checksums are recomputed (both needed once code moves). When the source is unmodified the
+# checksums are recomputed (both needed once code moves). If a trap table entry has to grow
+# (its routine moved too far for its encoding), rom_postlink.py rewrites the entry in the
+# source and exits with 3: the ROM is then assembled and linked again. When the source is unmodified the
 # image is identical to the original ROM; a mismatch is reported but is not an error.
 $(REBUILT_ROM): $(ROMSRC_ELF) romsrc/q800rom.sha256 romsrc/traptable.lst romsrc/relocs.lst
 	$(M68K_OBJCOPY) -O binary --only-section=.text $< $@
-	@python3 tools/rom_postlink.py $< $@ romsrc > /dev/null
+	@python3 tools/rom_postlink.py $< $@ romsrc > $(BUILD_DIR)/postlink.log; rc=$$?; \
+	if [ $$rc = 3 ]; then rm -f $@; cat $(BUILD_DIR)/postlink.log; exec $(MAKE) --no-print-directory rom; fi; \
+	if [ $$rc != 0 ]; then cat $(BUILD_DIR)/postlink.log >&2; rm -f $@; exit $$rc; fi
 	@if [ "$$(sha256sum $@ | cut -d' ' -f1)" = "$$(cut -d' ' -f1 romsrc/q800rom.sha256)" ]; \
 		then echo "ROM image $@ is identical to the original ROM"; \
 		else echo "ROM image $@ differs from the original ROM (modified source)"; fi

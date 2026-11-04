@@ -4,8 +4,12 @@ rom_postlink.py - Post-link fixups for the ROM built from romsrc/.
 
 1. Re-encodes the packed trap dispatch table (label trap_dispatch_table) from the
    linked addresses of its target labels (romsrc/traptable.lst). Each entry keeps
-   its encoding class (byte / word / long); the build fails if a moved routine no
-   longer fits its class.
+   its encoding class (byte / word / long). When a moved routine no longer fits its
+   class, the entry is promoted (byte -> word -> long): its class in traptable.lst and
+   its placeholder bytes in the source file holding trap_dispatch_table are rewritten,
+   and the script exits with status 3: the table changed size, so the ROM must be
+   assembled and linked again (the Makefile and tools/shift_test.py do that). Classes
+   only grow, so this ends; an unmodified source never needs it.
 2. Applies romsrc/relocs.lst (24-bit self-relative NuBus sResource offsets).
 3. Recomputes the byte-lane sums (0x30) and the checksum (0x00).
 
@@ -25,6 +29,50 @@ NM = os.environ.get("M68K_NM", "/usr/m68k-suse-linux/bin/nm")
 ROM_BASE = 0x40800000
 
 
+SIZE = {"u": 1, "b": 1, "w": 2, "l": 5, "end": 2}
+
+
+def fits_byte(d):
+    return d % 2 == 0 and 2 <= d <= 0x7E * 2
+
+
+def fits_word(d):
+    """the word form: delta = sign_extend16((w * 2) & 0xFFFF), w < 0x8000, not 0"""
+    return d % 2 == 0 and d != 0 and -0x8000 <= d <= 0x7FFE
+
+
+def promote(srcdir, lines, entries, grow):
+    """new classes in traptable.lst lines and placeholder sizes in the table source"""
+    import re
+    for n, c in grow.items():
+        k, line = entries[n]
+        lines[k] = "%s %s" % (c, line[1])
+    # the source: one data line per entry after the label, in table order
+    for dp, dn, fn in os.walk(srcdir):
+        dn[:] = [d for d in dn if d != ".git"]
+        for f in fn:
+            if not f.endswith(".s"):
+                continue
+            p = os.path.join(dp, f)
+            L = open(p).read().split("\n")
+            if "trap_dispatch_table:" not in L:
+                continue
+            i = L.index("trap_dispatch_table:") + 1
+            n = 0
+            while n < len(entries):
+                m = re.match(r"^(\s+\.byte\s+)[^|]*(\t\|\s*)(\S+)(.*)$", L[i])
+                if m:
+                    if n in grow:
+                        c = grow[n]
+                        L[i] = "%s%s%s%s%s" % (m.group(1), ", ".join(["0x00"] * SIZE[c]),
+                                                 m.group(2), c, m.group(4))
+                    n += 1
+                i += 1
+            open(p, "w").write("\n".join(L))
+            return
+    sys.exit("trap_dispatch_table not found in the source")
+
+
 def main():
     elf, binf, srcdir = sys.argv[1:4]
     syms = {}
@@ -37,9 +85,12 @@ def main():
     lst = os.path.join(srcdir, "traptable.lst")
     if os.path.exists(lst) and "trap_dispatch_table" in syms:
         o = syms["trap_dispatch_table"]
+        lines = open(lst).read().split("\n")
+        entries = [(k, l.split()) for k, l in enumerate(lines) if l.strip() and not l.startswith("#")]
         cur = 0
         out = bytearray()
-        for n, line in enumerate(l.split() for l in open(lst) if l.strip() and not l.startswith("#")):
+        grow = {}                                  # entry number -> new class
+        for n, (k, line) in enumerate(entries):
             kind = line[0]
             if kind == "u":
                 out.append(0x80)
@@ -49,21 +100,26 @@ def main():
                 continue
             t = syms[line[1]]
             d = t - cur
+            if kind == "b" and not fits_byte(d):
+                kind = "w" if fits_word(d) else "l"
+            elif kind == "w" and not fits_word(d):
+                kind = "l"
+            if kind != line[0]:
+                grow[n] = kind
             if kind == "l":
                 out.append(0xFF)
                 out += struct.pack(">I", t)
             elif kind == "b":
-                if d % 2 or not 2 <= d <= 0x7E * 2:
-                    sys.exit(f"trap table entry {n} ({line[1]}): delta {d} no longer fits the byte form")
                 out.append(0x80 | (d // 2))
-            elif kind == "w":
-                if d % 2 or not -0x8000 <= d <= 0x7FFE or d == 0:
-                    sys.exit(f"trap table entry {n} ({line[1]}): delta {d} no longer fits the word form")
-                w = (d // 2) & 0x7FFF
-                if ((w * 2) & 0xFFFF) - (0x10000 if (w * 2) & 0x8000 else 0) != d:
-                    sys.exit(f"trap table entry {n} ({line[1]}): delta {d} not encodable")
-                out += struct.pack(">H", w)
+            else:
+                out += struct.pack(">H", (d // 2) & 0x7FFF)
             cur = t
+        if grow:
+            promote(srcdir, lines, entries, grow)
+            open(lst, "w").write("\n".join(lines))
+            print("trap table: %d entries promoted (%s): assemble and link again"
+                  % (len(grow), ", ".join("%s -> %s" % (entries[n][1][1], c) for n, c in grow.items())))
+            sys.exit(3)
         old = bytes(rom[o:o + len(out)])
         rom[o:o + len(out)] = out
         print(f"trap table at 0x{ROM_BASE + o:08X}: {len(out)} bytes re-encoded"

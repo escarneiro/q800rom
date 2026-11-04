@@ -34,22 +34,27 @@ FIXED = 0xF0000
 
 def build(srcdir, work, tag):
     o, e, b = (os.path.join(work, f"{tag}.{x}") for x in ("o", "elf", "rom"))
-    r = subprocess.run([AS, "-m68040", "-I", srcdir, "-I", os.path.join(srcdir, "include"),
-                        os.path.join(srcdir, "q800rom.s"), "-o", o], capture_output=True, text=True)
-    if r.returncode:
-        sys.exit("assembly failed:\n" + r.stderr[:2000])
-    r = subprocess.run([LD, f"-Ttext=0x{ROM_BASE:X}", "-e", f"0x{ROM_BASE:X}", "--no-warn-rwx-segments",
-                        "-o", e, o], capture_output=True, text=True)
-    if r.returncode:
-        sys.exit("link failed:\n" + r.stderr[:2000])
-    subprocess.run([OBJCOPY, "-O", "binary", "--only-section=.text", e, b], check=True)
-    if os.path.getsize(b) != 0x100000:
-        sys.exit(f"ROM size is 0x{os.path.getsize(b):X}, expected 0x100000")
-    r = subprocess.run([sys.executable, os.path.join(HERE, "rom_postlink.py"), e, b, srcdir],
-                       capture_output=True, text=True)
-    if r.returncode:
-        sys.exit("post-link failed:\n" + r.stdout + r.stderr)
-    return e, b
+    for attempt in range(8):            # again when a trap table entry had to grow
+        r = subprocess.run([AS, "-m68040", "-I", srcdir, "-I", os.path.join(srcdir, "include"),
+                            os.path.join(srcdir, "q800rom.s"), "-o", o], capture_output=True, text=True)
+        if r.returncode:
+            sys.exit("assembly failed:\n" + r.stderr[:2000])
+        r = subprocess.run([LD, f"-Ttext=0x{ROM_BASE:X}", "-e", f"0x{ROM_BASE:X}", "--no-warn-rwx-segments",
+                            "-o", e, o], capture_output=True, text=True)
+        if r.returncode:
+            sys.exit("link failed:\n" + r.stderr[:2000])
+        subprocess.run([OBJCOPY, "-O", "binary", "--only-section=.text", e, b], check=True)
+        if os.path.getsize(b) != 0x100000:
+            sys.exit(f"ROM size is 0x{os.path.getsize(b):X}, expected 0x100000")
+        r = subprocess.run([sys.executable, os.path.join(HERE, "rom_postlink.py"), e, b, srcdir],
+                           capture_output=True, text=True)
+        if r.returncode == 3:
+            print("[*] " + r.stdout.strip().splitlines()[-1])
+            continue
+        if r.returncode:
+            sys.exit("post-link failed:\n" + r.stdout + r.stderr)
+        return e, b
+    sys.exit("post-link: the trap table did not settle")
 
 
 def symbols(elf):
