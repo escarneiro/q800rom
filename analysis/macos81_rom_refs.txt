@@ -1,0 +1,920 @@
+# ROM addresses that Mac OS 8.1 (System file patches, as installed in RAM) uses directly
+# Collected from a boot of the original ROM to the Finder on a Mac OS 8.1 disk:
+#   boot = an instruction executed during the boot names the address (QEMU trace)
+#   ram  = an instruction in RAM after the boot names it (68k opcodes with an absolute
+#          or immediate 32-bit operand: jmp/jsr/lea/pea/movea/move.l/cmpi.l/cmpa.l)
+# use:  come-from = compared with a return address (the patch recognises its caller)
+#       jump-in   = jumped or called to directly
+#       pushed    = pushed as a return address, address = loaded into a register
+# Any of these addresses that moves breaks the corresponding patch: to keep running Mac
+# OS, code up to the last address in this list must keep its exact layout (change code
+# in place, same size, or branch out to free space after it).
+# address  use        where                 sources   ROM label
+40800000  come-from  other                boot+ram  rom_start
+40802240  jump-in    code                 boot      OPENSLOTS
+408025B0  jump-in    raw data in romsrc   ram       PUTICON_2E+0x5E
+40805448  jump-in    code                 ram       trap_HWPriv
+4080592C  jump-in    code                 boot+ram  GETCSTRING_3C
+40805972  jump-in    code                 ram       GETCSTRING_82
+4080636E  jump-in    code                 boot      GETBOARD
+40806904  jump-in    code                 ram       PINITENTRY_50+0x32
+4080691C  jump-in    code                 ram       PINITENTRY_9A
+40806920  jump-in    code                 ram       PINITENTRY_9E
+40806930  jump-in    code                 ram       PINITENTRY_AE
+40806E30  jump-in    code                 boot+ram  SINTCORE
+40807460  jump-in    code                 boot+ram  trap_SCSIDispatch
+40808A6C  jump-in    raw data in romsrc   ram       BUSERRHANDLER+0x8
+40809956  jump-in    code                 boot+ram  trap_Dequeue
+40809A66  jump-in    code                 boot+ram  trap_GetTrapAddress
+40809A6E  jump-in    code                 boot+ram  trap_SetTrapAddress
+40809B10  come-from  raw data in romsrc   boot      INTHND_10
+40809B20  come-from  raw data in romsrc   boot      INTHND_20
+40809B50  come-from  raw data in romsrc   boot      INTHND_50
+40809B68  jump-in    code                 ram       INTHND_68
+40809D70  come-from  code                 boot      SCCIOPBYPASSINT_70
+4080A00E  address    code                 boot+ram  ENABLEASCINTS
+4080A02E  address    code                 boot+ram  DISABLEASCINTS
+4080A04C  address    code                 boot+ram  CLEARASCINT
+4080A1EE  jump-in    code                 boot+ram  trap_VDISPTCH
+4080A37A  jump-in    code                 boot+ram  trap_GetIndADB
+4080A700  come-from  other                boot      IMPLICITREQUESTDONE_76+0x1F6
+4080A7B0  jump-in    code                 boot      INITADBDRVR
+4080AD7A  jump-in    code                 ram       trap_KeyTrans
+4080ADCC  jump-in    code                 ram       KEYTRANS_52
+4080AE96  jump-in    code                 boot+ram  trap_RmvTime+0x6
+4080AF02  jump-in    code                 boot+ram  INSTIME_16
+4080AF3E  jump-in    code                 boot+ram  PRIMETIME_14+0x10
+4080B02E  jump-in    code                 boot+ram  PRIMETIME_112+0x2
+4080B418  jump-in    code                 boot+ram  trap_OSEventAvail
+4080B572  jump-in    code                 boot+ram  IODONE
+4080B766  jump-in    code                 boot+ram  trap_Open
+4080BAAA  jump-in    code                 boot+ram  trap_Close
+4080BE0A  jump-in    code                 ram       trap_Launch
+4080C10C  jump-in    code                 boot+ram  trap_UprString+0x4
+4080C136  jump-in    code                 boot+ram  trap_RelString+0x2
+4080C196  jump-in    code                 boot+ram  RELSTRING_58+0xA
+4080CCFE  jump-in    code                 boot+ram  trap_SetApplBase
+4080CD52  jump-in    code                 boot+ram  trap_InitApplZone
+4080CF08  jump-in    code                 boot+ram  trap_InitZone
+4080D18A  jump-in    code                 boot+ram  trap_ResrvMem
+4080D1AC  jump-in    code                 ram       RESRVMEM_1E+0x4
+4080D1CC  jump-in    code                 boot+ram  RESRVMEM_3E+0x4
+4080D254  jump-in    code                 boot+ram  trap_SetApplLimit
+4080D2DC  jump-in    code                 boot+ram  trap_MaxApplZone
+4080D360  jump-in    code                 boot+ram  trap_NewPtr
+4080D372  jump-in    code                 ram       NEWPTR_C+0x6
+4080D38A  jump-in    code                 boot+ram  NEWPTR_24+0x6
+4080D3A0  jump-in    code                 boot+ram  trap_DisposPtr
+4080D448  jump-in    code                 boot+ram  trap_NewHandle
+4080D484  jump-in    code                 boot      trap_DisposHandle
+4080D4D0  jump-in    code                 boot+ram  trap_SetHandleSize
+4080D59A  jump-in    code                 boot+ram  trap_ReallocHandle
+4080D746  jump-in    code                 ram       MOREMASTERS_C+0x6
+4080D758  jump-in    code                 boot+ram  MOREMASTERS_1E+0x6
+4080D764  come-from  code                 boot      trap_StripAddress
+4080D772  jump-in    code                 boot+ram  trap_MoveHHi
+4080DC7C  jump-in    code                 boot+ram  MMHPROLOGUE+0xE
+4080DDF4  jump-in    code                 boot+ram  A32MAKEBKF
+4080DEAE  jump-in    code                 ram       A32EH_44
+4080DEC6  jump-in    code                 ram       A32EH_5C
+4080E1E6  jump-in    code                 ram       A24ALLOCBK
+4080E234  jump-in    code                 boot+ram  A32ALLOCBK
+4080E2A0  jump-in    code                 boot+ram  A32ALLOCBK_6C
+4080E334  jump-in    code                 boot+ram  A32ALLOCBK_100
+4080E4F6  jump-in    code                 ram       A32ZONEADJUSTEND_26
+4080E542  jump-in    code                 boot+ram  A32ZONEADJUSTEND_72
+4080E58E  jump-in    code                 ram       thunk_FUN_408878ee
+4080E5A2  jump-in    code                 boot+ram  thunk_FUN_40887926
+4080E5BA  jump-in    code                 ram       A24GETSIZE
+4080E5D2  jump-in    code                 boot+ram  A32GETSIZE
+4080E5F2  jump-in    code                 boot+ram  CLEARGZSTUFF
+4080E91C  jump-in    code                 boot+ram  ADJUSTFREE
+4080E92A  jump-in    code                 boot+ram  ADJUSTFREE_E
+4080E982  jump-in    code                 ram       A24HMAKEMOREMASTERS_E+0x6
+4080E9B4  jump-in    code                 boot+ram  A32HMAKEMOREMASTERS_E+0x8
+4080E9D0  jump-in    code                 ram       RELEASEMP
+4080EB40  jump-in    code                 boot+ram  A32MAKEPTRSPC_DE
+4080EC66  jump-in    code                 boot+ram  A32MAKEPTRSPC_204
+4080ED7E  jump-in    code                 boot+ram  trap_ShutDown
+4080EF40  jump-in    code                 boot+ram  trap_FSDispatch
+4080EF94  jump-in    code                 ram       FSQUEUESYNC
+4080EF98  jump-in    code                 boot+ram  FSQUEUESYNC_4
+4080F04C  jump-in    code                 boot+ram  CMDDONE
+4080F180  jump-in    code                 ram       DSHOOK
+4080F244  come-from  code                 ram       DSHOOK_C0+0x4
+4080F300  come-from  code                 boot+ram  DSHOOK_180
+4080F524  jump-in    code                 ram       MARKVCB
+4080F52E  jump-in    code                 ram       MARKVCBTIME_8
+4080F534  jump-in    code                 ram       FLUSHMDB
+4080F662  jump-in    code                 ram       MOUNTVOL_50+0x4
+4080F742  jump-in    code                 ram       MOUNTVOL_108+0x2C
+4080F950  address    code                 boot+ram  VCHECKREMOUNT_12C
+4080F970  jump-in    code                 ram       VCHECKREMOUNT_14C
+4080F9F6  jump-in    code                 ram       VMTCHECK_48
+4080FA08  jump-in    code                 ram       VMTCHECK_58+0x2
+4080FA36  come-from  code                 boot      VMTCHECK_64+0x24
+4080FA4C  jump-in    code                 ram       VMTCHECK_64+0x3A
+4080FB58  come-from  code                 boot+ram  VMTCHECK_17C+0x2E
+4080FB6E  jump-in    code                 ram       VMTCHECK_1AE+0x12
+4080FBC6  jump-in    code                 ram       VBMCHK_3C
+4080FBFA  jump-in    code                 ram       VBMCHK_70
+4080FC6C  jump-in    code                 ram       FINDDRIVE
+4080FD9C  jump-in    code                 ram       EJECT_48+0x16
+4080FDBE  jump-in    code                 ram       EJECT_6E+0x12
+4080FDC4  jump-in    code                 ram       EJECT_86
+4080FDFC  jump-in    code                 ram       EJECT_BE
+4080FE80  jump-in    code                 ram       UNMOUNTVOL_68
+4080FED8  jump-in    code                 ram       FLUSHVOL_C+0xE
+4080FEE4  jump-in    code                 ram       FLUSHVOL_20+0x6
+4080FEFA  jump-in    code                 ram       FLUSHVOL_3C
+4080FF0A  jump-in    code                 boot+ram  VCKEXTFS_A
+4080FF1E  jump-in    code                 boot+ram  VDTRMV3_E
+4080FFCE  jump-in    code                 ram       VDTRMV1_90+0x1A
+4081000E  jump-in    code                 ram       VDTRMV1_DA+0x10
+40810056  jump-in    code                 ram       VDTRMV1_132
+4081016A  come-from  code                 ram       GETVOLINFO_6E+0x8
+40810344  jump-in    code                 ram       SETVOLINFO_A8
+4081047A  jump-in    code                 ram       OPENWD_42
+408108C6  jump-in    code                 boot+ram  GETWDINFO_3A8
+408108CE  jump-in    code                 boot+ram  GETWDINFO_3B0
+408108D6  jump-in    code                 boot+ram  GETWDINFO_3B8
+408108E4  jump-in    code                 boot+ram  GETWDINFO_3C6
+40810906  jump-in    code                 boot+ram  VFILEOPEN_8
+408109EE  jump-in    code                 ram       VFILEOPEN_CE+0x22
+40810B66  jump-in    code                 ram       FILECREATE_7C
+40810B96  jump-in    code                 ram       FILECREATE_AC
+40810CA8  jump-in    code                 ram       FILECREATE_1BE
+40810CB0  jump-in    code                 ram       FILECREATE_1C6
+40810DAA  jump-in    code                 ram       trap_Rename+0x16
+40810EC0  come-from  code                 boot      RENAME_FA+0x32
+40810F0A  jump-in    code                 ram       RENAME_176
+40810F30  jump-in    code                 ram       RENAME_19C
+40811298  jump-in    code                 ram       SETCATINFO_72
+408112AE  jump-in    code                 boot+ram  SETCATINFO_88
+408113D8  jump-in    code                 ram       VFNDFILNAME_124
+40811694  jump-in    code                 ram       GETFILEINFO_294
+408117EA  jump-in    code                 boot+ram  TFSVCBTST
+40811AA2  jump-in    code                 ram       VFILECLOSE_1A
+40811B0C  come-from  code                 ram       VFCLOSE_34+0x30
+408126F6  jump-in    code                 ram       trap_VTRUNCATEFILE
+4081282A  jump-in    code                 ram       VTRUNCATEFILE_134
+408129BA  come-from  code                 boot+ram  CMSVCS+0xA
+40812B00  come-from  code                 boot+ram  CMDELETECN+0xA
+40812BA2  jump-in    code                 boot+ram  CMGETCN
+40812C30  come-from  code                 boot+ram  CMMOVECN+0xA
+40812DCC  jump-in    code                 ram       CMRENAMECN
+40812DD6  come-from  code                 boot+ram  CMRENAMECN+0xA
+40812ED4  jump-in    code                 ram       CMUPDATECN
+40812EDC  come-from  code                 boot+ram  CMUPDATECN+0x8
+40812F06  jump-in    code                 ram       CMUPDATECN_32
+40812F0C  jump-in    code                 boot+ram  trap_VCMSETUP
+40812F14  jump-in    code                 ram       VCMSETUP_8
+40812F24  jump-in    code                 ram       VCMSETUP_18
+40812F40  jump-in    code                 ram       CMMAINT
+40812F6E  jump-in    code                 ram       CMFLUSH
+40812FDE  jump-in    code                 ram       LOCCNODE
+40812FFE  jump-in    code                 ram       LOCCREC
+4081302C  jump-in    code                 ram       UPDCNAME
+40813090  jump-in    code                 ram       BTDELETE
+40813248  jump-in    code                 boot+ram  trap_VBTFLUSH
+408132A6  jump-in    code                 ram       BTGETRECORD
+4081335E  jump-in    code                 ram       BTINSERT
+408136B6  jump-in    code                 ram       BTSEARCH
+408136BC  jump-in    code                 boot+ram  trap_VBTSEARCH
+40813740  jump-in    code                 ram       BTUPDATE
+4081376C  jump-in    code                 ram       VBTUPDATE_26
+4081377A  jump-in    code                 ram       VBTUPDATE_34
+40813AE0  jump-in    code                 ram       ROTATELT
+40813BD0  jump-in    code                 ram       SPLITLT
+40813C5A  jump-in    code                 ram       TREESEARCH
+40813D20  jump-in    code                 ram       BUILDIREC
+40813D42  jump-in    code                 ram       CHKNODE
+40813DC6  jump-in    code                 ram       CLRNODE
+40813DE2  jump-in    code                 ram       DELETEREC
+40813E32  jump-in    code                 ram       GETLTSIB
+40813E3C  jump-in    code                 ram       GETRTSIB
+40813E6C  jump-in    code                 ram       GETMAXKEY
+40813EE2  jump-in    code                 ram       GETRECA
+40813EFE  jump-in    code                 ram       INITNODE
+40813F30  jump-in    code                 ram       INSERTREC
+40813FA2  jump-in    code                 ram       LOCBTCB
+40813FAC  jump-in    code                 ram       LOCREC
+40813FDE  jump-in    code                 ram       LOCTPR
+408140BA  jump-in    code                 ram       UPDDREC
+408140DC  jump-in    code                 ram       UPDIKEY
+4081413A  jump-in    code                 ram       FLUSHCACHE
+4081459C  jump-in    code                 ram       CACHERDIP
+40814868  jump-in    code                 ram       EGRETDISPATCH_68
+40815A40  jump-in    code                 boot+ram  trap_GetMouse
+40815AA0  jump-in    code                 boot+ram  trap_GetNextEvent
+40815B2A  come-from  code                 boot      GETNEXTEVENT_7E+0xC
+40815B2E  come-from  code                 boot      GETNEXTEVENT_8E
+40815B98  come-from  code                 boot+ram  GETNEXTEVENT_B4+0x44
+40815C04  come-from  code                 boot+ram  GETNEXTEVENT_164
+40815C28  come-from  code                 boot      GETNEXTEVENT_184+0x4
+40815C4A  jump-in    code                 boot+ram  GETNEXTEVENT_1AA
+40815D84  come-from  code                 ram       CMGR_34
+40815E48  jump-in    raw data in romsrc   ram       thunk_FUN_40816218+0x12
+40815F00  jump-in    code                 ram       trap_DisposControl+0x8
+40815F02  jump-in    raw data in romsrc   ram       trap_DisposControl+0xA
+408160C0  come-from  code                 boot+ram  trap_SetCTitle+0x24
+408160CE  jump-in    code                 ram       trap_SetCTitle+0x32
+40816218  jump-in    code                 ram       DRAGCONTROL_AC
+40816236  jump-in    code                 ram       trap_TrackControl
+40816D52  jump-in    code                 ram       trap_InitMenus+0x2
+40816EA0  jump-in    code                 boot+ram  trap_ClearMenuBar
+40816EC6  jump-in    code                 boot+ram  trap_InsertMenu
+40816F68  jump-in    code                 ram       INSERTMENU_A2
+40816FC2  jump-in    code                 ram       trap_DeleteMenu
+408170B6  jump-in    code                 boot+ram  trap_DrawMenuBar
+408170D4  jump-in    code                 boot+ram  trap_HiliteMenu
+40817154  jump-in    code                 ram       DISABLEITEM_C
+40817162  jump-in    code                 ram       DISABLEITEM_1A
+4081717E  jump-in    code                 ram       DISABLEITEM_36
+408171A2  jump-in    code                 ram       trap_MenuSelect+0x14
+40817296  jump-in    code                 ram       MENUSELECT_108
+408172D2  jump-in    code                 ram       trap_PopUpMenuSelect
+408177AA  come-from  code                 boot+ram  POPUPMENUSELECT_4B6+0x22
+408177B0  jump-in    code                 boot+ram  POPUPMENUSELECT_4B6+0x28
+40817818  jump-in    code                 ram       trap_GetMenuBar
+40817842  jump-in    code                 ram       trap_SetMenuBar
+40817928  jump-in    code                 ram       CALLMBARPROC_52
+408179D8  jump-in    code                 ram       CHECKITEM_14
+408179E0  come-from  code                 boot      CHECKITEM_14+0x8
+40817C06  jump-in    code                 ram       MENUKEY_7A
+40817C14  jump-in    code                 ram       MENUKEY_88
+40817D32  jump-in    code                 boot+ram  trap_CalcMenuSize
+40817DC6  jump-in    code                 boot+ram  trap_InsMenuItem
+408181E0  come-from  code                 boot+ram  WMGR
+4081826C  jump-in    code                 ram       SETSTRING_24
+4081835E  jump-in    code                 boot+ram  trap_ClipAbove
+40818382  jump-in    code                 boot+ram  trap_PaintOne
+408183B6  come-from  raw data in romsrc   boot+ram  PAINTONE_1A+0x1A
+408183BE  jump-in    code                 ram       PAINTONE_1A+0x22
+408183D6  come-from  raw data in romsrc   boot+ram  PAINTONE_1A+0x3A
+408183DC  jump-in    code                 ram       PAINTONE_1A+0x40
+4081840A  jump-in    code                 ram       PAINTONE_68+0x20
+40818432  jump-in    code                 boot+ram  PAINTONE_B0
+4081851C  address    code                 boot+ram  trap_DrawNew
+40818564  come-from  code                 boot+ram  DRAWNEW_28+0x20
+4081857C  jump-in    code                 boot+ram  trap_ShowHide
+408189D6  jump-in    code                 ram       trap_CloseWindow
+408189EC  come-from  code                 ram       trap_CloseWindow+0x16
+40818AC4  jump-in    code                 ram       CLOSEWINDOW_EE
+40818AF0  address    code                 boot+ram  trap_ShowWindow
+40818B10  come-from  code                 boot+ram  SHOWWINDOW_18+0x8
+40818BD8  come-from  code                 boot+ram  SETWTITLE_4A+0xA
+40818C5E  address    code                 ram       trap_MoveWindow
+40818CA8  come-from  code                 boot+ram  MOVEWINDOW_4A
+40818CEC  come-from  code                 boot+ram  MOVEWINDOW_88+0x6
+40818E0E  jump-in    code                 boot+ram  GETWVARIANT_36
+40818E5A  jump-in    code                 boot+ram  GETWVARIANT_82
+40818ED8  jump-in    raw data in romsrc   ram       HILITEWINDOW_2E+0xC
+40818F36  address    code                 ram       trap_ZoomWindow
+40818F9C  jump-in    code                 ram       trap_TrackGoAway
+40818FC0  jump-in    raw data in romsrc   ram       trap_TrackBox+0x1C
+40819014  address    code                 boot+ram  trap_SelectWindow
+4081901C  come-from  code                 boot+ram  SELECTWINDOW_4+0x4
+40819034  jump-in    code                 boot+ram  SELECTWINDOW_1C+0x4
+40819038  jump-in    code                 ram       SELECTWINDOW_1C+0x8
+40819048  address    code                 ram       trap_BringToFront
+4081904C  jump-in    code                 boot+ram  BRINGTOFRONT_4
+408190CC  come-from  raw data in romsrc   boot+ram  BRINGTOFRONT_4+0x80
+408190D0  come-from  raw data in romsrc   ram       BRINGTOFRONT_4+0x84
+408190EA  address    code                 ram       trap_SendBehind
+40819130  come-from  raw data in romsrc   boot+ram  trap_SendBehind+0x46
+40819134  come-from  raw data in romsrc   boot+ram  trap_SendBehind+0x4A
+40819140  jump-in    code                 boot+ram  trap_BeginUpDate
+40819184  jump-in    code                 boot+ram  trap_EndUpDate
+408191D6  address    code                 ram       trap_DragWindow
+40819244  come-from  raw data in romsrc   ram       DRAGWINDOW_24+0x4A
+40819298  jump-in    code                 ram       trap_DragGrayRgn
+408192CA  come-from  code                 boot+ram  trap_DragTheRgn+0x26
+40819492  come-from  code                 boot+ram  DRAGTHERGN_1DA+0x14
+408194B2  jump-in    code                 boot+ram  trap_InvalRgn
+408194B4  jump-in    code                 boot+ram  INVALRGN_2
+40819648  jump-in    code                 ram       trap_FindWindow
+40819714  come-from  code                 boot+ram  SETDESKCPAT_22+0x8
+40819744  jump-in    code                 boot+ram  trap_SetWinColor+0xE
+4081978C  come-from  code                 boot+ram  SETWINCOLOR_48+0xE
+4081979C  jump-in    code                 ram       trap_SetCtlColor+0xE
+408197AC  jump-in    code                 ram       SETCTLCOLOR_1E
+408197B6  jump-in    code                 ram       SETCTLCOLOR_28
+408197F6  jump-in    code                 ram       SETCTLCOLOR_28+0x40
+40819816  jump-in    code                 ram       SETCTLCOLOR_88
+4081981A  jump-in    code                 boot+ram  SETCTLCOLOR_8C
+4081983A  jump-in    code                 ram       SETCTLCOLOR_AC
+4081987E  jump-in    code                 boot+ram  trap_GetAuxWin
+40819884  jump-in    code                 boot+ram  trap_GetAuxCtl
+40819888  jump-in    code                 boot+ram  GETAUXCTL_4
+408198B8  come-from  code                 boot+ram  GETAUXCTL_2A+0xA
+408198E4  jump-in    raw data in romsrc   boot+ram  trap_InitDialogs+0x1A
+40819A48  come-from  raw data in romsrc   boot+ram  ALERT_2+0xBA
+40819C4E  jump-in    raw data in romsrc   ram       NEWDIALOG_2+0xB8
+40819C74  jump-in    raw data in romsrc   ram       trap_IsDialogEvent+0xE
+40819C9C  jump-in    raw data in romsrc   ram       trap_IsDialogEvent+0x36
+40819CB6  jump-in    raw data in romsrc   ram       trap_DialogSelect+0x14
+40819CDE  jump-in    code                 ram       DIALOGSELECT_32+0xA
+40819CE4  jump-in    code                 ram       trap_ModalDialog
+40819D76  jump-in    code                 boot+ram  MODALDIALOG_92
+40819D82  jump-in    code                 ram       MODALDIALOG_9E
+40819DC2  jump-in    code                 ram       UPDTDIALOG_1C
+40819E14  jump-in    code                 ram       CLOSEDIALOG_46
+40819F2E  come-from  raw data in romsrc   boot+ram  COULDALERT_36+0x24
+40819F64  come-from  code                 boot+ram  COULDALERT_36+0x5A
+4081A4FC  come-from  code                 boot+ram  FINDDITEM_29A+0xC
+4081A51E  jump-in    code                 ram       FINDDITEM_2C8
+4081A656  come-from  code                 ram       FINDDITEM_3E4+0x1C
+4081A804  jump-in    code                 ram       FINDDITEM_5AE
+4081A91C  jump-in    code                 ram       FINDDITEM_6C6
+4081A98E  jump-in    code                 ram       FINDDITEM_738
+4081ADD4  jump-in    code                 boot+ram  trap_VNEWMAP
+4081AE6C  come-from  code                 boot      trap_VNEWMAP+0x98
+4081AEC0  jump-in    code                 boot+ram  trap_RsrcZoneInit
+4081AF4A  come-from  code                 boot      RSRCZONEINIT_80+0xA
+4081AF54  jump-in    code                 ram       trap_CreateResFile
+4081AF58  jump-in    code                 boot+ram  trap_CreateResFile+0x4
+4081AF6A  come-from  raw data in romsrc   boot      trap_CreateResFile+0x16
+4081AF9E  jump-in    code                 boot+ram  trap_OpenResFile
+4081AFCE  jump-in    code                 boot+ram  trap_OpenRFPerm
+4081B034  jump-in    code                 boot+ram  SETRESFILEATTRS_3C
+4081B0AE  jump-in    code                 boot+ram  trap_UpdateResFile
+4081B1CE  jump-in    code                 boot+ram  VCMPFRM_38
+4081B1FC  jump-in    code                 boot+ram  VCMPFRM_66
+4081B284  jump-in    code                 boot+ram  VCMPFRM_EE
+4081B388  jump-in    code                 boot+ram  trap_CloseResFile
+4081B428  jump-in    code                 ram       trap_Count1Resources
+4081B452  jump-in    code                 boot+ram  trap_Get1IxResource
+4081B4EE  jump-in    code                 ram       trap_Count1Types
+4081B4F2  jump-in    code                 ram       trap_CountTypes
+4081B538  jump-in    code                 ram       trap_Get1IxType
+4081B53C  address    code                 ram       trap_GetIndType
+4081B562  jump-in    code                 ram       trap_UniqueID
+4081B59C  jump-in    code                 boot+ram  trap_Get1Resource
+4081B5A0  jump-in    code                 boot+ram  trap_GetResource
+4081B5E0  jump-in    code                 ram       trap_Get1NamedResource
+4081B5E4  address    code                 boot+ram  trap_GetNamedResource
+4081B6A4  jump-in    code                 boot+ram  GETTYPES_C
+4081B700  jump-in    code                 boot+ram  SKIPTOENTRY_1E
+4081B704  jump-in    code                 ram       SKIPTOENTRY_22
+4081B73E  jump-in    code                 boot+ram  VRMGRSTDENTRY_30
+4081B7C4  jump-in    code                 boot+ram  VRMGRSTDENTRY_B6
+4081B8FA  jump-in    code                 boot+ram  trap_VCHECKLOAD
+4081B9A4  come-from  code                 boot      VCHECKLOAD_9C+0xE
+4081B9C6  jump-in    code                 ram       VCHECKLOAD_C6+0x6
+4081BA14  jump-in    code                 ram       VCHECKLOAD_11A
+4081BA1A  come-from  code                 boot      VCHECKLOAD_11A+0x6
+4081BA1E  jump-in    code                 boot+ram  VCHECKLOAD_124
+4081BA32  jump-in    code                 ram       VCHECKLOAD_138
+4081BA7E  jump-in    code                 ram       VCHECKLOAD_184
+4081BB26  jump-in    code                 ram       VCHECKLOAD_22C
+4081BB36  come-from  code                 boot      VCHECKLOAD_23C
+4081BB9E  jump-in    code                 boot+ram  trap_LoadResource
+4081BC1E  jump-in    code                 boot+ram  trap_ChangedResource
+4081BC5A  jump-in    code                 boot+ram  trap_WriteResource
+4081BCBE  jump-in    code                 ram       trap_SetResPurge
+4081BD26  jump-in    code                 boot+ram  trap_SetResAttrs
+4081BD4A  jump-in    code                 ram       SETRESATTRS_24
+4081BDE8  jump-in    code                 boot+ram  trap_AddResource
+4081BE3A  jump-in    code                 ram       ADDRESOURCE_52
+4081BEC0  jump-in    code                 boot+ram  trap_RmveResource
+4081BF52  jump-in    code                 ram       ADDNAME
+4081BFCC  come-from  code                 boot      RESIZEMAP+0x12
+4081C012  come-from  code                 boot      RMVENAME_18+0x14
+4081C030  jump-in    code                 boot+ram  RMVENAME_4A
+4081C052  come-from  code                 boot      SIZERESOURCE_E+0x8
+4081C07E  jump-in    code                 boot+ram  trap_RGetResource
+4081C214  jump-in    raw data in romsrc   boot      trap_HandToHand
+4081C282  jump-in    code                 boot+ram  trap_PtrAndHand
+4081C3D0  jump-in    code                 ram       FIXMUL_BE
+4081C490  jump-in    code                 boot+ram  trap_FixRatio
+4081C5DE  jump-in    code                 ram       FIXATAN2_22
+4081C790  jump-in    code                 ram       DESKMGR_40
+4081C79C  come-from  code                 boot+ram  DESKMGR_48+0x4
+4081C7B4  jump-in    code                 ram       SYSTEMEVENT_64
+4081C856  jump-in    code                 ram       trap_SystemClick+0x2A
+4081C886  come-from  code                 boot+ram  trap_SystemClick+0x5A
+4081C894  jump-in    code                 ram       SYSTEMCLICK_68
+4081C8A0  jump-in    code                 ram       SYSTEMCLICK_74
+4081C8E6  come-from  code                 ram       SYSTEMCLICK_AE+0xC
+4081C900  jump-in    code                 ram       trap_SystemTask
+4081C904  jump-in    code                 boot+ram  trap_SystemTask+0x4
+4081C980  jump-in    code                 ram       trap_SystemMenu
+4081D470  pushed     code                 boot+ram  NMGNEFILTER
+4081D730  jump-in    code                 ram       trap_NMRemove
+4081DB34  come-from  code                 boot+ram  TRANSLIT+0x64
+4081DB3A  jump-in    code                 ram       TRANSLIT+0x6A
+4081DBE0  jump-in    code                 ram       FINDWORD_20+0x1C
+4081DC16  jump-in    code                 ram       FINDWORD_72
+4081DC42  jump-in    code                 ram       FINDWORD_9E
+4081DFC6  jump-in    code                 boot+ram  XSWAPKYBD+0x38
+4081E048  come-from  code                 boot      XSWAPKYBD_B0+0xA
+4081E058  jump-in    code                 boot+ram  XSWAPKYBD_B0+0x1A
+4081E064  jump-in    code                 boot+ram  XSWAPKYBD_D6
+4081E1C2  address    code                 boot      SMGRCALCRECT
+4081E21C  address    code                 boot      SMGRINITFONTS
+4081E3B0  address    code                 boot      UTILTABLE_44
+4081E3BC  jump-in    code                 ram       BITBUCKET
+4081E7B0  jump-in    code                 ram       VALIDDATE
+4081EA30  jump-in    code                 ram       TOGGLEDATE_1D6+0xA
+4081EA6E  come-from  code                 ram       TOGGLEDATE_21C+0x2
+4081EA72  jump-in    code                 ram       TOGGLEDATE_222
+4081EAC4  come-from  code                 ram       TOGGLEDATE_25E+0x16
+4081EAE4  jump-in    code                 ram       TOGGLEDATE_28C+0x8
+4081EB00  come-from  code                 ram       TOGGLEDATE_2AC+0x4
+4081EB06  jump-in    code                 ram       TOGGLEDATE_2B6
+4081EB2C  jump-in    code                 ram       TOGGLEDATE_2DC
+4081EB3C  jump-in    code                 ram       TOGGLEDATE_2E0+0xC
+4081EE60  jump-in    code                 ram       VALIDLONG
+4081EEA0  jump-in    code                 ram       BLOCK2STRING
+4081EF20  jump-in    code                 ram       MATCHSTRING
+4081F0E8  jump-in    code                 ram       INITDATECACHE_144+0x24
+4081F160  jump-in    code                 ram       INITDATECACHE_1E0
+4081F2D6  jump-in    code                 ram       STRING2DATE_134+0x12
+4081F426  jump-in    code                 ram       STRING2DATE_296
+4081F46E  jump-in    code                 ram       STRING2DATE_2DE
+4081F47E  jump-in    code                 ram       STRING2DATE_2EE
+4081F96C  jump-in    code                 ram       FORMATORDER_78+0x4
+4081F974  jump-in    code                 ram       FINDCARRIAGE_A4
+40821C90  jump-in    code                 ram       trap_GetNewCWindow
+40821CB8  come-from  code                 boot+ram  GETNEWWINDOW_8+0x14
+40821EE0  address    raw data in romsrc   ram       TEXTEDIT
+4082200C  jump-in    code                 boot+ram  TEINIT_7A
+4082203C  jump-in    raw data in romsrc   ram       trap_TEGetText+0x4
+40822052  jump-in    code                 ram       trap_TEDispose+0xE
+408220C2  jump-in    code                 boot+ram  TEXTBOX_20
+40822104  come-from  code                 boot+ram  TEXTBOX_36+0x2C
+40822116  come-from  code                 boot+ram  TEXTBOX_36+0x3E
+4082217C  jump-in    code                 boot+ram  TEXTBOX_DA
+40822186  jump-in    raw data in romsrc   ram       trap_TESetText+0x4
+40822206  jump-in    code                 ram       TESETTEXT_84
+4082226A  jump-in    code                 boot+ram  TESETTEXT_E8
+40822272  come-from  code                 boot+ram  TESETTEXT_E8+0x8
+4082229E  jump-in    raw data in romsrc   ram       trap_TECalText+0x4
+408222A0  jump-in    code                 ram       trap_TECalText+0x6
+408222A2  jump-in    code                 ram       TECALTEXT_8
+408222A8  jump-in    code                 ram       TECALTEXT_E
+40822334  jump-in    raw data in romsrc   ram       trap_TESetSelect+0x36
+408223BC  jump-in    code                 boot+ram  trap_TENew+0x78
+408223D0  jump-in    code                 ram       TENEW_8C
+408224D4  jump-in    code                 ram       trap_TEStyleNew+0xB8
+40822510  jump-in    code                 boot+ram  TESTYLNEW_F4
+40822544  jump-in    raw data in romsrc   ram       trap_TEUpdate+0xE
+40822552  jump-in    code                 ram       TEUPDATE_1C
+40822670  jump-in    raw data in romsrc   ram       DOFIND+0x8
+40822690  pushed     code                 boot+ram  DOFIND_28
+408227E4  jump-in    code                 ram       DOSEARCH_E6
+408227F6  jump-in    code                 ram       DOSEARCH_F8
+4082281A  jump-in    code                 ram       DOSEARCH_110+0xC
+4082283A  jump-in    code                 ram       DOSEARCH_13C
+40822850  jump-in    code                 ram       DOSEARCH_152
+4082285A  address    code                 boot+ram  DOSEARCH_15C
+4082286C  jump-in    code                 ram       DOSEARCH_16E
+40822878  jump-in    code                 ram       DOSEARCH_17A
+40822884  address    code                 boot+ram  DOSEARCH_186
+40822A04  jump-in    code                 ram       XDOERASE_4E
+40822A08  jump-in    code                 ram       XDOERASE_52
+40822A18  jump-in    code                 ram       PREPLINE
+40822A2C  jump-in    code                 ram       PREPLINE_14
+40822A5A  jump-in    code                 ram       PREPLINE_42
+40822A6A  jump-in    code                 ram       DOTEXT
+40822C12  jump-in    code                 ram       XCARETDISPLAY_11C
+40822C1A  jump-in    code                 ram       XCARETDISPLAY_124
+40822D26  jump-in    code                 ram       XGETRLPOSITION_B2
+40822D2A  jump-in    code                 ram       XGETRLPOSITION_B6
+40822D2E  jump-in    code                 ram       XGETRLPOSITION_BA
+40822D46  jump-in    code                 ram       XGETRLPOSITION_C0+0x12
+40822EEA  jump-in    code                 ram       XGETRLPOSITION_276
+40822F16  jump-in    code                 boot+ram  XGETRLPOSITION_2A2
+40822F50  jump-in    code                 ram       XGETRLPOSITION_2DC
+40822F82  jump-in    code                 ram       XGETRLPOSITION_30E
+40822FF6  jump-in    code                 ram       XTEGETFORMATORDER+0xA
+408230FE  jump-in    code                 ram       XTEGETFORMATORDER_112
+40823118  jump-in    code                 ram       DOHILITE+0x4
+408232D6  jump-in    code                 ram       XONSAMELINE_114
+4082333A  jump-in    code                 ram       XONSAMELINE_178
+408233BA  jump-in    code                 ram       XONSAMELINE_1F8
+408233E6  jump-in    code                 ram       XONSAMELINE_224
+408233F2  jump-in    code                 ram       XONSAMELINE_230
+408233FE  jump-in    code                 ram       XONSAMELINE_23C
+40823498  jump-in    code                 ram       XONSAMELINE_2D6
+408234D8  jump-in    code                 ram       XONSAMELINE_316
+40823536  come-from  code                 boot+ram  XONSAMELINE_358+0x1C
+408236A8  jump-in    code                 ram       CHKBOUNDS_70
+408236C6  jump-in    code                 ram       CHKBOUNDS_8E
+408236D2  jump-in    code                 ram       LINERECT
+40823736  jump-in    code                 ram       LINERECT_64
+40823776  jump-in    code                 ram       LINERECT_A4
+408237B6  jump-in    code                 ram       trap_XTRIMMEASURE+0x6
+408237D6  jump-in    code                 ram       MEASUREIT
+408237DA  jump-in    code                 ram       MEASUREIT+0x4
+40823922  jump-in    code                 ram       VCHAR2PIXEL_86
+40823928  jump-in    code                 ram       VCHAR2PIXEL_8C
+408239C8  come-from  code                 ram       DOMEASURE+0x34
+40823A40  jump-in    code                 ram       DOMEASURE_AC
+40823A4E  jump-in    code                 ram       DOMEASURE_BA
+40823A84  jump-in    code                 ram       DOMEASURE_E8+0x8
+40823AB6  jump-in    code                 ram       DOMEASURE_114+0xE
+40823AF6  jump-in    code                 ram       DOMEASURE_162
+40823BCE  jump-in    code                 ram       DOMEASURE_204+0x36
+40823C06  jump-in    code                 ram       trap_TEDispatch+0x6
+40823C08  jump-in    code                 ram       TEDISPATCH_8
+40823C1C  jump-in    raw data in romsrc   ram       trap_TECopy+0x4
+40823CF4  jump-in    raw data in romsrc   ram       trap_TECut+0x4
+40823D0A  jump-in    raw data in romsrc   ram       trap_TEDelete+0xA
+40823D8A  jump-in    code                 ram       TEDELETE_8A
+40823E18  jump-in    code                 ram       TEDELETE_118
+40823F34  jump-in    code                 ram       TEDELETE_234
+40823F82  jump-in    code                 ram       XFINDWORD_48
+408240B4  address    code                 boot+ram  XFINDWORD_17A
+40824144  jump-in    code                 ram       XFINDWORD_20A
+408241D0  jump-in    code                 ram       XFINDLINE_74+0x12
+4082428C  jump-in    code                 ram       XFINDLINE_142
+4082430E  jump-in    code                 ram       XFINDLINE_1C4
+4082442E  jump-in    code                 ram       XRECALLINES_76
+4082443C  jump-in    code                 ram       XRECALLINES_84
+40824442  jump-in    code                 ram       XRECALLINES_8A
+40824690  jump-in    code                 ram       XRECALLINES_2D8
+408246A8  jump-in    code                 ram       XRECALLINES_2D8+0x18
+408246B4  jump-in    code                 ram       HIDECARET
+408246C8  jump-in    code                 ram       HIDECARET_14
+40824792  jump-in    raw data in romsrc   ram       trap_TEIdle+0x3A
+4082479A  jump-in    raw data in romsrc   ram       trap_TEPaste+0x4
+40824838  jump-in    code                 ram       TEPASTE_A2
+408248EE  jump-in    code                 ram       TEPASTE_158
+40824A94  jump-in    code                 ram       TEPASTE_2FE
+40824AAA  jump-in    code                 ram       TEPASTE_314
+40824B28  jump-in    raw data in romsrc   ram       trap_TEInsert+0x14
+40824C72  jump-in    code                 ram       XTEBUFFERTEXT_2C
+40824C80  jump-in    code                 ram       XTEBUFFERTEXT_38+0x2
+40824EE6  jump-in    code                 ram       XCURSORMOVEMENT_1C8
+40824F04  jump-in    code                 ram       XCURSORMOVEMENT_1E6
+40824F2A  jump-in    code                 ram       XCURSORMOVEMENT_200+0xC
+40824F52  jump-in    code                 ram       XCURSORMOVEMENT_234
+40824FD2  jump-in    code                 ram       XCURSORMOVEMENT_2B2+0x2
+408250DC  jump-in    code                 ram       XSETKEYBOARD2FONT_20
+408250E0  jump-in    code                 ram       XSETKEYBOARD2FONT_24
+408250FC  jump-in    raw data in romsrc   ram       trap_TESetJust+0x4
+4082510C  jump-in    code                 ram       trap_TESetJust+0x14
+4082512C  jump-in    code                 ram       trap_TEScroll+0xC
+40825202  jump-in    raw data in romsrc   ram       trap_TESelView+0x4
+40825208  jump-in    code                 ram       TESELVIEW_A
+4082528C  jump-in    raw data in romsrc   ram       trap_TEAutoView+0x4
+408252AC  come-from  code                 ram       ITEFEATUREFLAG
+4082534A  jump-in    code                 ram       ITEFEATUREFLAG_9E
+40825398  jump-in    code                 ram       ITEFEATUREFLAG_EC
+408253BE  jump-in    code                 ram       ITEFEATUREFLAG_112
+408253E8  jump-in    code                 ram       ITEFEATUREFLAG_13C
+408253F4  jump-in    code                 ram       ITEFEATUREFLAG_148
+408254EE  come-from  code                 ram       ITESETSTYLE
+40825504  jump-in    code                 ram       ITESETSTYLE_16
+40825710  jump-in    code                 ram       ITESETSTYLE_222
+408257AE  jump-in    code                 ram       ITESETSTYLE_2C0
+408257F2  jump-in    code                 ram       ITESETSTYLE_304
+4082584C  jump-in    code                 ram       ITESETSTYLE_35E
+40825990  come-from  code                 ram       TEGETOFFSET_42
+408259E6  jump-in    code                 ram       TEGETOFFSET_98
+408259FC  jump-in    code                 ram       TEGETOFFSET_AE
+40825A04  jump-in    code                 ram       TEGETOFFSET_B6
+40825A60  come-from  code                 ram       TEGETOFFSET_112
+40825B20  come-from  code                 ram       TEGETOFFSET_1D2
+40825DCA  jump-in    code                 ram       trap_UnlodeScrap
+40825E34  jump-in    code                 boot+ram  trap_ZeroScrap
+40825E80  jump-in    code                 ram       trap_GetScrap
+40825F16  address    code                 ram       trap_PutScrap+0x26
+40825F26  come-from  code                 boot+ram  PUTSCRAP_28+0xE
+40825F34  come-from  code                 boot      PUTSCRAP_38+0xC
+408262AC  jump-in    code                 ram       trap_Pack3
+408262B2  jump-in    code                 boot+ram  trap_Pack6
+40827880  jump-in    code                 boot+ram  trap_DisposGDevice
+40827A30  jump-in    code                 ram       GETDEVPIXMAP
+40828020  jump-in    code                 boot+ram  trap_GetMaxDevice
+40828080  jump-in    code                 boot+ram  GETDEVPIX
+408280C0  jump-in    code                 boot+ram  trap_SetCursor
+408280E0  jump-in    code                 ram       trap_SetCCursor
+40829420  jump-in    code                 boot+ram  trap_GetFontInfo
+40829598  jump-in    code                 ram       trap_StdLine+0x18
+4082960E  jump-in    code                 boot+ram  STDLINE_8E
+40829670  jump-in    code                 boot+ram  trap_LineTo
+40829690  jump-in    code                 ram       trap_Line
+408296B0  jump-in    code                 boot+ram  trap_MoveTo
+408296D0  jump-in    code                 boot+ram  trap_Move
+40829830  jump-in    code                 boot+ram  trap_PenMode
+40829A06  jump-in    code                 boot+ram  trap_DRAWLINE+0x66
+40829B84  come-from  code                 boot      DRAWLINE_1AC+0x38
+40829CEC  come-from  code                 boot+ram  DRAWLINE_34C
+40829D18  pushed     code                 ram       DRAWLINE_34C+0x2C
+40829D42  come-from  code                 ram       DRAWLINE_34C+0x56
+40829E66  jump-in    code                 ram       DRAWLINE_4C6
+40829E80  jump-in    code                 ram       DRAWLINE_4E0
+40829F02  jump-in    code                 boot+ram  FASTLINE_62
+40829F0A  jump-in    code                 boot+ram  FASTLINE_6A
+40829F20  jump-in    code                 ram       FASTLINE_80
+40829F72  jump-in    code                 boot+ram  FASTLINE_C0+0x12
+40829FE0  jump-in    code                 boot+ram  FASTLINE_140
+4082A080  jump-in    code                 ram       trap_FASTSLANT
+4082A410  jump-in    code                 ram       FASTSLANT_390
+4082A7BC  jump-in    code                 ram       RGNBLT_D4+0x8
+4082A7E6  jump-in    code                 ram       RGNBLT_106
+4082A838  jump-in    code                 boot+ram  RGNBLT_158
+4082AB3C  jump-in    code                 boot+ram  RGNBLT_45C
+4082ABA6  jump-in    code                 boot+ram  RGNBLT_4C6
+4082ABAC  jump-in    code                 ram       RGNBLT_4CC
+4082B0EC  address    code                 ram       trap_RMASK8
+4082B3A0  jump-in    code                 ram       trap_RADDOVER
+4082B4C0  jump-in    code                 ram       trap_RADDPIN
+4082B660  jump-in    code                 ram       trap_RSUBOVER
+4082B790  jump-in    code                 ram       trap_RSUBPIN
+4082B930  jump-in    code                 ram       trap_RMAX
+4082BA70  jump-in    code                 ram       trap_RMIN
+4082BBB0  jump-in    code                 ram       trap_RAVG
+4082C16A  jump-in    code                 ram       trap_StdRect+0x1A
+4082C178  jump-in    code                 boot+ram  STDRECT_28
+4082C41C  jump-in    code                 boot+ram  trap_PUSHVERB+0xC
+4082C488  jump-in    code                 boot+ram  trap_FrameRect
+4082C608  come-from  code                 boot      FRMRECT_BC+0x3C
+4082CC78  jump-in    code                 ram       BITBLT_408
+4082CC8A  jump-in    code                 ram       BITBLT_41A
+4082CF30  jump-in    code                 boot+ram  trap_BLONG8
+4082CFC0  jump-in    code                 ram       trap_BSETUP8
+4082D150  jump-in    code                 ram       trap_BXLONG8
+4082D1B0  jump-in    code                 boot+ram  trap_BXMAIN8
+4082D340  jump-in    code                 ram       trap_BADDOVER
+4082D450  jump-in    code                 ram       trap_BADDPIN
+4082D5D0  jump-in    code                 ram       trap_BSUBOVER
+4082D6E0  jump-in    code                 ram       trap_BSUBPIN
+4082D870  jump-in    code                 ram       trap_BMAX
+4082D9A0  jump-in    code                 ram       trap_BMIN
+4082DAD0  jump-in    code                 ram       trap_BAVG
+4082DE14  jump-in    code                 ram       trap_BSLOHILITE+0x4
+4082DF94  jump-in    code                 ram       thunk_FUN_4082e0c2
+4082E27A  jump-in    code                 ram       ERASECURSOR
+4082E2BC  jump-in    code                 boot+ram  DRAWCURSOR
+4082E2DC  jump-in    code                 boot+ram  DRAWCURSOR+0x20
+4082E2E2  jump-in    code                 boot+ram  DRAWCURSOR+0x26
+4082E484  jump-in    code                 ram       GETMAINCRSR
+4082ED48  jump-in    code                 boot+ram  COLORMAP_96+0x22
+4082EDAE  jump-in    code                 boot+ram  COLORMAP_FE+0x20
+4082EDBE  jump-in    code                 ram       COLORMAP_12E
+4082EDD6  jump-in    code                 ram       COLORMAP_146
+4082EE24  jump-in    code                 boot+ram  COLORMAP_194
+4082F018  jump-in    code                 boot+ram  GETPIXEL_9C
+4082F070  jump-in    code                 ram       GETPIXEL_F4
+4082F1E6  jump-in    code                 ram       trap_SLMASK9
+4082F230  jump-in    code                 ram       trap_SLXMASK8
+4082F330  jump-in    code                 ram       trap_SLADDOVER
+4082F3A0  jump-in    code                 ram       SLADDOVER_70
+4082F3E0  jump-in    code                 ram       trap_SLADDPIN
+4082F470  jump-in    code                 ram       trap_SLSUBOVER
+4082F4E0  jump-in    code                 ram       trap_SLSUBPIN
+4082F570  jump-in    code                 ram       trap_SLMAX
+4082F5F0  jump-in    code                 ram       trap_SLMIN
+4082F670  jump-in    code                 ram       trap_SLAVG
+4082F790  jump-in    code                 ram       trap_SLTRANSPARENT
+4082FEF2  jump-in    code                 ram       SLABMODE_12
+4082FEFC  jump-in    code                 ram       SLABMODE_12+0xA
+4082FF38  jump-in    code                 ram       SLABMODE_54+0x4
+40830050  address    raw data in romsrc   boot+ram  FASTSLABMODE_10
+408300F0  jump-in    code                 boot+ram  trap_OpenCPort
+40830160  jump-in    code                 boot+ram  INITCOLORSTUFF
+408301E8  jump-in    code                 boot+ram  trap_ClosePort+0x8
+408302D0  jump-in    code                 boot+ram  OPENPIXMAP
+40830330  jump-in    code                 boot+ram  INITPIXMAP
+408303CE  jump-in    code                 boot+ram  BITSTOPIX_36+0x8
+40830406  jump-in    code                 boot+ram  BITSTOPIX_76
+40830462  jump-in    raw data in romsrc   boot+ram  COPYPMAP_8
+40830468  jump-in    code                 ram       COPYPMAP_E
+408304B6  address    raw data in romsrc   boot+ram  SHFTTBL
+40830840  jump-in    code                 ram       trap_CopyPixPat
+40830972  jump-in    code                 boot+ram  PATEXPAND_52
+40830A96  jump-in    code                 boot+ram  PATEXPAND_176
+40830A9E  jump-in    code                 boot+ram  PATEXPAND_17E
+40830CFC  jump-in    raw data in romsrc   boot+ram  PATCONVERT_C8+0x14
+40830D7E  jump-in    code                 ram       PATCONVERT_154+0xA
+4083126A  jump-in    raw data in romsrc   boot+ram  trap_GetCIcon+0x8A
+4083128A  jump-in    code                 ram       GETCICON_AA
+40831450  jump-in    code                 boot+ram  RSETHSIZE
+40831510  jump-in    code                 ram       trap_DISPOSETEMPBUFFER
+40831530  jump-in    code                 boot+ram  trap_InitGraf
+408316C0  jump-in    code                 boot+ram  NEWPORT
+40831702  jump-in    code                 boot+ram  trap_InitPort+0x14
+408317A0  jump-in    code                 boot+ram  trap_SetStdProcs
+408317E0  address    code                 boot+ram  trap_SetStdCProcs
+40831860  jump-in    code                 boot+ram  trap_SetPort
+40831990  jump-in    code                 boot+ram  trap_SetClip
+408319D0  jump-in    code                 boot+ram  INSPORTLIST
+40831D4C  jump-in    code                 ram       CLOSEPICTURE_28+0x4
+40831D74  jump-in    code                 ram       CLOSEPICTURE_54
+40831D82  jump-in    code                 ram       CLOSEPICTURE_62
+40831F80  jump-in    code                 boot+ram  trap_PICITEM1+0x20
+4083236E  jump-in    code                 ram       PICITEM1_40E
+4083237E  jump-in    code                 ram       PICITEM1_41E
+408326A6  jump-in    code                 boot+ram  PICITEM1_746
+40832ABE  jump-in    code                 boot+ram  PICITEM1_B5E
+40832B48  jump-in    code                 ram       PICITEM1_BE8
+40832B60  jump-in    code                 ram       GETUBYTE
+40832B80  jump-in    code                 boot+ram  GETWORD
+40832B90  jump-in    code                 ram       GETLONG
+40832BA0  jump-in    code                 boot+ram  GETPICDATA
+40832BD0  jump-in    code                 ram       PUTPICDATA
+40832BF0  jump-in    code                 ram       trap_DPUTPICBYTE
+40832BF6  jump-in    code                 ram       PUTPICBYTE
+40832C10  jump-in    code                 ram       PUTPICWORD
+40832C30  jump-in    code                 ram       PUTPICLONG
+40832C90  jump-in    code                 ram       trap_DPUTPICOP
+40832C96  jump-in    code                 ram       PUTPICOP
+40832CD0  jump-in    code                 ram       PUTPICRGN
+40832E30  jump-in    code                 ram       UPDATEPAT+0x10
+40832E60  jump-in    code                 ram       UPDATEPAT_40
+40832EAE  come-from  code                 ram       UPDATEPAT_80+0xE
+40832EBE  jump-in    code                 ram       UPDATEPAT_9E
+40832F70  jump-in    code                 boot+ram  GETPICTABLE
+40832FC0  jump-in    code                 ram       PUTPICTABLE
+40833030  jump-in    code                 ram       PUTPICPIXMAP
+4083313E  come-from  code                 boot+ram  PUTGRAY_A4
+40833610  address    code                 boot      GETPMDATA
+408336D0  jump-in    code                 ram       PUTPMDATA
+4083372C  come-from  code                 ram       PUTPMDATA_40+0x1C
+40833780  jump-in    code                 boot+ram  trap_CHECKPIC
+40833B74  pushed     code                 ram       STDPOLY_44
+40833BAA  jump-in    code                 ram       STDPOLY_72+0x8
+40833EC6  come-from  code                 boot+ram  PAINTVECTOR+0x46
+40834058  come-from  code                 boot+ram  PAINTVECTOR_1D8
+40834086  pushed     code                 ram       PAINTVECTOR_1D8+0x2E
+408340A8  come-from  code                 boot+ram  PAINTVECTOR_1D8+0x50
+408343FC  jump-in    code                 ram       PAINTVECTOR_576+0x6
+4083445C  jump-in    code                 ram       DRAWPOLY_2C+0x20
+4083447A  jump-in    code                 ram       DRAWPOLY_6A
+4083458A  jump-in    code                 ram       trap_StdRRect+0x1A
+408345B8  jump-in    code                 boot+ram  STDRRECT_48
+40834856  come-from  code                 boot+ram  DRAWARC_18E+0x48
+40834A4A  come-from  code                 boot+ram  DRAWARC_3CA
+40834A78  pushed     code                 ram       DRAWARC_3CA+0x2E
+40834AB2  come-from  code                 boot+ram  DRAWARC_3CA+0x68
+4083520C  jump-in    code                 boot+ram  trap_BITSDEVLOOP+0xC
+40835658  address    raw data in romsrc   ram       BITSDEVLOOP_458
+408356DC  jump-in    code                 boot+ram  trap_CopyBits+0x1C
+4083586A  come-from  code                 boot+ram  COPYBITS_108+0xA2
+40835990  jump-in    code                 ram       CMDEVLOOP
+40835A4C  jump-in    code                 ram       CALCMASK_82+0x2
+40835B0A  jump-in    code                 ram       CALCMASK_142
+40835C1A  jump-in    code                 ram       trap_ScrollRect+0xFA
+40835C3E  jump-in    code                 ram       SCROLLRECT_11E
+40835C60  jump-in    code                 ram       trap_PackBits
+40835D60  jump-in    code                 ram       PACKWORDS
+40835E8C  jump-in    code                 ram       trap_StdRgn+0x1C
+40835E9E  jump-in    code                 boot+ram  STDRGN_2E
+408361D0  jump-in    code                 boot+ram  trap_RectRgn
+40836330  jump-in    code                 boot+ram  trap_SectRgn
+40836334  jump-in    code                 boot+ram  trap_UnionRgn
+40836630  jump-in    code                 boot+ram  trap_MapRgn
+40837934  address    code                 boot+ram  DONESTRETCH
+40837942  jump-in    code                 ram       DONESTRETCH_E
+40837992  jump-in    code                 ram       trap_STNOSTACK+0x12
+408379D8  jump-in    code                 ram       STNOSTACK_58
+40838460  jump-in    code                 ram       trap_SETUPSTRETCH+0x20
+408384E4  jump-in    code                 boot+ram  SETUPSTRETCH_A4
+408384FE  jump-in    code                 ram       SETUPSTRETCH_A8+0x16
+40838570  address    code                 boot+ram  PATEXTBL_24
+40838846  address    raw data in romsrc   ram       TABLE2
+40838AE8  address    raw data in romsrc   ram       TABLE4
+40838FF4  address    raw data in romsrc   ram       TABLE8
+40839270  address    code                 ram       TABLE8_27C
+408392F8  address    code                 ram       TABLE8_2FC+0x8
+40839432  jump-in    raw data in romsrc   ram       DITHER32TOINDEXED+0x72
+40839C80  jump-in    raw data in romsrc   ram       SCALE16TO32
+40839F52  address    code                 boot+ram  SCALEBLT_172+0x10
+4083A680  jump-in    code                 ram       CB1TO8CLIP
+4083A8E0  jump-in    code                 ram       CB8TO8CLIP
+4083AC6E  jump-in    code                 ram       CB8TO1CLIP
+4083AF40  jump-in    code                 boot+ram  trap_GETSEEK
+4083BA3C  jump-in    code                 ram       trap_StdOval+0x1C
+4083BA4C  jump-in    code                 ram       STDOVAL_2C
+4083BB4C  jump-in    code                 ram       trap_StdArc+0x1C
+4083BB70  jump-in    code                 ram       STDARC_40
+4083BEE4  jump-in    code                 ram       MAKEITABLE_124
+4083C11C  come-from  code                 ram       MAKEITABLE_348+0x14
+4083C4DE  jump-in    code                 ram       INDEX2COLOR_7E
+4083C51A  jump-in    code                 ram       INVERTCOLOR_C+0xE
+4083C536  jump-in    code                 ram       INVERTCOLOR_36
+4083C6C0  jump-in    code                 ram       trap_SetEntries
+4083C920  jump-in    code                 ram       trap_SaveEntries
+4083CAC4  jump-in    raw data in romsrc   ram       trap_DelSearch+0x4
+4083CAF4  jump-in    raw data in romsrc   ram       trap_DelComp+0x4
+4083CD86  jump-in    code                 boot+ram  trap_GetCTable
+4083D6FC  address    code                 ram       CALCCMASK_1A2
+4083D728  address    code                 ram       CALCCMASK_1CE
+4083D7B8  address    code                 boot+ram  trap_ActivatePalette
+4083DAB2  jump-in    raw data in romsrc   ram       PMGREXIT+0x12
+4083E1F0  jump-in    code                 boot+ram  trap_InitPalettes
+4083F70A  jump-in    code                 ram       ZAPLINKS_4A
+4083F818  jump-in    raw data in romsrc   ram       RESIZEPALETTE+0x8
+4083FA4A  jump-in    code                 ram       PMGRDISPATCH_14
+4083FA66  jump-in    code                 boot+ram  trap_QDExtensions+0x6
+4083FAC2  jump-in    code                 ram       QDEXTDISPATCHER_62
+4083FB7C  jump-in    raw data in romsrc   ram       NEWGWORLD+0x9C
+4083FB88  come-from  raw data in romsrc   boot+ram  NEWGWORLD+0xA8
+4083FBBA  jump-in    raw data in romsrc   ram       NEWGWORLD+0xDA
+4083FBCA  jump-in    raw data in romsrc   ram       NEWGWORLD+0xEA
+4083FE3E  come-from  raw data in romsrc   boot+ram  NEWGWORLD+0x35E
+4083FE7E  come-from  raw data in romsrc   boot+ram  NEWGWORLD+0x39E
+4083FE8C  jump-in    raw data in romsrc   ram       NEWGWORLD+0x3AC
+4083FEDE  jump-in    raw data in romsrc   ram       NEWGWORLD+0x3FE
+4083FEE6  jump-in    raw data in romsrc   ram       NEWGWORLD+0x406
+4083FEEE  jump-in    raw data in romsrc   ram       NEWGWORLD+0x40E
+4083FF3A  address    raw data in romsrc   ram       SHIFTTABLE
+4083FF60  jump-in    raw data in romsrc   ram       FINDINVERSETABLE
+40840D0E  come-from  code                 boot+ram  NEWTEMPSCREENBUFFER_4+0x36
+40840E88  jump-in    code                 ram       NEWTEMPSCREENBUFFER_1B4
+40840EA4  come-from  code                 boot      NEWTEMPSCREENBUFFER_1CA+0x6
+40840EAA  come-from  code                 boot      NEWTEMPSCREENBUFFER_1CA+0xC
+4084F0B0  jump-in    other                ram       GETDEVPIXMAPPATCH_12+0x2E16
+40856FD0  jump-in    raw data in romsrc   ram       rsrc_PICT_102_DiskMode_2
+4086ABCA  address    raw data in romsrc   ram       rsrc_SERD_0_3A
+4086ABE2  address    raw data in romsrc   ram       rsrc_SERD_0_52
+4086ABFA  address    raw data in romsrc   ram       rsrc_SERD_0_6A
+4086AC12  address    raw data in romsrc   ram       rsrc_SERD_0_82
+4086AC2A  jump-in    code                 boot+ram  rsrc_SERD_0_82+0x18
+4086AC30  jump-in    code                 boot+ram  rsrc_SERD_0_82+0x1E
+4086AC34  jump-in    code                 boot+ram  rsrc_SERD_0_82+0x22
+4086AC4E  address    code                 ram       rsrc_SERD_0_B4_A
+4086AC8A  address    code                 ram       rsrc_SERD_0_B4_46
+4086ACF2  jump-in    code                 boot+ram  rsrc_SERD_0_132_2E+0x2
+4086AD12  jump-in    code                 boot+ram  rsrc_SERD_0_132_2E+0x22
+4086AD22  jump-in    code                 boot+ram  rsrc_SERD_0_132_2E+0x32
+4086AD44  jump-in    code                 boot+ram  rsrc_SERD_0_132_2E+0x54
+4086AE74  come-from  raw data in romsrc   boot+ram  rsrc_SERD_0_2E4
+4086AEA8  jump-in    code                 ram       rsrc_SERD_0_318
+4086AEAE  jump-in    code                 boot+ram  rsrc_SERD_0_31E
+4086AEB8  come-from  code                 boot+ram  rsrc_SERD_0_31E_A
+4086AEFE  address    raw data in romsrc   boot+ram  rsrc_SERD_0_36E
+4086AF0E  jump-in    code                 boot+ram  rsrc_SERD_0_36E+0x10
+4086AF22  jump-in    code                 boot+ram  rsrc_SERD_0_36E+0x24
+4086AF3E  come-from  code                 boot+ram  rsrc_SERD_0_3AE
+4086AF64  jump-in    code                 boot+ram  rsrc_SERD_0_3C2+0x12
+4086AF82  jump-in    code                 boot+ram  rsrc_SERD_0_3C2+0x30
+4086AF86  jump-in    code                 boot+ram  rsrc_SERD_0_3F6
+4086AFAC  jump-in    raw data in romsrc   ram       rsrc_SERD_0_3F6_A+0x1C
+4086AFB2  jump-in    raw data in romsrc   ram       rsrc_SERD_0_3F6_A+0x22
+4086AFC4  come-from  raw data in romsrc   boot+ram  rsrc_SERD_0_3F6_A+0x34
+4086AFDE  jump-in    code                 ram       rsrc_SERD_0_3F6_A+0x4E
+4086B002  jump-in    code                 boot+ram  rsrc_SERD_0_3F6_6A+0x12
+4086B008  jump-in    code                 boot+ram  rsrc_SERD_0_3F6_6A+0x18
+4086B01A  come-from  raw data in romsrc   boot+ram  rsrc_SERD_0_48A
+4086B02C  jump-in    code                 boot+ram  rsrc_SERD_0_48A+0x12
+4086B062  jump-in    code                 ram       rsrc_SERD_0_4D2
+4086B064  jump-in    code                 ram       rsrc_SERD_0_4D4
+4086B0C0  jump-in    code                 ram       rsrc_SERD_0_530
+4086B14C  jump-in    code                 ram       rsrc_SERD_0_5BC
+4086B1EC  jump-in    raw data in romsrc   ram       rsrc_SERD_0_64C+0x10
+4086B1F2  jump-in    code                 ram       rsrc_SERD_0_64C+0x16
+4086B234  jump-in    code                 ram       rsrc_SERD_0_678_2C
+4086B26C  pushed     code                 boot+ram  rsrc_SERD_0_6BC_1C+0x4
+4086B276  pushed     code                 boot+ram  rsrc_SERD_0_6BC_1C+0xE
+4086B29C  jump-in    code                 ram       rsrc_SERD_0_70C
+4086B2A8  jump-in    raw data in romsrc   ram       rsrc_SERD_0_70C_A+0x2
+4086B2AE  jump-in    code                 ram       rsrc_SERD_0_70C_A+0x8
+4086B312  jump-in    code                 ram       rsrc_SERD_0_782
+4086B372  pushed     raw data in romsrc   boot+ram  rsrc_SERD_0_7C6_C+0x10
+4086B400  jump-in    code                 ram       rsrc_SERD_0_7C6_AA
+4086B4AE  jump-in    code                 ram       rsrc_SERD_0_7C6_158
+4086B4B6  jump-in    code                 ram       rsrc_SERD_0_7C6_160
+4086B542  come-from  code                 boot+ram  rsrc_SERD_0_9AE+0x4
+4086B550  come-from  code                 boot+ram  rsrc_SERD_0_9BC+0x4
+4086B55E  come-from  code                 boot+ram  rsrc_SERD_0_9CA+0x4
+4086B56C  come-from  code                 boot+ram  rsrc_SERD_0_9D8+0x4
+4086B594  jump-in    code                 ram       rsrc_SERD_0_9D8_2C
+4086B60A  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0xA
+4086B618  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x18
+4086B648  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x48
+4086B764  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x164
+4086B7AC  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x1AC
+4086B7D8  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x1D8
+4086B858  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x258
+4086B85A  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x25A
+4086B884  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x284
+4086B898  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x298
+4086B8D4  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x2D4
+4086B9DC  jump-in    raw data in romsrc   ram       rsrc_SERD_0_A70+0x3DC
+4086BD1E  jump-in    raw data in romsrc   ram       rsrc_SERD_0_1188+0x6
+4086CC9C  address    code                 boot      SONY_CTL_Eject+0x16
+4086D4B8  jump-in    raw data in romsrc   ram       rsrc_DRVR_4__Sony_10CE+0xA
+4086D720  jump-in    raw data in romsrc   ram       rsrc_DRVR_4__Sony_133A+0x6
+4086E18A  jump-in    raw data in romsrc   ram       rsrc_DRVR_4__Sony_1D94+0x16
+4086E7CE  jump-in    code                 boot+ram  rsrc_DRVR_4__Sony_23A4_38+0x12
+4086EA60  jump-in    code                 ram       rsrc_DRVR_4__Sony_267E+0x2
+4086EA7C  address    code                 boot      rsrc_DRVR_4__Sony_2698+0x4
+4086EC0C  address    raw data in romsrc   ram       rsrc_DRVR_4__Sony_27D6_38+0x1E
+4086EE9E  address    code                 ram       rsrc_DRVR_4__Sony_2AB6+0x8
+4086EEBA  address    code                 ram       rsrc_DRVR_4__Sony_2ACC+0xE
+4086EFF4  jump-in    code                 ram       rsrc_DRVR_4__Sony_2AE6_D2+0x5C
+40873940  jump-in    code                 ram       rsrc_PACK_4
+4088875C  jump-in    code                 ram       BATWATCH_94
+4088877A  jump-in    raw data in romsrc   ram       BATWATCH_B0+0x2
+408887B2  jump-in    code                 ram       GETLEVEL
+408E2312  address    code                 ram       rsrc_lmgr_0_17D4+0xE
+408E23E4  address    code                 ram       rsrc_lmgr_0_182A_6C+0x1E
+408E2426  address    code                 ram       rsrc_lmgr_0_18F6
+408EB1FC  address    code                 ram       rsrc_PACK_4_408E9A20_17DA+0x2
+408EC1E4  address    raw data in romsrc   ram       rsrc_PACK_4_408E9A20_27B2+0x12
+408EDCE6  address    code                 ram       rsrc_PACK_5_408EDCA0_C_3A
