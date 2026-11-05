@@ -11,6 +11,11 @@ code there uses an address or offset that is not yet written as a label.
 
 Usage (from src/):
   tools/shift_test.py --at 0x40880000 --bytes 0x40 [--trace] [--seconds 15]
+                      [--disk IMAGE [--pram PRAM]]
+With --disk, the traced runs boot from that disk image (attached read-only, snapshot=on;
+the PRAM is a copy). Note: Mac OS patches this ROM by address ("come-from" checks of
+return addresses, jumps into ROM code), so with a disk the traces part as soon as the
+System checks an address that moved: that is the System, not the relocation.
 """
 
 import argparse
@@ -66,9 +71,22 @@ def symbols(elf):
     return out
 
 
+DISK = None          # --disk: a boot disk image, attached read-only (snapshot=on)
+
+
+def disk_args(work, tag):
+    if not DISK:
+        return []
+    pram = os.path.join(work, f"{tag}.pram")
+    open(pram, "wb").write(open(DISK[1], "rb").read() if DISK[1] else bytes(512))
+    return ["-drive", f"file={pram},format=raw,if=mtd",
+            "-drive", f"file={DISK[0]},format=raw,if=none,id=hd1,snapshot=on",
+            "-device", "scsi-hd,scsi-id=0,drive=hd1"]
+
+
 def trace(rom, work, tag, seconds):
     log = os.path.join(work, f"{tag}.log")
-    subprocess.run(["timeout", str(seconds), "qemu-system-m68k", "-M", "q800", "-m", "64", "-bios", rom,
+    subprocess.run(["timeout", str(seconds), "qemu-system-m68k", "-M", "q800", "-m", "64", "-bios", rom] + disk_args(work, tag) + [
                     "-display", "none", "-g", "640x480x8", "-icount", "shift=4,align=off,sleep=off",
                     "-rtc", "clock=vm,base=2000-01-01T00:00:00",
                     "-d", "in_asm,nochain", "-D", log], capture_output=True)
@@ -90,9 +108,15 @@ def main():
     ap.add_argument("--at", required=True, help="ROM address (original ROM) to insert before")
     ap.add_argument("--bytes", default="0x40")
     ap.add_argument("--trace", action="store_true")
-    ap.add_argument("--seconds", type=int, default=15)
+    ap.add_argument("--seconds", type=int, default=30,
+                    help="real seconds per traced run (the end of a trace depends on host load)")
     ap.add_argument("--keep", help="copy the shifted ROM here")
+    ap.add_argument("--disk", help="boot disk image for --trace (read-only: snapshot=on)")
+    ap.add_argument("--pram", help="PRAM image to start from with --disk (a copy is used)")
     a = ap.parse_args()
+    global DISK
+    if a.disk:
+        DISK = (os.path.abspath(a.disk), os.path.abspath(a.pram) if a.pram else None)
     at = int(a.at, 0)
     n = int(a.bytes, 0)
 
@@ -175,9 +199,19 @@ def main():
                           f"(expected 0x{x:08X} in shifted ROM), shifted ROM went to 0x{y:08X}")
                     print("    preceding instructions (original ROM addresses):",
                           " ".join(f"0x{p:08X}" for p in t0[max(0, i - 6):i]))
+                    inrom = lambda p: 0x40800000 <= p < 0x40900000
+                    a_, b_ = set(p for p in m0 if inrom(p)), set(p for p in t1 if inrom(p))
+                    print("    ROM code run: original %d, shifted %d; only in original %d, only in shifted %d"
+                          % (len(a_), len(b_), len(a_ - b_), len(b_ - a_)))
+                    print("    (the same code in another order: interrupt timing, not a relocation error)"
+                          if a_ == b_ else "    different code ran:")
+                    print("    only in original:", " ".join("0x%08X" % p for p in sorted(a_ - b_)[:8]))
+                    print("    only in shifted:", " ".join("0x%08X" % p for p in sorted(b_ - a_)[:8]))
                     break
             else:
-                print(f"[=] traces agree for {min(len(t0), len(t1))} blocks")
+                rom_pcs = sum(1 for p in t0 if 0x40800000 <= p < 0x40900000 or 0x00800000 <= p < 0x00900000)
+                print(f"[=] traces agree for {min(len(t0), len(t1))} instructions "
+                      f"({rom_pcs} of them in ROM)")
         sys.exit(0 if ok else 1)
 
 
