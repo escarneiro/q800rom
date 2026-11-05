@@ -376,6 +376,30 @@ values before committing the updated `analysis/` files. See `analysis/README.md`
 
 ---
 
+### 5. Modifying the ROM
+
+The source is relocatable: code can be inserted or grown anywhere and every reference
+follows (checked with `make test-shift`, `tools/shift_sweep.sh`). Whether the result still
+runs Mac OS is another question: Mac OS 8.1 patches this ROM by address. It jumps into the
+middle of ROM routines and recognises callers by their return addresses, about 900 ROM
+addresses in all (`analysis/macos81_rom_refs.txt`, from 0x40800000 to 0x408EDCE6). If one of
+them moves, the System's patch for it misbehaves. So there are two ways to change code:
+
+* **Keeping Mac OS 8.1 compatibility:** nothing before 0x408EDCE6 may change size. Change
+  code in place with the same size, or hook a routine: `tools/add_hook.py LABEL HOOK
+  [--after]` replaces the first instructions at LABEL by a jump to HOOK (the same number
+  of bytes) and moves them to `romsrc/patches/hooks.s`, in the free space before the fixed
+  region at 0xF0000 (about 3.9 KB), where the new code goes (before the routine, or with
+  `--after` after it). `make rom` then reports whether every address Mac OS uses is still
+  in place and unchanged (`tools/macos_compat.py`). A worked example (a bar painted on the
+  start-up screen) is the `demo-startup-bar` branch of the hand-maintained source; Mac OS
+  8.1 boots to the Finder with it.
+* **Free changes** (other systems, or a ROM that no longer identifies itself as this one,
+  so that Mac OS does not install its patches for it): insert code anywhere. When a trap
+  routine moves too far for its packed trap table entry, the entry grows and the ROM is
+  built again automatically. Only the free space before 0xF0000 limits how much code can
+  be added.
+
 ## 5. Testing the Built ROM
 
 ### A. Testing in QEMU (Virtual Machine)

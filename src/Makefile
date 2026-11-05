@@ -144,7 +144,8 @@ $(REBUILT_ROM): $(ROMSRC_ELF) romsrc/q800rom.sha256 romsrc/traptable.lst romsrc/
 	if [ $$rc != 0 ]; then cat $(BUILD_DIR)/postlink.log >&2; rm -f $@; exit $$rc; fi
 	@if [ "$$(sha256sum $@ | cut -d' ' -f1)" = "$$(cut -d' ' -f1 romsrc/q800rom.sha256)" ]; \
 		then echo "ROM image $@ is identical to the original ROM"; \
-		else echo "ROM image $@ differs from the original ROM (modified source)"; fi
+		else echo "ROM image $@ differs from the original ROM (modified source)"; \
+		if [ -f "$(ORIG_ROM)" ]; then python3 tools/macos_compat.py $< $@ "$(ORIG_ROM)" || true; fi; fi
 
 # Regenerate romsrc/ from an original ROM, using the committed analysis in ../analysis
 # (deterministic: produces the tested source; does not need Ghidra).
