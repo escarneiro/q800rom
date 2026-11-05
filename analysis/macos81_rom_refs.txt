@@ -9,6 +9,10 @@
 # Any of these addresses that moves breaks the corresponding patch: to keep running Mac
 # OS, code up to the last address in this list must keep its exact layout (change code
 # in place, same size, or branch out to free space after it).
+#       held      = held by the System as a fixed value (data, or an operand form the
+#                   scan does not decode): it did not follow when the ROM was shifted
+# ramdiff = RAM after booting the original ROM and a shifted one (everything from
+#           0x40802BD0 moved by 0x40): the value stayed where the ROM-made ones moved
 # address  use        where                 sources   ROM label
 40800000  come-from  other                boot+ram  rom_start
 40802240  jump-in    code                 boot      OPENSLOTS
@@ -22,7 +26,9 @@
 40806920  jump-in    code                 ram       PINITENTRY_9E
 40806930  jump-in    code                 ram       PINITENTRY_AE
 40806E30  jump-in    code                 boot+ram  SINTCORE
+40807016  held       code                 ramdiff   SYSTEMBEEP_40+0x16
 40807460  jump-in    code                 boot+ram  trap_SCSIDispatch
+40808040  held       code                 ramdiff   SCSIDT_166+0xE
 40808A6C  jump-in    code                 ram       BUSERRHANDLER+0x8
 40809956  jump-in    code                 boot+ram  trap_Dequeue
 40809A66  jump-in    code                 boot+ram  trap_GetTrapAddress
@@ -131,7 +137,9 @@
 4080FF1E  jump-in    code                 boot+ram  VDTRMV3_E
 4080FFCE  jump-in    code                 ram       VDTRMV1_90+0x1A
 4081000E  jump-in    code                 ram       VDTRMV1_DA+0x10
+4081001C  held       code                 ramdiff   VDTRMV1_DA+0x1E
 40810056  jump-in    code                 ram       VDTRMV1_132
+408100BC  held       code                 ramdiff   VDTRMV2_48+0x18
 4081016A  come-from  code                 ram       GETVOLINFO_6E+0x8
 40810344  jump-in    code                 ram       SETVOLINFO_A8
 4081047A  jump-in    code                 ram       OPENWD_42
@@ -436,6 +444,34 @@
 4081F47E  jump-in    code                 ram       STRING2DATE_2EE
 4081F96C  jump-in    code                 ram       FORMATORDER_78+0x4
 4081F974  jump-in    code                 ram       FINDCARRIAGE_A4
+40820008  held       code                 ramdiff   INTLTOKENIZE_65E+0xA
+4082000C  held       code                 ramdiff   INTLTOKENIZE_65E+0xE
+40820010  held       code                 ramdiff   INTLTOKENIZE_670
+40820018  held       code                 ramdiff   INTLTOKENIZE_676+0x2
+4082001C  held       code                 ramdiff   INTLTOKENIZE_676+0x6
+40820020  held       code                 ramdiff   INTLTOKENIZE_676+0xA
+40820024  held       code                 ramdiff   INTLTOKENIZE_684
+40820030  held       code                 ramdiff   INTLTOKENIZE_68E+0x2
+40820038  held       code                 ramdiff   INTLTOKENIZE_698
+4082003C  held       code                 ramdiff   INTLTOKENIZE_698+0x4
+40820044  held       code                 ramdiff   INTLTOKENIZE_6A0+0x4
+40820050  held       code                 ramdiff   INTLTOKENIZE_6B0
+40820058  held       code                 ramdiff   INTLTOKENIZE_6B0+0x8
+4082005C  held       code                 ramdiff   INTLTOKENIZE_6B0+0xC
+40820060  held       code                 ramdiff   INTLTOKENIZE_6B0+0x10
+40820064  held       code                 ramdiff   INTLTOKENIZE_6B0+0x14
+4082006C  held       code                 ramdiff   INTLTOKENIZE_6C8+0x4
+40820070  held       code                 ramdiff   INTLTOKENIZE_6C8+0x8
+40820090  held       code                 ramdiff   CHARCOMP
+40820094  held       code                 ramdiff   CHARCOMP+0x4
+408200AC  held       code                 ramdiff   CHARCOMP+0x1C
+408200B0  held       code                 ramdiff   CHARCOMP+0x20
+408200B4  held       code                 ramdiff   CHARCOMP+0x24
+408200C0  held       code                 ramdiff   NEXTFORMATCLASS
+408200D4  held       code                 ramdiff   GETSANECLASS+0x4
+408200DC  held       code                 ramdiff   GETSANECLASS+0xC
+408200E0  held       code                 ramdiff   GETSANECLASS+0x10
+40820184  held       code                 ramdiff   RETRIEVECHAR+0x44
 40821C90  jump-in    code                 ram       trap_GetNewCWindow
 40821CB8  come-from  code                 boot+ram  GETNEWWINDOW_8+0x14
 40821EE0  address    data in romsrc       ram       TEXTEDIT
@@ -674,6 +710,11 @@
 4082FEF2  jump-in    code                 ram       SLABMODE_12
 4082FEFC  jump-in    code                 ram       SLABMODE_12+0xA
 4082FF38  jump-in    code                 ram       SLABMODE_54+0x4
+4082FFC0  held       code                 ramdiff   trap_SLARITH32TAB+0x2C
+4082FFC4  held       code                 ramdiff   trap_SLARITH32TAB+0x30
+4082FFC8  held       code                 ramdiff   trap_SLARITH32TAB+0x34
+4082FFCC  held       code                 ramdiff   trap_SLARITH32TAB+0x38
+4082FFE8  held       code                 ramdiff   SLARITH32TAB_48+0xC
 40830050  address    code                 boot+ram  FASTSLABMODE_10
 408300F0  jump-in    code                 boot+ram  trap_OpenCPort
 40830160  jump-in    code                 boot+ram  INITCOLORSTUFF
@@ -801,6 +842,7 @@
 4083C920  jump-in    code                 ram       trap_SaveEntries
 4083CAC4  jump-in    data in romsrc       ram       trap_DelSearch+0x4
 4083CAF4  jump-in    data in romsrc       ram       trap_DelComp+0x4
+4083CBF0  held       code                 ramdiff   DELTARGB
 4083CD86  jump-in    code                 boot+ram  trap_GetCTable
 4083D6FC  address    code                 ram       CALCCMASK_1A2
 4083D728  address    code                 ram       CALCCMASK_1CE
@@ -809,6 +851,10 @@
 4083E1F0  jump-in    code                 boot+ram  trap_InitPalettes
 4083F70A  jump-in    code                 ram       ZAPLINKS_4A
 4083F818  jump-in    code                 ram       RESIZEPALETTE+0x8
+4083F910  held       code                 ramdiff   SAVEFORE
+4083F914  held       code                 ramdiff   SAVEBACK
+4083F970  held       code                 ramdiff   RESTOREFORE
+4083F98E  held       code                 ramdiff   RESTOREBACK
 4083FA4A  jump-in    code                 ram       PMGRDISPATCH_14
 4083FA66  jump-in    code                 boot+ram  trap_QDExtensions+0x6
 4083FAC2  jump-in    code                 ram       QDEXTDISPATCHER_62
@@ -896,6 +942,7 @@
 4086B898  jump-in    code                 ram       rsrc_SERD_0_CD6+0x32
 4086B8D4  jump-in    code                 ram       rsrc_SERD_0_D44
 4086B9DC  jump-in    code                 ram       rsrc_SERD_0_D52+0xFA
+4086BC48  held       code                 ramdiff   rsrc_SERD_0_100E_7C+0x2E
 4086BD1E  jump-in    code                 ram       rsrc_SERD_0_1188+0x6
 4086CC9C  address    code                 boot      SONY_CTL_Eject+0x16
 4086D4B8  jump-in    code                 ram       rsrc_DRVR_4__Sony_10CE+0xA
@@ -912,9 +959,12 @@
 4088875C  jump-in    code                 ram       BATWATCH_94
 4088877A  jump-in    code                 ram       BATWATCH_B0+0x2
 408887B2  jump-in    code                 ram       GETLEVEL
+408A0018  held       code                 ramdiff   VSCDECLROM_12+0x6
+408D625E  held       code                 ramdiff   caseD_408d61a2_BC
 408E2312  address    code                 ram       rsrc_lmgr_0_17D4+0xE
 408E23E4  address    code                 ram       rsrc_lmgr_0_182A_6C+0x1E
 408E2426  address    code                 ram       rsrc_lmgr_0_18F6
 408EB1FC  address    code                 ram       rsrc_PACK_4_408E9A20_17DA+0x2
+408EB50C  held       code                 ramdiff   rsrc_PACK_4_408E9A20_1AB8+0x34
 408EC1E4  address    data in romsrc       ram       rsrc_PACK_4_408E9A20_27B2+0x12
 408EDCE6  address    code                 ram       rsrc_PACK_5_408EDCA0_C_3A
