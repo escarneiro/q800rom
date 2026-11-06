@@ -7,7 +7,8 @@ inserted between a short branch and its target the source no longer assembles ("
 out of range"). The generator writes jbra/jbeq/jbsr ... instead, which the assembler
 relaxes to the shortest form that reaches.
 
-This rewrites every explicitly sized branch as its jb form, then builds: the first byte
+Branches in jump tables (a bra next to another bra or jmp) keep their size.
+This rewrites every other explicitly sized branch as its jb form, then builds: the first byte
 that differs from the original image belongs to a branch the assembler made shorter than
 the original (e.g. a bra.w that would fit in a bra.s); that one keeps its explicit size.
 Repeated until the image is identical.
@@ -31,6 +32,19 @@ LD = os.environ.get('M68K_LD', '/usr/m68k-suse-linux/bin/ld')
 OBJCOPY = os.environ.get('M68K_OBJCOPY', '/usr/bin/m68k-suse-linux-objcopy')
 CC = 'ra|sr|hi|ls|cc|cs|ne|eq|vc|vs|pl|mi|ge|lt|gt|le'
 BR = re.compile(r'^(\s+)b(%s)([swl])(\s+)([A-Za-z_]\w*)(\s*(?:\t\|.*)?)$' % CC)
+
+
+def in_table(L, i):
+    """a bra next to another bra/jmp: an entry of a jump table, whose size must not change
+    (the code jumps to table + index * entry size)"""
+    def stmt(j, step):
+        while 0 <= j < len(L):
+            t = re.sub(r'/\*.*?\*/', '', L[j]).split('|')[0].strip()
+            if t and not re.match(r'^[A-Za-z_]\w*:\s*$', t):
+                return t
+            j += step
+        return ''
+    return any(re.match(r'^(j?bra[swl]?|jmp)\s', stmt(i + d, d)) for d in (-1, 1))
 
 
 def build(root, tmp, postlink=True):
@@ -124,7 +138,7 @@ def main():
         if rel not in text:
             text[rel] = open(os.path.join(root, rel)).read().split('\n')
         m = BR.match(text[rel][i])
-        if m:
+        if m and not (m.group(2) == 'ra' and in_table(text[rel], i)):
             changed.append((a, rel, i, text[rel][i]))
     changed.sort()
     for a, rel, i, old in changed:
