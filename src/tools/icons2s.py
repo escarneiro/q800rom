@@ -159,7 +159,7 @@ def parse_source(path):
     """Bytes of a file written by this tool (.long/.short/.byte with numeric values)."""
     out = bytearray()
     for line in open(path):
-        line = line.split('|')[0].strip()
+        line = re.sub(r'/\*.*?\*/', '', line).split('|')[0].strip()
         m = re.match(r'\.(long|short|byte)\s+(.*)', line)
         if not m:
             continue
@@ -181,34 +181,50 @@ def picture(r, n):
 def emit_rows(out, rows, n):
     d = '.long ' if n == 32 else '.short'
     for r in rows:
-        out.append('    {}  0b{:0{w}b}  | {}'.format(d, r, picture(r, n), w=n))
+        out.append('    {}  0b{:0{w}b}  /* {} */'.format(d, r, picture(r, n), w=n))
 
 
 def asm(name, desc, items, data, source):
-    out = ['| %s - %s' % (name, desc),
-           '| Written by tools/icons2s.py (%s): one row per line, the comment shows the row.' % source,
-           '']
+    out = ['/*', ' %s - %s' % (name, desc),
+           ' Written by tools/icons2s.py (%s): one row per line, the comment shows the row.' % source,
+           '*/', '']
     o = 0
     for key, label, kind, idesc in items:
         d = data[o:o + SIZE[kind]]
         o += SIZE[kind]
-        out.append('%s:  | %s' % (label, idesc))
+        out.append('%s:  /* %s */' % (label, idesc))
         if kind in ('icn', 'icnw'):
             emit_rows(out, rows_of(d, 32, 32), 32)
             out.append('%s_mask:' % label)
             emit_rows(out, rows_of(d[128:], 32, 32), 32)
             if kind == 'icnw':
-                out.append('    .short  0x%04X  | after the icon (kept as is)' % int.from_bytes(d[256:258], 'big'))
+                out.append('    .short  0x%04X  /* after the icon (kept as is) */' % int.from_bytes(d[256:258], 'big'))
         elif kind in ('frame', 'mask'):
             emit_rows(out, rows_of(d, 32, 32), 32)
         else:
             emit_rows(out, rows_of(d, 16, 16), 16)
             out.append('%s_mask:' % label)
             emit_rows(out, rows_of(d[32:], 16, 16), 16)
-            out.append('    .short  %d, %d  | hotspot (vertical, horizontal)'
+            out.append('    .short  %d, %d  /* hotspot (vertical, horizontal) */'
                        % (int.from_bytes(d[64:66], 'big'), int.from_bytes(d[66:68], 'big')))
         out.append('')
     return '\n'.join(out)
+
+
+DATA_LINE = re.compile(r'\s+\.(long|short|byte)\s')
+
+
+def merge(path, generated):
+    """The romsrc file at path with its data lines replaced by those of the generated
+    source, in order: its header, comments and any other labels stay as they are."""
+    new = [l for l in generated.split('\n') if DATA_LINE.match(l)]
+    lines = open(path).read().split('\n')
+    old = [i for i, l in enumerate(lines) if DATA_LINE.match(l)]
+    if len(old) != len(new):
+        sys.exit('%s: %d data lines, expected %d' % (path, len(old), len(new)))
+    for i, l in zip(old, new):
+        lines[i] = l
+    return '\n'.join(lines)
 
 
 def replace_items(items, data, pngdir):
@@ -303,8 +319,11 @@ def main():
         if a.out:
             path = os.path.join(a.out, name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
+            text = asm(name, desc, items, data, source)
+            if a.romsrc:
+                text = merge(os.path.join(a.romsrc, name), text)
             with open(path, 'w') as f:
-                f.write(asm(name, desc, items, data, source))
+                f.write(text)
             written.append(name)
         if a.png:
             export_pngs(items, data, os.path.join(a.png, sub), a.scale)

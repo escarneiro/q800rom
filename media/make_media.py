@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""make_media.py - generate the project's own boot chime and boot icons.
+"""make_media.py - generate the project's own sounds, icons, fonts and picture.
 
 Everything here is original work made for this project (no Apple material): the chime is
 synthesized, the icons are drawn below as text. Run it to regenerate the files:
 
   python3 media/make_media.py        writes media/chime.wav, alert.wav, beeps.txt,
-                                     media/icons/*/*.png and media/fonts/*.bdf
+                                     media/icons/*/*.png, media/fonts/*.bdf and
+                                     media/picture.png
 
 The fonts are rendered from free fonts installed on the system: DejaVu Sans (2.37; see
 fonts/LICENSE-DejaVu.txt) and the public domain X11 misc-fixed 6x10 terminal font.
@@ -551,6 +552,33 @@ def fonts(out):
             f.write(fonts2s.to_bdf(key, h, g))
 
 
+# ---- hidden start-up picture (PICTUREDATA): the happy monitor and the project's name ---
+def picture(happy_icon, path):
+    """324 x 300 like the original, white on black (dark pixels are drawn black)."""
+    from PIL import ImageDraw, ImageFont
+    w, h = 324, 300
+    im = Image.new('L', (w, h), 0)
+    scale, top = 3, 28
+    left = (w - 32 * scale) // 2
+    for y, row in enumerate(happy_icon):
+        for x, c in enumerate(row):
+            if c == '#':
+                im.paste(255, (left + x * scale, top + y * scale,
+                               left + (x + 1) * scale, top + (y + 1) * scale))
+    draw = ImageDraw.Draw(im)
+    draw.fontmode = '1'                       # no anti-aliasing: one bit per pixel
+    y = top + 32 * scale + 22
+    for text, font, px, gap in (('q800rom', 'DejaVuSans-Bold.ttf', 30, 12),
+                                ('Macintosh Quadra 800 ROM', 'DejaVuSans.ttf', 16, 4),
+                                ('rebuilt from source', 'DejaVuSans.ttf', 16, 14),
+                                ('github.com/escarneiro/q800rom', 'DejaVuSans.ttf', 13, 0)):
+        f = ImageFont.truetype(TTF + font, px)
+        x0, y0, x1, y1 = draw.textbbox((0, 0), text, font=f)
+        draw.text(((w - (x1 - x0)) // 2 - x0, y - y0), text, font=f, fill=255)
+        y += y1 - y0 + gap
+    im.point(lambda v: 255 if v >= 128 else 0).save(path)
+
+
 def main():
     chime(os.path.join(HERE, 'chime.wav'))
     alert(os.path.join(HERE, 'alert.wav'))
@@ -582,6 +610,7 @@ def main():
     for name, (hotspot, art) in CURSORS.items():
         save_cursor(art, hotspot, os.path.join(icons, 'cursors', name + '.png'))
     fonts(os.path.join(HERE, 'fonts'))
+    picture(h, os.path.join(HERE, 'picture.png'))
 
 
 if __name__ == '__main__':

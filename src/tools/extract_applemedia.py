@@ -12,7 +12,8 @@ OUTDIR/
               (tools/beeps2s.py format)
   icons/      icons and cursors as PNG (tools/icons2s.py layout)
   fonts/      the four bitmap fonts as BDF, and a sample (fonts.png)
-  pictures/   the 'PICT' resources as PNG
+  pictures/   the 'PICT' resources as PNG, and the hidden start-up picture as
+              hidden.png (PICTUREDATA, tools/pict2s.py)
   resources/  every ROM resource's data, as TYPE/ID[_name].bin
 """
 import os
@@ -24,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import beeps2s      # noqa: E402
 import fonts2s      # noqa: E402
 import icons2s      # noqa: E402
+import pict2s       # noqa: E402
 
 ROM_BASE = 0x40800000
 SOUNDS = [          # name, ROM offset, end of the sound data
@@ -180,6 +182,7 @@ def main():
             fn = str(rid) + ('_' + ''.join(c if c.isalnum() else '_' for c in name) if name else '')
             if not pict_to_png(data, os.path.join(d, fn + '.png')):
                 bad.append(rid)
+    pict_to_png(pict2s.unpack(rom[pict2s.OFFSET:pict2s.OFFSET + pict2s.AREA]), os.path.join(d, 'hidden.png'))
     print('applemedia: %d resources, %d sounds, icons, fonts, pictures%s -> %s'
           % (len(res), len(snds), ' (PICTs not converted: %s)' % bad if bad else '', out))
 

@@ -9,6 +9,8 @@ Two kinds of filler, neither read by anything:
    fields.
  - word: padding after the end of some code, filled with a repeated four-letter word
    ('Gary', 'YEAH', 'NEAT').
+ - pstring: padding after SOUNDINTERRUPTS (sound/soundmgr.s), 23 copies of the Pascal
+   string "  Life Is Good  ".
 Each place is a macro FILL_<original address> in romfill.inc, called from the source
 where the bytes were.
 
@@ -23,8 +25,8 @@ The replacement blocks are delimited: each starts with '<<' and ends with '>>':
   <<q800rom: ... https://github.com/escarneiro/q800rom -------->>  the last one (164 bytes)
 The short pieces of the pattern elsewhere are slices of the Lorem Ipsum block at the same
 position in the 152-byte cycle as Apple's pattern (0x408F0000 is the start of a block).
-Each word fill becomes whole Lorem Ipsum blocks and one shorter block for the rest, also
-from '<<' to '>>'.
+Each word and pstring fill becomes whole Lorem Ipsum blocks and one shorter block for the
+rest, also from '<<' to '>>'.
 """
 import argparse
 import re
@@ -37,6 +39,7 @@ MAIN_RUN = (0xF0000, 0xF2C94)
 MIN_RUN = 4                  # shorter matches are not taken (could be chance)
 FILL_WORDS = (b'Gary', b'YEAH', b'NEAT')
 MIN_WORDS = 3
+PSTRINGS = (b'  Life Is Good  ',)
 
 # Every replacement block is delimited: it starts with '<<' and ends with '>>', so the
 # blocks can be found (and replaced) in a ROM image: '<<Lorem ipsum ... veniam.>>' (152
@@ -74,6 +77,15 @@ def find_sites(rom):
             x += 4 * n
         else:
             x += 1
+    for s in PSTRINGS:
+        unit = bytes([len(s)]) + s
+        x = rom.find(unit * MIN_WORDS)
+        while x >= 0:
+            n = 0
+            while rom[x + n * len(unit):x + (n + 1) * len(unit)] == unit:
+                n += 1
+            sites.append((x, n * len(unit), 'pstring'))
+            x = rom.find(unit * MIN_WORDS, x + n * len(unit))
     return sorted(sites)
 
 
@@ -98,10 +110,10 @@ def emit(data):
 
 
 def write(path, sites, data_of, source):
-    out = ['| include/romfill.inc - filler bytes, one macro per place (tools/fill2s.py, %s)' % source,
-           '| FILL_<address in the original ROM>: <length> bytes. Nothing reads them.', '']
+    out = ['/*', ' include/romfill.inc - filler bytes, one macro per place (tools/fill2s.py, %s)' % source,
+           ' FILL_<address in the original ROM>: <length> bytes. Nothing reads them.', '*/', '']
     for a, n, kind in sites:
-        out.append('.macro FILL_%08X  | %d bytes, %s' % (ROM_BASE + a, n, kind))
+        out.append('.macro FILL_%08X  /* %d bytes, %s */' % (ROM_BASE + a, n, kind))
         out += emit(data_of(a, n, kind))
         out.append('.endm')
     open(path, 'w').write('\n'.join(out) + '\n')
@@ -119,7 +131,7 @@ def main():
         write(a.out, find_sites(rom), lambda x, n, kind: rom[x:x + n], 'from the original ROM')
     elif a.romsrc:
         sites = [(int(m.group(1), 16) - ROM_BASE, int(m.group(2)), m.group(3))
-                 for m in re.finditer(r'^\.macro FILL_([0-9A-F]{8})\s+\|\s*(\d+) bytes, (pattern|word \w+)',
+                 for m in re.finditer(r'^\.macro FILL_([0-9A-F]{8})\s+(?:\||/\*)\s*(\d+) bytes, (pattern|word \w+|pstring)',
                                       open(a.romsrc).read(), re.M)]
         block = lorem_block()
         start, end = MAIN_RUN
@@ -130,7 +142,7 @@ def main():
         tail = text + b'-' * (end - last - len(text) - 2) + b'>>'
 
         def data_of(x, n, kind):
-            if kind.startswith('word'):
+            if kind.startswith(('word', 'pstring')):
                 out = block * (n // PERIOD)
                 rest = n % PERIOD
                 if rest:
@@ -140,6 +152,8 @@ def main():
             for y in range(x, x + n):
                 out.append(tail[y - last] if last <= y < end else block[(y - FILL_BASE) % PERIOD])
             return bytes(out)
+        if not sites:
+            sys.exit('fill2s: no FILL_ macros in %s' % a.romsrc)
         write(a.out, sites, data_of, 'Lorem Ipsum')
     else:
         ap.error('give --rom or --romsrc')

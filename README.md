@@ -84,7 +84,7 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 ## 3. Directory Layout
 
 ```
-media/                     - Original sounds, icons, cursors and fonts (make FREE_MEDIA=1)
+media/                     - Original sounds, icons, cursors, fonts and picture (make FREE_MEDIA=1)
 applemedia/                - Apple's media from your ROM, for reference (not in git; make applemedia)
 src/
 ├── romsrc/                - Generated 68040 assembly source of the ROM (not in git; make romsrc-regen)
@@ -105,6 +105,7 @@ src/
 │   ├── icons2s.py         - PNGs -> icons and cursors source (replacement, make ICONS=)
 │   ├── fonts2s.py         - BDF <-> bitmap 'FONT' source (replacement, make FONTS=)
 │   ├── fill2s.py          - the filler in unused places (Apple's or Lorem Ipsum, make FILLER=1)
+│   ├── pict2s.py          - PNG <-> the hidden start-up picture (replacement, make PICTURE=)
 │   ├── extract_applemedia.py - Apple's media from an original ROM -> applemedia/ (make applemedia)
 │   ├── declrom_names.py   - Names for the declaration ROM (sResources, drivers, video modes)
 │   ├── context_names.py   - Names for remaining sub_/loc_/dat_ labels from their context
@@ -234,6 +235,22 @@ writes the original fonts as BDF, and `fonts2s.py DIR --preview sample.png` show
 Mac OS loads its own fonts from the System file, so these are only seen when the System
 does not provide a font of the same number.
 
+#### Your own hidden picture
+
+```bash
+make -C src rom PICTURE=/path/to/picture.png
+```
+
+The ROM hides a picture: early in start-up, when the System installs its patches
+(`INITOVERPATCH` in `romsrc/patches/overpatches.s`), holding Esc and then L, F and W for a
+second fades the screen to black, draws the picture in the middle with a double frame and
+waits for a click. Apple's is the names of the ROM team, 324 x 300 pixels, white on black.
+`PICTURE=` puts a PNG there instead (`tools/pict2s.py`): dark pixels are drawn black, the
+screen around it is black, and it is stored as a compressed `'PICT'` that must fit in the
+original 5,542 bytes (the tool says how much is over; large areas of one colour compress
+best), so nothing else in the ROM moves. `python3 src/tools/pict2s.py --rom QUADRA800.ROM
+--png FILE` writes the original as PNG.
+
 #### The filler
 
 Apple's build tool filled the whole ROM image with a 152-byte block (the ROM team's
@@ -241,8 +258,9 @@ initials, `(c) Copyright Apple Computer, Inc. 1989-1992` and the build date, `Mo
 1991`) before placing code and data. Nothing reads it; it is left in 88 unused places: a
 run of 11,412 bytes before the declaration ROM data at `0x408F0000`, alignment padding and
 unused resource name fields. Six more areas after the end of some code are padded with a
-repeated word, `Gary`, `YEAH` or `NEAT` (20 to 2,816 bytes). All of them are macros in
-`romsrc/include/romfill.inc`.
+repeated word, `Gary`, `YEAH` or `NEAT` (20 to 2,816 bytes), and one, after the Sound
+Manager's empty interrupt routines, with 23 copies of the Pascal string `"  Life Is Good  "`
+(391 bytes). All of them are macros in `romsrc/include/romfill.inc`.
 
 ```bash
 make -C src rom FILLER=1
@@ -252,13 +270,14 @@ fills them with Lorem Ipsum instead, in delimited blocks that are easy to find a
 replace later: every block starts with `<<` and ends with `>>`. The long run becomes 74
 copies of `<<Lorem ipsum dolor sit amet, ... Ut enim ad minim veniam.>>` (152 bytes) and
 a last block `<<q800rom: ... https://github.com/escarneiro/q800rom ---->>` (164 bytes);
-the short pieces elsewhere are slices of the Lorem Ipsum block, and each word fill
-becomes whole Lorem Ipsum blocks plus one shorter `<<Lorem ipsum ...>>` block.
+the short pieces elsewhere are slices of the Lorem Ipsum block, and each word or string
+fill becomes whole Lorem Ipsum blocks plus one shorter `<<Lorem ipsum ...>>` block.
 
 #### The project's own media
 
 `media/` holds an original chime, alert sound and error beeps, original icons and
-cursors, and fonts made from free fonts, for all of the above (no Apple material; see
+cursors, fonts made from free fonts and a hidden picture, for all of the above (no Apple
+material; see
 `media/README.md`). `FREE_MEDIA=1` also sets `FILLER=1`. Build with all of them:
 
 ```bash
@@ -336,7 +355,8 @@ make -C src applemedia ORIG_ROM=/path/to/QUADRA800.ROM
 ```
 
 writes Apple's sounds (`'snd '` and WAV), boot/error beep table, icons and cursors (PNG),
-fonts (BDF), pictures (PNG) and the data of every ROM resource into `applemedia/`, next to
+fonts (BDF), pictures (PNG, with the hidden picture as `pictures/hidden.png`) and the
+data of every ROM resource into `applemedia/`, next to
 `media/`. It is Apple's copyrighted material, so `applemedia/` is in `.gitignore`.
 
 ### 4. Regenerating `romsrc/` (needs an original ROM)
