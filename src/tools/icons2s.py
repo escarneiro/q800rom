@@ -24,8 +24,6 @@ Usage:
   icons2s.py DIR --romsrc ROMSRC -o OUTDIR
         for every file with at least one PNG in DIR, write OUTDIR/<file>; items without a
         PNG keep their current data (read from ROMSRC/<file>)
-  icons2s.py --rom ROM -o OUTDIR       every file, with the icons of an original ROM
-  icons2s.py --rom ROM --png PNGDIR    the original icons as PNGs (a starting point)
   icons2s.py DIR --romsrc ROMSRC --png PREVIEW --scale 6     enlarged preview
 
 PNG input: icons 32x32, cursors 16x16 (or an integer multiple). Dark pixels are the image.
@@ -289,27 +287,20 @@ def export_pngs(items, data, outdir, scale):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('dir', nargs='?', help='PNG directory (boot/, sony/, edisk/, atboot/, cursors/)')
-    ap.add_argument('--rom', help='take the current data from an original ROM image')
-    ap.add_argument('--romsrc', help='take the current data from the romsrc/ files')
+    ap.add_argument('--romsrc', required=True, help='take the current data from the romsrc/ files')
     ap.add_argument('-o', dest='out', help='directory to write the source files into')
     ap.add_argument('--png', metavar='DIR', help='write the icons as PNGs into DIR')
     ap.add_argument('--scale', type=int, default=1, help='PNG scale factor for --png (default 1)')
     a = ap.parse_args()
-    if not a.rom and not a.romsrc:
-        ap.error('give --rom or --romsrc')
     if not a.out and not a.png:
         ap.error('nothing to write: give -o or --png')
-    rom = open(a.rom, 'rb').read() if a.rom else None
 
     written = []
     for name, off, sub, desc, items in REGIONS:
         size = region_size(items)
-        if rom:
-            data, source = rom[off:off + size], 'from the original ROM'
-        else:
-            data, source = parse_source(os.path.join(a.romsrc, name)), 'from romsrc'
-            if len(data) != size:
-                sys.exit('%s: %d bytes, expected %d' % (name, len(data), size))
+        data, source = parse_source(os.path.join(a.romsrc, name)), 'from romsrc'
+        if len(data) != size:
+            sys.exit('%s: %d bytes, expected %d' % (name, len(data), size))
         used = 0
         if a.dir:
             data, used = replace_items(items, data, os.path.join(a.dir, sub))
@@ -320,8 +311,7 @@ def main():
             path = os.path.join(a.out, name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             text = asm(name, desc, items, data, source)
-            if a.romsrc:
-                text = merge(os.path.join(a.romsrc, name), text)
+            text = merge(os.path.join(a.romsrc, name), text)
             with open(path, 'w') as f:
                 f.write(text)
             written.append(name)

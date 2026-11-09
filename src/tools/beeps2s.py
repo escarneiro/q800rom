@@ -17,8 +17,6 @@ Text file format, one beep per line (# at the start or after a space starts a co
 
 Usage:
   beeps2s.py BEEPS.txt -o beeptable.s     table from a text file
-  beeps2s.py --rom ROM -o beeptable.s      the original table (byte for byte)
-  beeps2s.py --rom ROM --text BEEPS.txt    the original table as a text file
 """
 import argparse
 import math
@@ -83,13 +81,6 @@ def parse_text(path):
     return [beeps[k] for k in range(5)]
 
 
-def from_rom(rom):
-    offs = struct.unpack('>5H', rom[ROM_TABLE:ROM_TABLE + 10])
-    if offs != (0x0A, 0x1A, 0x2A, 0x3A, 0x4A):
-        sys.exit('unexpected beep table')
-    return [list(struct.unpack('>8H', rom[ROM_TABLE + o:ROM_TABLE + o + 16])) for o in offs]
-
-
 def asm(beeps, source):
     out = ['| sound/beeptable.s - DOBEEP\'s table: the boot beep (0) and error beeps 1-4',
            '| Written by tools/beeps2s.py (%s). Each entry: mode (0: voices together, 1: one' % source,
@@ -119,16 +110,13 @@ def text(beeps):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('file', nargs='?', help='text file with the beeps')
-    ap.add_argument('--rom', help='take the table from an original ROM image')
     ap.add_argument('-o', dest='out', help='beeptable.s to write')
     ap.add_argument('--text', help='write the table as a text file')
     a = ap.parse_args()
-    if a.rom:
-        beeps, source = from_rom(open(a.rom, 'rb').read()), 'from the original ROM'
-    elif a.file:
+    if a.file:
         beeps, source = parse_text(a.file), 'from %s' % a.file.replace('\\', '/').rsplit('/', 1)[-1]
     else:
-        ap.error('give a text file or --rom')
+        ap.error('give a text file')
     if a.out:
         open(a.out, 'w').write(asm(beeps, source))
     if a.text:

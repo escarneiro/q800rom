@@ -1,0 +1,5527 @@
+/* ROM resource 'PACK' 4: map entry at 0x408E99F0, data at 0x408E9A20, 16976 bytes
+
+ The SANE arithmetic package for machines with a floating-point unit (PACK 4, FPU
+ version: the machine mask of its map entry selects it; the Quadra 800 uses this one):
+ the same operations as the software FP68K (rsrc/73910_PACK_4.s), done mostly with 68881 /
+ 68040 floating-point instructions. The operation word selects the routine through the
+ 512-entry table rsrc_PACK_4_408E9A20_DISPTAB. Comments inferred; routines summarised
+ mechanically.
+*/
+
+/* subroutine (1 instructions): low memory PACK (mechanical summary) */
+rsrc_PACK_4_entry_408E99F0:
+    .long   0x70000000, 0x00000000	| 408E99F0
+    .long   rsrc_PACK_5_entry-rom_start	| 408E99F8
+    .long   rsrc_PACK_4_408E9A20-rom_start	| 408E99FC
+    .ascii  "PACK"	| 408E9A00
+    .byte   0x00, 0x04, 0x58, 0x00	| 408E9A04
+    FILL_408E9A08
+    .byte   0xC0, 0xA0, 0x00, 0x00	| 408E9A14
+    .short  0x0000, 0x425C	| orib #92,%d0
+    .short  0x0000, 0x027C	| orib #124,%d0
+
+/* subroutine (52 instructions): calls rsrc_PACK_4_408E9A20_B2; low memory CPUFlag (mechanical summary) */
+rsrc_PACK_4_408E9A20:
+    jbra rsrc_PACK_4_408E9A20_C
+    .short  0x0000, 0x5041, 0x434B	| 408E9A22
+    orib #9,%d4
+
+rsrc_PACK_4_408E9A20_C:  /* subtract 2 to %sp */
+    subqw #2,%sp
+    moveml %d0/%a0-%a1,%sp@-
+    lea %pc@(rsrc_PACK_4_408E9A20_FF4_38),%a0
+    movel %a0,0xb6e
+    movew %sp@(18),%d0
+    jbne rsrc_PACK_4_408E9A20_C_42
+    moveal %sp@(14),%a1
+    subql #2,%a1
+    cmpiw #-22037,%a1@
+    jbne rsrc_PACK_4_408E9A20_C_70
+    subql #2,%a1
+    cmpiw #16999,%a1@
+    jbeq rsrc_PACK_4_408E9A20_C_2C
+    subql #2,%a1
+    jbra rsrc_PACK_4_408E9A20_C_62
+rsrc_PACK_4_408E9A20_C_2C:  /* set %a1@+ */
+    movew #20152,%a1@+
+    movew #2924,%a1@
+    jbsr rsrc_PACK_4_408E9A20_B2
+    movew #20217,0xb6c
+    moveaw #2924,%a1
+    jbra rsrc_PACK_4_408E9A20_C_6E
+rsrc_PACK_4_408E9A20_C_42:  /* from here: rolw #8,%d0 */
+    rolw #8,%d0
+    lslb #2,%d0
+    bfexts %d0,18,10,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_31C,%d0:w),%d0
+    lea %pc@(rsrc_PACK_4_408E9A20_C,%d0:w),%a0
+    moveal %sp@(14),%a1
+    subql #2,%a1
+    cmpiw #-22037,%a1@
+    jbne rsrc_PACK_4_408E9A20_C_70
+    subql #4,%a1
+rsrc_PACK_4_408E9A20_C_62:  /* test #16188,%a1@ */
+    cmpiw #16188,%a1@
+    jbne rsrc_PACK_4_408E9A20_C_70
+    movew #20153,%a1@+
+    movel %a0,%a1@
+rsrc_PACK_4_408E9A20_C_6E:  /* call rsrc_PACK_4_408E9A20_B2 */
+    jbsr rsrc_PACK_4_408E9A20_B2
+rsrc_PACK_4_408E9A20_C_70:  /* set %sp@(16) */
+    movel %sp@(14),%sp@(16)
+    movel %a0,%sp@(12)
+    lea %pc@(rsrc_PACK_4_408E9A20_2BC2),%a0
+    cmpib #4,CPUFlag
+    jblt rsrc_PACK_4_408E9A20_C_90
+    lea %pc@(rsrc_PACK_4_408E9A20_28DC),%a0
+    movel %a0,0x1fd4
+    jbra rsrc_PACK_4_408E9A20_C_94
+rsrc_PACK_4_408E9A20_C_90:  /* set 0xd0 */
+    movel %a0,0xd0
+rsrc_PACK_4_408E9A20_C_94:  /* from here: fmovel %fpcr,%d0 */
+    fmovel %fpcr,%d0
+    bset #13,%d0
+    fmovel %d0,%fpcr
+    moveml %sp@+,%d0/%a0-%a1
+    rts
+
+/* subroutine (38 instructions): traps DebugUtil; low memory CPUFlag (mechanical summary) */
+rsrc_PACK_4_408E9A20_B2:
+    cmpib #4,CPUFlag
+    jblt rsrc_PACK_4_408E9A20_B2_5C
+    moveml %d0-%d4/%a1-%a2,%sp@-
+    movew %sr,%d0
+    btst #13,%d0
+    jbne rsrc_PACK_4_408E9A20_B2_18
+    moveq #8,%d0
+    _DebugUtil
+rsrc_PACK_4_408E9A20_B2_18:  /* set %d1 */
+    moveq #5,%d1
+    movec %d1,%dfc
+    moveq #1,%d4
+    subql #2,%a1
+    moveal %a1,%a2
+    oriw #1792,%sr
+    movew #-12288,%d3
+    movec %tc,%d2
+    lsrw #2,%d2
+    eorw %d2,%d3
+rsrc_PACK_4_408E9A20_B2_34:  /* loop: ptestr */
+    ptestr %a1@
+    movec %mmusr,%d1
+    andw %d3,%d1
+    movew %a1,%d2
+    notw %d3
+    andw %d3,%d2
+    orw %d2,%d1
+    moveal %d1,%a1
+    cpushl %bc,%a1@
+    notw %d3
+    moveal %a2,%a1
+    lea %a1@(16),%a1
+    dbf %d4,rsrc_PACK_4_408E9A20_B2_34
+    movew %d0,%sr
+    moveml %sp@+,%d0-%d4/%a1-%a2
+    rts
+rsrc_PACK_4_408E9A20_B2_5C:  /* set %d0 */
+    movec %cacr,%d0
+    oriw #2056,%d0
+    movec %d0,%cacr
+    rts
+/*
+ PACK 4 dispatch table: 512 word offsets from rsrc_PACK_4_408E9A20_C to the routine for
+ each selector. The dispatcher (rsrc_PACK_4_408E9A20_C_42) takes a signed 10-bit index
+ from the selector word and reads the entry at rsrc_PACK_4_408E9A20_31C + index, so the
+ table runs 256 entries before that label and 256 after. Unused selectors point to
+ rsrc_PACK_4_408E9A20_51C (system error 81).
+*/
+rsrc_PACK_4_408E9A20_DISPTAB:
+    .short  rsrc_PACK_4_408E9A20_590-rsrc_PACK_4_408E9A20_C	| 408E9B3C
+    .short  rsrc_PACK_4_408E9A20_5E4-rsrc_PACK_4_408E9A20_C	| 408E9B3E
+    .short  rsrc_PACK_4_408E9A20_5BA-rsrc_PACK_4_408E9A20_C	| 408E9B40
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B42
+    .short  rsrc_PACK_4_408E9A20_60E-rsrc_PACK_4_408E9A20_C	| 408E9B44
+    .short  rsrc_PACK_4_408E9A20_638-rsrc_PACK_4_408E9A20_C	| 408E9B46
+    .short  rsrc_PACK_4_408E9A20_662-rsrc_PACK_4_408E9A20_C	| 408E9B48
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B4A
+    .short  rsrc_PACK_4_408E9A20_21E0-rsrc_PACK_4_408E9A20_C	| 408E9B4C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B4E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B50
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B52
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B54
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B56
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B58
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B5A
+    .short  rsrc_PACK_4_408E9A20_68C-rsrc_PACK_4_408E9A20_C	| 408E9B5C
+    .short  rsrc_PACK_4_408E9A20_6E0-rsrc_PACK_4_408E9A20_C	| 408E9B5E
+    .short  rsrc_PACK_4_408E9A20_6B6-rsrc_PACK_4_408E9A20_C	| 408E9B60
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B62
+    .short  rsrc_PACK_4_408E9A20_70A-rsrc_PACK_4_408E9A20_C	| 408E9B64
+    .short  rsrc_PACK_4_408E9A20_734-rsrc_PACK_4_408E9A20_C	| 408E9B66
+    .short  rsrc_PACK_4_408E9A20_75E-rsrc_PACK_4_408E9A20_C	| 408E9B68
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B6A
+    .short  rsrc_PACK_4_408E9A20_215E-rsrc_PACK_4_408E9A20_C	| 408E9B6C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B6E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B70
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B72
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B74
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B76
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B78
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B7A
+    .short  rsrc_PACK_4_408E9A20_788-rsrc_PACK_4_408E9A20_C	| 408E9B7C
+    .short  rsrc_PACK_4_408E9A20_7DC-rsrc_PACK_4_408E9A20_C	| 408E9B7E
+    .short  rsrc_PACK_4_408E9A20_7B2-rsrc_PACK_4_408E9A20_C	| 408E9B80
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B82
+    .short  rsrc_PACK_4_408E9A20_806-rsrc_PACK_4_408E9A20_C	| 408E9B84
+    .short  rsrc_PACK_4_408E9A20_830-rsrc_PACK_4_408E9A20_C	| 408E9B86
+    .short  rsrc_PACK_4_408E9A20_85A-rsrc_PACK_4_408E9A20_C	| 408E9B88
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B8A
+    .short  rsrc_PACK_4_408E9A20_2256-rsrc_PACK_4_408E9A20_C	| 408E9B8C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B8E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B90
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B92
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B94
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B96
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B98
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9B9A
+    .short  rsrc_PACK_4_408E9A20_884-rsrc_PACK_4_408E9A20_C	| 408E9B9C
+    .short  rsrc_PACK_4_408E9A20_8D8-rsrc_PACK_4_408E9A20_C	| 408E9B9E
+    .short  rsrc_PACK_4_408E9A20_8AE-rsrc_PACK_4_408E9A20_C	| 408E9BA0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BA2
+    .short  rsrc_PACK_4_408E9A20_902-rsrc_PACK_4_408E9A20_C	| 408E9BA4
+    .short  rsrc_PACK_4_408E9A20_92C-rsrc_PACK_4_408E9A20_C	| 408E9BA6
+    .short  rsrc_PACK_4_408E9A20_956-rsrc_PACK_4_408E9A20_C	| 408E9BA8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BAA
+    .short  rsrc_PACK_4_408E9A20_22BA-rsrc_PACK_4_408E9A20_C	| 408E9BAC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BAE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BB0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BB2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BB4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BB6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BB8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BBA
+    .short  rsrc_PACK_4_408E9A20_B00-rsrc_PACK_4_408E9A20_C	| 408E9BBC
+    .short  rsrc_PACK_4_408E9A20_B70-rsrc_PACK_4_408E9A20_C	| 408E9BBE
+    .short  rsrc_PACK_4_408E9A20_B38-rsrc_PACK_4_408E9A20_C	| 408E9BC0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BC2
+    .short  rsrc_PACK_4_408E9A20_BA8-rsrc_PACK_4_408E9A20_C	| 408E9BC4
+    .short  rsrc_PACK_4_408E9A20_BE0-rsrc_PACK_4_408E9A20_C	| 408E9BC6
+    .short  rsrc_PACK_4_408E9A20_C18-rsrc_PACK_4_408E9A20_C	| 408E9BC8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BCA
+    .short  rsrc_PACK_4_408E9A20_302E-rsrc_PACK_4_408E9A20_C	| 408E9BCC
+    .short  rsrc_PACK_4_408E9A20_3008-rsrc_PACK_4_408E9A20_C	| 408E9BCE
+    .short  rsrc_PACK_4_408E9A20_2FF6-rsrc_PACK_4_408E9A20_C	| 408E9BD0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BD2
+    .short  rsrc_PACK_4_408E9A20_2FD2-rsrc_PACK_4_408E9A20_C	| 408E9BD4
+    .short  rsrc_PACK_4_408E9A20_2FC0-rsrc_PACK_4_408E9A20_C	| 408E9BD6
+    .short  rsrc_PACK_4_408E9A20_2FE4-rsrc_PACK_4_408E9A20_C	| 408E9BD8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BDA
+    .short  rsrc_PACK_4_408E9A20_980-rsrc_PACK_4_408E9A20_C	| 408E9BDC
+    .short  rsrc_PACK_4_408E9A20_A00-rsrc_PACK_4_408E9A20_C	| 408E9BDE
+    .short  rsrc_PACK_4_408E9A20_9C0-rsrc_PACK_4_408E9A20_C	| 408E9BE0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BE2
+    .short  rsrc_PACK_4_408E9A20_A40-rsrc_PACK_4_408E9A20_C	| 408E9BE4
+    .short  rsrc_PACK_4_408E9A20_A80-rsrc_PACK_4_408E9A20_C	| 408E9BE6
+    .short  rsrc_PACK_4_408E9A20_AC0-rsrc_PACK_4_408E9A20_C	| 408E9BE8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BEA
+    .short  rsrc_PACK_4_408E9A20_2DC6-rsrc_PACK_4_408E9A20_C	| 408E9BEC
+    .short  rsrc_PACK_4_408E9A20_2DB8-rsrc_PACK_4_408E9A20_C	| 408E9BEE
+    .short  rsrc_PACK_4_408E9A20_2DAA-rsrc_PACK_4_408E9A20_C	| 408E9BF0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BF2
+    .short  rsrc_PACK_4_408E9A20_2D8E-rsrc_PACK_4_408E9A20_C	| 408E9BF4
+    .short  rsrc_PACK_4_408E9A20_2D80-rsrc_PACK_4_408E9A20_C	| 408E9BF6
+    .short  rsrc_PACK_4_408E9A20_2D9C-rsrc_PACK_4_408E9A20_C	| 408E9BF8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9BFA
+    .short  rsrc_PACK_4_408E9A20_C50-rsrc_PACK_4_408E9A20_C	| 408E9BFC
+    .short  rsrc_PACK_4_408E9A20_CAC-rsrc_PACK_4_408E9A20_C	| 408E9BFE
+    .short  rsrc_PACK_4_408E9A20_C7E-rsrc_PACK_4_408E9A20_C	| 408E9C00
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C02
+    .short  rsrc_PACK_4_408E9A20_CDA-rsrc_PACK_4_408E9A20_C	| 408E9C04
+    .short  rsrc_PACK_4_408E9A20_D08-rsrc_PACK_4_408E9A20_C	| 408E9C06
+    .short  rsrc_PACK_4_408E9A20_D36-rsrc_PACK_4_408E9A20_C	| 408E9C08
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C0A
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9C0C
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9C0E
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9C10
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C12
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C14
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C16
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C18
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C1A
+    .short  rsrc_PACK_4_408E9A20_D64-rsrc_PACK_4_408E9A20_C	| 408E9C1C
+    .short  rsrc_PACK_4_408E9A20_DB0-rsrc_PACK_4_408E9A20_C	| 408E9C1E
+    .short  rsrc_PACK_4_408E9A20_D8A-rsrc_PACK_4_408E9A20_C	| 408E9C20
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C22
+    .short  rsrc_PACK_4_408E9A20_DD6-rsrc_PACK_4_408E9A20_C	| 408E9C24
+    .short  rsrc_PACK_4_408E9A20_DFC-rsrc_PACK_4_408E9A20_C	| 408E9C26
+    .short  rsrc_PACK_4_408E9A20_E22-rsrc_PACK_4_408E9A20_C	| 408E9C28
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C2A
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9C2C
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9C2E
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9C30
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C32
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C34
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C36
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C38
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C3A
+    .short  rsrc_PACK_4_408E9A20_D64-rsrc_PACK_4_408E9A20_C	| 408E9C3C
+    .short  rsrc_PACK_4_408E9A20_E72-rsrc_PACK_4_408E9A20_C	| 408E9C3E
+    .short  rsrc_PACK_4_408E9A20_E48-rsrc_PACK_4_408E9A20_C	| 408E9C40
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C42
+    .short  rsrc_PACK_4_408E9A20_E9C-rsrc_PACK_4_408E9A20_C	| 408E9C44
+    .short  rsrc_PACK_4_408E9A20_EF4-rsrc_PACK_4_408E9A20_C	| 408E9C46
+    .short  rsrc_PACK_4_408E9A20_F4C-rsrc_PACK_4_408E9A20_C	| 408E9C48
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C4A
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9C4C
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9C4E
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9C50
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C52
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C54
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C56
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C58
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C5A
+    .short  rsrc_PACK_4_408E9A20_F72-rsrc_PACK_4_408E9A20_C	| 408E9C5C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C5E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C60
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C62
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C64
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C66
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C68
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C6A
+    .short  rsrc_PACK_4_408E9A20_2346-rsrc_PACK_4_408E9A20_C	| 408E9C6C
+    .short  rsrc_PACK_4_408E9A20_24B4-rsrc_PACK_4_408E9A20_C	| 408E9C6E
+    .short  rsrc_PACK_4_408E9A20_2580-rsrc_PACK_4_408E9A20_C	| 408E9C70
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C72
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C74
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C76
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C78
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C7A
+    .short  rsrc_PACK_4_408E9A20_F94-rsrc_PACK_4_408E9A20_C	| 408E9C7C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C7E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C80
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C82
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C84
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C86
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C88
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C8A
+    .short  rsrc_PACK_4_408E9A20_265C-rsrc_PACK_4_408E9A20_C	| 408E9C8C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C8E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C90
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C92
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C94
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C96
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C98
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C9A
+    .short  rsrc_PACK_4_408E9A20_FB6-rsrc_PACK_4_408E9A20_C	| 408E9C9C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9C9E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CA0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CA2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CA4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CA6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CA8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CAA
+    .short  rsrc_PACK_4_408E9A20_22DE-rsrc_PACK_4_408E9A20_C	| 408E9CAC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CAE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CB0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CB2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CB4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CB6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CB8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CBA
+    .short  rsrc_PACK_4_408E9A20_FD8-rsrc_PACK_4_408E9A20_C	| 408E9CBC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CBE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CC0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CC2
+    .short  rsrc_PACK_4_408E9A20_FD8-rsrc_PACK_4_408E9A20_C	| 408E9CC4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CC6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CC8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CCA
+    .short  rsrc_PACK_4_408E9A20_262C-rsrc_PACK_4_408E9A20_C	| 408E9CCC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CCE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CD0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CD2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CD4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CD6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CD8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CDA
+    .short  rsrc_PACK_4_408E9A20_FF4-rsrc_PACK_4_408E9A20_C	| 408E9CDC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CDE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CE0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CE2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CE4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CE6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CE8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CEA
+    .short  rsrc_PACK_4_408E9A20_22F8-rsrc_PACK_4_408E9A20_C	| 408E9CEC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CEE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CF0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CF2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CF4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CF6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CF8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9CFA
+    .short  rsrc_PACK_4_408E9A20_100C-rsrc_PACK_4_408E9A20_C	| 408E9CFC
+    .short  rsrc_PACK_4_408E9A20_20DE-rsrc_PACK_4_408E9A20_C	| 408E9CFE
+    .short  rsrc_PACK_4_408E9A20_208E-rsrc_PACK_4_408E9A20_C	| 408E9D00
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D02
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D04
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D06
+    .short  rsrc_PACK_4_408E9A20_2132-rsrc_PACK_4_408E9A20_C	| 408E9D08
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D0A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D0C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D0E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D10
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D12
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D14
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D16
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D18
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D1A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D1C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D1E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D20
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D22
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D24
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D26
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D28
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D2A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D2C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D2E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D30
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D32
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D34
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D36
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D38
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D3A
+rsrc_PACK_4_408E9A20_31C:     /* entry for index 0 */
+    .short  rsrc_PACK_4_408E9A20_FF4_38-rsrc_PACK_4_408E9A20_C	| 408E9D3C
+    .short  rsrc_PACK_4_408E9A20_10AE-rsrc_PACK_4_408E9A20_C	| 408E9D3E
+    .short  rsrc_PACK_4_408E9A20_1072-rsrc_PACK_4_408E9A20_C	| 408E9D40
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D42
+    .short  rsrc_PACK_4_408E9A20_10EA-rsrc_PACK_4_408E9A20_C	| 408E9D44
+    .short  rsrc_PACK_4_408E9A20_1126-rsrc_PACK_4_408E9A20_C	| 408E9D46
+    .short  rsrc_PACK_4_408E9A20_1162-rsrc_PACK_4_408E9A20_C	| 408E9D48
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D4A
+    .short  rsrc_PACK_4_408E9A20_21E0-rsrc_PACK_4_408E9A20_C	| 408E9D4C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D4E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D50
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D52
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D54
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D56
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D58
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D5A
+    .short  rsrc_PACK_4_408E9A20_119E-rsrc_PACK_4_408E9A20_C	| 408E9D5C
+    .short  rsrc_PACK_4_408E9A20_1220-rsrc_PACK_4_408E9A20_C	| 408E9D5E
+    .short  rsrc_PACK_4_408E9A20_11E4-rsrc_PACK_4_408E9A20_C	| 408E9D60
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D62
+    .short  rsrc_PACK_4_408E9A20_125C-rsrc_PACK_4_408E9A20_C	| 408E9D64
+    .short  rsrc_PACK_4_408E9A20_1298-rsrc_PACK_4_408E9A20_C	| 408E9D66
+    .short  rsrc_PACK_4_408E9A20_12D4-rsrc_PACK_4_408E9A20_C	| 408E9D68
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D6A
+    .short  rsrc_PACK_4_408E9A20_215E-rsrc_PACK_4_408E9A20_C	| 408E9D6C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D6E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D70
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D72
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D74
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D76
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D78
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D7A
+    .short  rsrc_PACK_4_408E9A20_1310-rsrc_PACK_4_408E9A20_C	| 408E9D7C
+    .short  rsrc_PACK_4_408E9A20_1392-rsrc_PACK_4_408E9A20_C	| 408E9D7E
+    .short  rsrc_PACK_4_408E9A20_1356-rsrc_PACK_4_408E9A20_C	| 408E9D80
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D82
+    .short  rsrc_PACK_4_408E9A20_13CE-rsrc_PACK_4_408E9A20_C	| 408E9D84
+    .short  rsrc_PACK_4_408E9A20_140A-rsrc_PACK_4_408E9A20_C	| 408E9D86
+    .short  rsrc_PACK_4_408E9A20_1446-rsrc_PACK_4_408E9A20_C	| 408E9D88
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D8A
+    .short  rsrc_PACK_4_408E9A20_2256-rsrc_PACK_4_408E9A20_C	| 408E9D8C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D8E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D90
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D92
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D94
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D96
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D98
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9D9A
+    .short  rsrc_PACK_4_408E9A20_1482-rsrc_PACK_4_408E9A20_C	| 408E9D9C
+    .short  rsrc_PACK_4_408E9A20_1504-rsrc_PACK_4_408E9A20_C	| 408E9D9E
+    .short  rsrc_PACK_4_408E9A20_14C8-rsrc_PACK_4_408E9A20_C	| 408E9DA0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DA2
+    .short  rsrc_PACK_4_408E9A20_1540-rsrc_PACK_4_408E9A20_C	| 408E9DA4
+    .short  rsrc_PACK_4_408E9A20_157C-rsrc_PACK_4_408E9A20_C	| 408E9DA6
+    .short  rsrc_PACK_4_408E9A20_15B8-rsrc_PACK_4_408E9A20_C	| 408E9DA8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DAA
+    .short  rsrc_PACK_4_408E9A20_22BA-rsrc_PACK_4_408E9A20_C	| 408E9DAC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DAE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DB0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DB2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DB4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DB6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DB8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DBA
+    .short  rsrc_PACK_4_408E9A20_17DA-rsrc_PACK_4_408E9A20_C	| 408E9DBC
+    .short  rsrc_PACK_4_408E9A20_1866-rsrc_PACK_4_408E9A20_C	| 408E9DBE
+    .short  rsrc_PACK_4_408E9A20_1824-rsrc_PACK_4_408E9A20_C	| 408E9DC0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DC2
+    .short  rsrc_PACK_4_408E9A20_18A8-rsrc_PACK_4_408E9A20_C	| 408E9DC4
+    .short  rsrc_PACK_4_408E9A20_18EA-rsrc_PACK_4_408E9A20_C	| 408E9DC6
+    .short  rsrc_PACK_4_408E9A20_192C-rsrc_PACK_4_408E9A20_C	| 408E9DC8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DCA
+    .short  rsrc_PACK_4_408E9A20_303E-rsrc_PACK_4_408E9A20_C	| 408E9DCC
+    .short  rsrc_PACK_4_408E9A20_3008-rsrc_PACK_4_408E9A20_C	| 408E9DCE
+    .short  rsrc_PACK_4_408E9A20_2FF6-rsrc_PACK_4_408E9A20_C	| 408E9DD0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DD2
+    .short  rsrc_PACK_4_408E9A20_2FD2-rsrc_PACK_4_408E9A20_C	| 408E9DD4
+    .short  rsrc_PACK_4_408E9A20_2FC0-rsrc_PACK_4_408E9A20_C	| 408E9DD6
+    .short  rsrc_PACK_4_408E9A20_2FE4-rsrc_PACK_4_408E9A20_C	| 408E9DD8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DDA
+    .short  rsrc_PACK_4_408E9A20_15F4-rsrc_PACK_4_408E9A20_C	| 408E9DDC
+    .short  rsrc_PACK_4_408E9A20_1692-rsrc_PACK_4_408E9A20_C	| 408E9DDE
+    .short  rsrc_PACK_4_408E9A20_1648-rsrc_PACK_4_408E9A20_C	| 408E9DE0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DE2
+    .short  rsrc_PACK_4_408E9A20_16DC-rsrc_PACK_4_408E9A20_C	| 408E9DE4
+    .short  rsrc_PACK_4_408E9A20_1726-rsrc_PACK_4_408E9A20_C	| 408E9DE6
+    .short  rsrc_PACK_4_408E9A20_1770-rsrc_PACK_4_408E9A20_C	| 408E9DE8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DEA
+    .short  rsrc_PACK_4_408E9A20_2DD2-rsrc_PACK_4_408E9A20_C	| 408E9DEC
+    .short  rsrc_PACK_4_408E9A20_2DB8-rsrc_PACK_4_408E9A20_C	| 408E9DEE
+    .short  rsrc_PACK_4_408E9A20_2DAA-rsrc_PACK_4_408E9A20_C	| 408E9DF0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DF2
+    .short  rsrc_PACK_4_408E9A20_2D8E-rsrc_PACK_4_408E9A20_C	| 408E9DF4
+    .short  rsrc_PACK_4_408E9A20_2D80-rsrc_PACK_4_408E9A20_C	| 408E9DF6
+    .short  rsrc_PACK_4_408E9A20_2D9C-rsrc_PACK_4_408E9A20_C	| 408E9DF8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9DFA
+    .short  rsrc_PACK_4_408E9A20_196E-rsrc_PACK_4_408E9A20_C	| 408E9DFC
+    .short  rsrc_PACK_4_408E9A20_19F8-rsrc_PACK_4_408E9A20_C	| 408E9DFE
+    .short  rsrc_PACK_4_408E9A20_19B8-rsrc_PACK_4_408E9A20_C	| 408E9E00
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E02
+    .short  rsrc_PACK_4_408E9A20_1A38-rsrc_PACK_4_408E9A20_C	| 408E9E04
+    .short  rsrc_PACK_4_408E9A20_1A78-rsrc_PACK_4_408E9A20_C	| 408E9E06
+    .short  rsrc_PACK_4_408E9A20_1AB8-rsrc_PACK_4_408E9A20_C	| 408E9E08
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E0A
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9E0C
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9E0E
+    .short  rsrc_PACK_4_408E9A20_22C6-rsrc_PACK_4_408E9A20_C	| 408E9E10
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E12
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E14
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E16
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E18
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E1A
+    .short  rsrc_PACK_4_408E9A20_1B0A-rsrc_PACK_4_408E9A20_C	| 408E9E1C
+    .short  rsrc_PACK_4_408E9A20_1B70-rsrc_PACK_4_408E9A20_C	| 408E9E1E
+    .short  rsrc_PACK_4_408E9A20_1B42-rsrc_PACK_4_408E9A20_C	| 408E9E20
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E22
+    .short  rsrc_PACK_4_408E9A20_1B9E-rsrc_PACK_4_408E9A20_C	| 408E9E24
+    .short  rsrc_PACK_4_408E9A20_1BCC-rsrc_PACK_4_408E9A20_C	| 408E9E26
+    .short  rsrc_PACK_4_408E9A20_1BFA-rsrc_PACK_4_408E9A20_C	| 408E9E28
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E2A
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9E2C
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9E2E
+    .short  rsrc_PACK_4_408E9A20_22D2-rsrc_PACK_4_408E9A20_C	| 408E9E30
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E32
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E34
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E36
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E38
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E3A
+    .short  rsrc_PACK_4_408E9A20_1B0A-rsrc_PACK_4_408E9A20_C	| 408E9E3C
+    .short  rsrc_PACK_4_408E9A20_1C5C-rsrc_PACK_4_408E9A20_C	| 408E9E3E
+    .short  rsrc_PACK_4_408E9A20_1C28-rsrc_PACK_4_408E9A20_C	| 408E9E40
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E42
+    .short  rsrc_PACK_4_408E9A20_1C90-rsrc_PACK_4_408E9A20_C	| 408E9E44
+    .short  rsrc_PACK_4_408E9A20_1CF2-rsrc_PACK_4_408E9A20_C	| 408E9E46
+    .short  rsrc_PACK_4_408E9A20_1D54-rsrc_PACK_4_408E9A20_C	| 408E9E48
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E4A
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9E4C
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9E4E
+    .short  rsrc_PACK_4_408E9A20_273C-rsrc_PACK_4_408E9A20_C	| 408E9E50
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E52
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E54
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E56
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E58
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E5A
+    .short  rsrc_PACK_4_408E9A20_1E30-rsrc_PACK_4_408E9A20_C	| 408E9E5C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E5E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E60
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E62
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E64
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E66
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E68
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E6A
+    .short  rsrc_PACK_4_408E9A20_2370-rsrc_PACK_4_408E9A20_C	| 408E9E6C
+    .short  rsrc_PACK_4_408E9A20_24B4-rsrc_PACK_4_408E9A20_C	| 408E9E6E
+    .short  rsrc_PACK_4_408E9A20_2580-rsrc_PACK_4_408E9A20_C	| 408E9E70
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E72
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E74
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E76
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E78
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E7A
+    .short  rsrc_PACK_4_408E9A20_1E64-rsrc_PACK_4_408E9A20_C	| 408E9E7C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E7E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E80
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E82
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E84
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E86
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E88
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E8A
+    .short  rsrc_PACK_4_408E9A20_265C-rsrc_PACK_4_408E9A20_C	| 408E9E8C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E8E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E90
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E92
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E94
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E96
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E98
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E9A
+    .short  rsrc_PACK_4_408E9A20_1E98-rsrc_PACK_4_408E9A20_C	| 408E9E9C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9E9E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EA0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EA2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EA4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EA6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EA8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EAA
+    .short  rsrc_PACK_4_408E9A20_22DE-rsrc_PACK_4_408E9A20_C	| 408E9EAC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EAE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EB0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EB2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EB4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EB6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EB8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EBA
+    .short  rsrc_PACK_4_408E9A20_1ECC-rsrc_PACK_4_408E9A20_C	| 408E9EBC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EBE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EC0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EC2
+    .short  rsrc_PACK_4_408E9A20_1ECC-rsrc_PACK_4_408E9A20_C	| 408E9EC4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EC6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EC8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ECA
+    .short  rsrc_PACK_4_408E9A20_262C-rsrc_PACK_4_408E9A20_C	| 408E9ECC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ECE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ED0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ED2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ED4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ED6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9ED8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EDA
+    .short  rsrc_PACK_4_408E9A20_1F6A-rsrc_PACK_4_408E9A20_C	| 408E9EDC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EDE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EE0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EE2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EE4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EE6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EE8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EEA
+    .short  rsrc_PACK_4_408E9A20_22F8-rsrc_PACK_4_408E9A20_C	| 408E9EEC
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EEE
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EF0
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EF2
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EF4
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EF6
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EF8
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9EFA
+    .short  rsrc_PACK_4_408E9A20_2002-rsrc_PACK_4_408E9A20_C	| 408E9EFC
+    .short  rsrc_PACK_4_408E9A20_20DE-rsrc_PACK_4_408E9A20_C	| 408E9EFE
+    .short  rsrc_PACK_4_408E9A20_208E-rsrc_PACK_4_408E9A20_C	| 408E9F00
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F02
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F04
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F06
+    .short  rsrc_PACK_4_408E9A20_2132-rsrc_PACK_4_408E9A20_C	| 408E9F08
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F0A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F0C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F0E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F10
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F12
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F14
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F16
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F18
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F1A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F1C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F1E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F20
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F22
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F24
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F26
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F28
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F2A
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F2C
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F2E
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F30
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F32
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F34
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F36
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F38
+    .short  rsrc_PACK_4_408E9A20_51C-rsrc_PACK_4_408E9A20_C	| 408E9F3A
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_51C:
+    .byte   0x70, 0x51, 0xA9, 0xC9	| 408E9F3C
+
+/* subroutine (36 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_520:
+    moveml %d0-%d3,%sp@-
+    moveal %fp@(12),%a0
+    movew #16446,%d0
+    movel %a0@(4),%d2
+    movel %a0@,%d1
+    jbpl rsrc_PACK_4_408E9A20_520_28
+    negl %d2
+    oriw #-32768,%d0
+    negxl %d1
+    jbpl rsrc_PACK_4_408E9A20_520_28
+    fmoves #0x7fc01400,%fp1	| 408E9F5E
+    jbra rsrc_PACK_4_408E9A20_520_6A
+rsrc_PACK_4_408E9A20_520_28:  /* from here: jbne rsrc_PACK_4_408E9A20_520_48 */
+    jbne rsrc_PACK_4_408E9A20_520_48
+    exg %d1,%d2
+    subiw #32,%d0
+    bfffo %d1,0,0,%d3
+    jbeq rsrc_PACK_4_408E9A20_520_42
+    subw %d3,%d0
+    subaw #12,%sp
+    lsll %d3,%d1
+    movew %d0,%sp@
+    jbra rsrc_PACK_4_408E9A20_520_5E
+rsrc_PACK_4_408E9A20_520_42:  /* from here: fmoves %d1,%fp1 */
+    fmoves %d1,%fp1
+    jbra rsrc_PACK_4_408E9A20_520_6A
+rsrc_PACK_4_408E9A20_520_48:  /* from here: bfffo %d1,0,0,%d3 */
+    bfffo %d1,0,0,%d3
+    subaw #12,%sp
+    subw %d3,%d0
+    lsll %d3,%d1
+    movew %d0,%sp@
+    bfextu %d2,0,%d3,%d0
+    lsll %d3,%d2
+    orl %d0,%d1
+rsrc_PACK_4_408E9A20_520_5E:  /* set %sp@(8) */
+    movel %d2,%sp@(8)
+    movel %d1,%sp@(4)
+    fmovex %sp@+,%fp1
+rsrc_PACK_4_408E9A20_520_6A:  /* restore registers, return */
+    moveml %sp@+,%d0-%d3
+    rts
+
+/* subroutine (9 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_590:
+    linkw %fp,#-94
+    movel #1048608,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    /* %za0: no index register. It only sets bit 15 of the extension word. */
+    faddx %fp@(0xc,%za0)@(0),%fp0	| 408E9FC6
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_5BA:
+    linkw %fp,#-94
+    movel #1052704,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fadds %fp@(0xc,%za0)@(0),%fp0	| 408E9FF0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA000
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_5E4:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x08, 0x20, 0xFF, 0xFC	| 408EA004
+    .long   0x2F08206E, 0x0008F210, 0xD080F236, 0x54228161	| 408EA010
+    .byte   0x00, 0x0C, 0xF2, 0x10, 0x68, 0x00, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA020
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_60E:
+    .byte   0x4E, 0x56	| 408EA02E
+    .long   0xFFA22D7C, 0x00102020, 0xFFFC2F08, 0x206E0008	| 408EA030
+    .long   0xF210D080, 0xF2365022, 0x8161000C, 0xF2106800	| 408EA040
+    .byte   0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA050
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_638:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EA058
+    movel %a0@-,%d4
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    faddl %fp@(0xc,%za0)@(0),%fp0	| 408EA06E
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (11 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_662:
+    linkw %fp,#-94
+    movel #1060896,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    faddx %fp1,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_68C:
+    linkw %fp,#-94
+    movel #1048610,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubx %fp@(0xc,%za0)@(0),%fp0	| 408EA0C2
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp	| 408EA0D0
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_6B6:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x10, 0x22	| 408EA0D6
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubs %fp@(0xc,%za0)@(0),%fp0	| 408EA0EC
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_6E0:
+    linkw %fp,#-94
+    movel #1050658,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubd %fp@(0xc,%za0)@(0),%fp0	| 408EA116
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_70A:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C	| 408EA12A
+    .short  0x0010, 0x2022	| orib #34,%a0@
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubw %fp@(0xc,%za0)@(0),%fp0	| 408EA140
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA150
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_734:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x28, 0x22, 0xFF, 0xFC	| 408EA154
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubl %fp@(0xc,%za0)@(0),%fp0	| 408EA16A
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (11 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_75E:
+    linkw %fp,#-94
+    movel #1060898,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fsubx %fp1,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_788:
+    linkw %fp,#-94
+    movel #1048612,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fmulx %fp@(0xc,%za0)@(0),%fp0	| 408EA1BE
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA1CE
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_7B2:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x10, 0x24, 0xFF, 0xFC, 0x2F, 0x08	| 408EA1D2
+    .long   0x206E0008, 0xF210D080, 0xF2364423, 0x8161000C	| 408EA1E0
+    .byte   0xF2, 0x10, 0x68, 0x00, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA1F0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_7DC:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EA1FC
+    .long   0x2D7C0010, 0x0824FFFC, 0x2F08206E, 0x0008F210	| 408EA200
+    .long   0xD080F236, 0x54238161, 0x000CF210, 0x6800205F	| 408EA210
+    .byte   0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA220
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_806:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x20, 0x24	| 408EA226
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fmulw %fp@(0xc,%za0)@(0),%fp0	| 408EA23C
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_830:
+    linkw %fp,#-94
+    movel #1058852,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fmull %fp@(0xc,%za0)@(0),%fp0	| 408EA266
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (11 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_85A:
+    linkw %fp,#-94
+    movel #1060900,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fmulx %fp1,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_884:
+    linkw %fp,#-94
+    movel #1048614,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fdivx %fp@(0xc,%za0)@(0),%fp0	| 408EA2BA
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_8AE:
+    .byte   0x4E, 0x56	| 408EA2CE
+    .long   0xFFA22D7C, 0x00101026, 0xFFFC2F08, 0x206E0008	| 408EA2D0
+    .long   0xF210D080, 0xF2364420, 0x8161000C, 0xF2106800	| 408EA2E0
+    .byte   0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA2F0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_8D8:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EA2F8
+    btst #-4,%fp@-
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fdivd %fp@(0xc,%za0)@(0),%fp0	| 408EA30E
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA31E
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_902:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x20, 0x26, 0xFF, 0xFC, 0x2F, 0x08	| 408EA322
+    .long   0x206E0008, 0xF210D080, 0xF2365020, 0x8161000C	| 408EA330
+    .byte   0xF2, 0x10, 0x68, 0x00, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA340
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_92C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EA34C
+    movel #1058854,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fdivl %fp@(0xc,%za0)@(0),%fp0	| 408EA362
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (11 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_956:
+    linkw %fp,#-94
+    movel #1060902,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fdivx %fp1,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_980:
+    linkw %fp,#-94
+    movel #1048618,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpx %fp@(0xc,%za0)@(0),%fp0	| 408EA3B8
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_9C0:
+    linkw %fp,#-94
+    movel #1052714,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmps %fp@(0xc,%za0)@(0),%fp0	| 408EA3F8
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_A00:
+    linkw %fp,#-94
+    movel #1050666,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpd %fp@(0xc,%za0)@(0),%fp0	| 408EA438
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_A40:
+    linkw %fp,#-94
+    movel #1056810,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpw %fp@(0xc,%za0)@(0),%fp0	| 408EA478
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_A80:
+    linkw %fp,#-94
+    movel #1058858,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpl %fp@(0xc,%za0)@(0),%fp0	| 408EA4B8
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (15 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_AC0:
+    linkw %fp,#-94
+    movel #1060906,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpx %fp1,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_B00:
+    linkw %fp,#-94
+    movel #1048616,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpx %fp@(0xc,%za0)@(0),%fp0	| 408EA538
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0	| 408EA54E
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_B38:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EA558
+    moveb %a0@(-4),%d0
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmps %fp@(0xc,%za0)@(0),%fp0	| 408EA570
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_B70:
+    linkw %fp,#-94
+    movel #1050664,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpd %fp@(0xc,%za0)@(0),%fp0	| 408EA5A8
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0	| 408EA5BE
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_BA8:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EA5C8
+    movel %a0@(-4),%d0
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpw %fp@(0xc,%za0)@(0),%fp0	| 408EA5E0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_BE0:
+    linkw %fp,#-94
+    movel #1058856,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpl %fp@(0xc,%za0)@(0),%fp0	| 408EA618
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (13 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_C18:
+    linkw %fp,#-94
+    movel #1060904,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fcmpx %fp1,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_C50:
+    linkw %fp,#-94
+    movel #1048620,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fremx %fp@(0xc,%za0)@(0),%fp0	| 408EA686
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_C7E:
+    linkw %fp,#-94
+    movel #1052716,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    frems %fp@(0xc,%za0)@(0),%fp0	| 408EA6B4
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_CAC:
+    linkw %fp,#-94
+    movel #1050668,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fremd %fp@(0xc,%za0)@(0),%fp0	| 408EA6E2
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_CDA:
+    linkw %fp,#-94
+    movel #1056812,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fremw %fp@(0xc,%za0)@(0),%fp0	| 408EA710
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_D08:
+    linkw %fp,#-94
+    movel #1058860,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    freml %fp@(0xc,%za0)@(0),%fp0	| 408EA73E
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (12 instructions): calls rsrc_PACK_4_408E9A20_520, rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_D36:
+    linkw %fp,#-94
+    movel #1060908,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    fremx %fp1,%fp0
+    fmovex %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_D64:
+    linkw %fp,#-94
+    movel #1048622,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovex %fp@(0xc,%za0)@(0),%fp0	| 408EA796
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_D8A:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C	| 408EA7AA
+    .short  0x0010, 0x102E	| orib #46,%a0@
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmoves %fp@(0xc,%za0)@(0),%fp0	| 408EA7BC
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_DB0:
+    linkw %fp,#-94
+    movel #1050670,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmoved %fp@(0xc,%za0)@(0),%fp0	| 408EA7E2
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp	| 408EA7F0
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_DD6:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x20, 0x2E	| 408EA7F6
+    .long   0xFFFC2F08, 0x206E0008, 0xF2365000, 0x8161000C	| 408EA800
+    .byte   0xF2, 0x10, 0x68, 0x00, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA810
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_DFC:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EA81C
+    movel #1058862,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovel %fp@(0xc,%za0)@(0),%fp0	| 408EA82E
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (10 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_E22:
+    linkw %fp,#-94
+    movel #1060910,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    fmovex %fp1,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_E48:
+    linkw %fp,#-94
+    movel #1052720,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    fmovemx %a0@,%fp0
+    moveal %fp@(8),%a0
+    fmoves %fp0,%a0@
+    fnop
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA88E
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_E72:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x08, 0x30, 0xFF, 0xFC, 0x2F, 0x08	| 408EA892
+    .long   0x206E000C, 0xF210D080, 0x206E0008, 0xF2107400	| 408EA8A0
+    .byte   0xF2, 0x80, 0x00, 0x00, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EA8B0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_E9C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EA8BC
+    movel #1056816,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    fmovemx %a0@,%fp0
+    fmoveml %fpsr/%fpcr,%sp@-
+    movel %sp@,%sp@-
+    clrb %sp@(2)
+    fmovel %sp@+,%fpcr
+    moveal %fp@(8),%a0
+    fmovew %fp0,%a0@
+    fmovel %fpsr,%sp@-
+    btst #5,%sp@(2)
+    addqw #4,%sp
+    fmoveml %sp@+,%fpsr/%fpcr
+    beqs rsrc_PACK_4_408E9A20_E9C_48
+    fmoves #0x7fbfffff,%fp1	| 408EA8FA
+    bras rsrc_PACK_4_408E9A20_E9C_4C
+rsrc_PACK_4_408E9A20_E9C_48:
+    fmovew %fp0,%a0@
+rsrc_PACK_4_408E9A20_E9C_4C:
+    fnop
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA910
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_EF4:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x28, 0x30, 0xFF, 0xFC	| 408EA914
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    fmovemx %a0@,%fp0
+    fmoveml %fpsr/%fpcr,%sp@-
+    movel %sp@,%sp@-
+    clrb %sp@(2)
+    fmovel %sp@+,%fpcr
+    moveal %fp@(8),%a0
+    fmovel %fp0,%a0@
+    fmovel %fpsr,%sp@-
+    btst #5,%sp@(2)
+    addqw #4,%sp
+    fmoveml %sp@+,%fpsr/%fpcr
+    beqs rsrc_PACK_4_408E9A20_EF4_48
+    fmoves #0x7fbfffff,%fp1	| 408EA952
+    bras rsrc_PACK_4_408E9A20_EF4_4C
+rsrc_PACK_4_408E9A20_EF4_48:
+    fmovel %fp0,%a0@
+rsrc_PACK_4_408E9A20_EF4_4C:
+    fnop	| 408EA960
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_F4C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EA96C
+    movel #1060912,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    fmovemx %a0@,%fp0
+    fmovemx %fp0,%sp@-
+    braw rsrc_PACK_4_408E9A20_1D54+0x20	| 408EA986
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EA98E
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_F72:
+    .byte   0x4E, 0x56, 0xFF, 0xA6, 0x2D, 0x7C, 0x00, 0x0C, 0x00, 0x32, 0xFF, 0xFC, 0x2F, 0x08	| 408EA992
+    moveal %fp@(8),%a0
+    fsqrtx %a0@,%fp0
+    fmovex %fp0,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #4	| 408EA9B0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_F94:
+    .byte   0x4E, 0x56, 0xFF, 0xA6, 0x2D, 0x7C, 0x00, 0x0C, 0x00, 0x34, 0xFF, 0xFC	| 408EA9B4
+    .long   0x2F08206E, 0x0008F210, 0x4801F210, 0x6800205F	| 408EA9C0
+    .byte   0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x04	| 408EA9D0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_FB6:
+    .byte   0x4E, 0x56, 0xFF, 0xA6, 0x2D, 0x7C, 0x00, 0x0C, 0x00, 0x36	| 408EA9D6
+    .long   0xFFFC2F08, 0x206E0008, 0xF2104803, 0xF2106800	| 408EA9E0
+    .byte   0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x04	| 408EA9F0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_FD8:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EA9F8
+    .short  0x2038, 0xFFFC	| movel fffffffc <__bss_start+0xbf6ffffc>,%d0
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    fmovemx %a0@,%fp0
+    braw rsrc_PACK_4_408E9A20_1ECC_22
+
+/* subroutine (5 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_FF4:
+    linkw %fp,#-90
+    movel #786490,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    jbra rsrc_PACK_4_408E9A20_1F8A
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_100C:
+    .short  0xF237, 0xD080, 0x8161, 0x0008	| fmovemx %sp@(8)@(0),%fp0
+    fmovemx %fp0,%sp@-
+    movew %sp@+,%sp@
+    pea %sp@
+    movel %sp@(18),%sp@-
+    bsrw rsrc_PACK_4_408E9A20_2002
+    lea %sp@(10),%sp
+    rtd #8
+
+/* subroutine (25 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_FF4_38:
+    linkw %fp,#-94
+    movel #1048576,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    faddx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1072:
+    linkw %fp,#-94
+    movel #1052672,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fadds %fp@(0xc,%za0)@(0),%fp0	| 408EAAB2
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp	| 408EAAC0
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_10AE:
+    .byte   0x4E, 0x56	| 408EAACE
+    .long   0xFFA22D7C, 0x00100800, 0xFFFC2F08, 0x206E0008	| 408EAAD0
+    .long   0x5C482F10, 0x2F205548, 0x2F10F217, 0xD080F236	| 408EAAE0
+    .long   0x54228161, 0x000CF217, 0x680030DF, 0x548F20DF	| 408EAAF0
+    .byte   0x20, 0x9F, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EAB00
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_10EA:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C	| 408EAB0A
+    .long   0x00102000, 0xFFFC2F08, 0x206E0008, 0x5C482F10	| 408EAB10
+    .long   0x2F205548, 0x2F10F217, 0xD080F236, 0x50228161	| 408EAB20
+    .long   0x000CF217, 0x680030DF, 0x548F20DF, 0x209F205F	| 408EAB30
+    .byte   0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EAB40
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1126:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x28, 0x00	| 408EAB46
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    faddl %fp@(0xc,%za0)@(0),%fp0	| 408EAB66
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (20 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1162:
+    linkw %fp,#-94
+    movel #1060864,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    faddx %fp1,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_119E:
+    linkw %fp,#-94
+    movel #1048578,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fsubx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EAC00
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_11E4:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x10, 0x02, 0xFF, 0xFC	| 408EAC04
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fsubs %fp@(0xc,%za0)@(0),%fp0	| 408EAC24
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1220:
+    linkw %fp,#-94
+    movel #1050626,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fsubd %fp@(0xc,%za0)@(0),%fp0	| 408EAC60
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+	| 408EAC70
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_125C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EAC7C
+    .long   0x2D7C0010, 0x2002FFFC, 0x2F08206E, 0x00085C48	| 408EAC80
+    .long   0x2F102F20, 0x55482F10, 0xF217D080, 0xF2365028	| 408EAC90
+    .long   0x8161000C, 0xF2176800, 0x30DF548F, 0x20DF209F	| 408EACA0
+    .byte   0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EACB0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1298:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EACB8
+    movel %d2,%d4
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fsubl %fp@(0xc,%za0)@(0),%fp0	| 408EACD8
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (20 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_12D4:
+    linkw %fp,#-94
+    movel #1060866,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fsubx %fp1,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1310:
+    linkw %fp,#-94
+    movel #1048580,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fmulx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp	| 408EAD70
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1356:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x10, 0x04	| 408EAD76
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fmuls %fp@(0xc,%za0)@(0),%fp0	| 408EAD96
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EADAE
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1392:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x08, 0x04, 0xFF, 0xFC, 0x2F, 0x08	| 408EADB2
+    .long   0x206E0008, 0x5C482F10, 0x2F205548, 0x2F10F217	| 408EADC0
+    .long   0xD080F236, 0x54238161, 0x000CF217, 0x680030DF	| 408EADD0
+    .byte   0x54, 0x8F, 0x20, 0xDF, 0x20, 0x9F, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EADE0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_13CE:
+    .byte   0x4E, 0x56	| 408EADEE
+    .long   0xFFA22D7C, 0x00102004, 0xFFFC2F08, 0x206E0008	| 408EADF0
+    .long   0x5C482F10, 0x2F205548, 0x2F10F217, 0xD080F236	| 408EAE00
+    .long   0x50238161, 0x000CF217, 0x680030DF, 0x548F20DF	| 408EAE10
+    .byte   0x20, 0x9F, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EAE20
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_140A:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C	| 408EAE2A
+    .short  0x0010, 0x2804	| orib #4,%a0@
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fmull %fp@(0xc,%za0)@(0),%fp0	| 408EAE4A
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (20 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1446:
+    linkw %fp,#-94
+    movel #1060868,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fmulx %fp1,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1482:
+    linkw %fp,#-94
+    movel #1048582,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fdivx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0	| 408EAEE0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_14C8:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EAEE8
+    moveb %d6,%d0
+    .short  0xFFFC	| .short 0xfffc
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fdivs %fp@(0xc,%za0)@(0),%fp0	| 408EAF08
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EAF20
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1504:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x08, 0x06, 0xFF, 0xFC	| 408EAF24
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fdivd %fp@(0xc,%za0)@(0),%fp0	| 408EAF44
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1540:
+    linkw %fp,#-94
+    movel #1056774,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fdivw %fp@(0xc,%za0)@(0),%fp0	| 408EAF80
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+	| 408EAF90
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_157C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EAF9C
+    movel #1058822,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fdivl %fp@(0xc,%za0)@(0),%fp0	| 408EAFBC
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (20 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_15B8:
+    linkw %fp,#-94
+    movel #1060870,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fdivx %fp1,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (25 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_15F4:
+    linkw %fp,#-94
+    movel #1048586,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpx %sp@+,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (18 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1648:
+    linkw %fp,#-94
+    movel #1052682,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmps %fp@(0xc,%za0)@(0),%fp0	| 408EB08A
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (18 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1692:
+    linkw %fp,#-94
+    movel #1050634,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpd %fp@(0xc,%za0)@(0),%fp0	| 408EB0D4
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (18 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_16DC:
+    linkw %fp,#-94
+    movel #1056778,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpw %fp@(0xc,%za0)@(0),%fp0	| 408EB11E
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (17 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1726:
+    linkw %fp,#-94
+    movel #1058826,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpl %fp@(0xc,%za0)@(0),%fp0	| 408EB168
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6:w,%d0:w:2),%ccr	| 408EB178
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (27 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1770:
+    linkw %fp,#-94
+    movel #1060874,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpx %fp1,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6:w,%d0:w:2),%ccr	| 408EB1C2
+    fbsf rsrc_PACK_4_408E9A20_FF4_7C6
+    fnop
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+rsrc_PACK_4_408E9A20_FF4_7C6:  /* from here: orib #2,%d0 */
+    orib #2,%d0
+    orib #2,%d0
+    orib #2,%d4
+    orib #2,%d2
+    orib #2,%a1@+
+    orib #2,%a1@+
+    orib #2,%d4
+    orib #2,%d2
+
+/* subroutine (23 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_17DA:
+    linkw %fp,#-94
+    movel #1048584,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpx %sp@+,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1824:
+    linkw %fp,#-94
+    movel #1052680,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmps %fp@(0xc,%za0)@(0),%fp0	| 408EB266
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp	| 408EB280
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1866:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x08, 0x08	| 408EB286
+    .short  0xFFFC	| .short 0xfffc
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpd %fp@(0xc,%za0)@(0),%fp0	| 408EB2A8
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0	| 408EB2BE
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_18A8:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10	| 408EB2C8
+    movel %a0,%d0
+    .short  0xFFFC	| .short 0xfffc
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpw %fp@(0xc,%za0)@(0),%fp0	| 408EB2EA
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0	| 408EB300
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_18EA:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C	| 408EB30A
+    .short  0x0010, 0x2808	| orib #8,%a0@
+    .short  0xFFFC	| .short 0xfffc
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpl %fp@(0xc,%za0)@(0),%fp0	| 408EB32C
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (18 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_192C:
+    linkw %fp,#-94
+    movel #1060872,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fcmpx %fp1,%fp0
+    fmovel %fpsr,%d0
+    bfextu %d0,4,4,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_FF4_7C6,%d0:w:2),%ccr
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (26 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_196E:
+    linkw %fp,#-94
+    movel #1048588,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fremx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (19 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_19B8:
+    linkw %fp,#-94
+    movel #1052684,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    frems %fp@(0xc,%za0)@(0),%fp0	| 408EB3F8
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (19 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_19F8:
+    linkw %fp,#-94
+    movel #1050636,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fremd %fp@(0xc,%za0)@(0),%fp0	| 408EB438
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (19 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1A38:
+    linkw %fp,#-94
+    movel #1056780,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fremw %fp@(0xc,%za0)@(0),%fp0	| 408EB478
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    jbsr rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (19 instructions): calls rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1A78:
+    linkw %fp,#-94
+    movel #1058828,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    freml %fp@(0xc,%za0)@(0),%fp0	| 408EB4B8
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    bsrw rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (21 instructions): calls rsrc_PACK_4_408E9A20_520, rsrc_PACK_4_408E9A20_1AF8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1AB8:
+    linkw %fp,#-94
+    movel #1060876,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    fremx %fp1,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    bsrw rsrc_PACK_4_408E9A20_1AF8
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (7 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1AF8:
+    fmovel %fpsr,%d0
+    swap %d0
+    bclr #7,%d0
+    jbeq rsrc_PACK_4_408E9A20_1AF8_E
+    negb %d0
+rsrc_PACK_4_408E9A20_1AF8_E:  /* from here: extw %d0 */
+    extw %d0
+    rts
+
+/* subroutine (19 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1B0A:
+    linkw %fp,#-94
+    movel #1048590,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovex %sp@,%fp0
+    moveal %fp@(8),%a0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1B42:
+    linkw %fp,#-94
+    movel #1052686,%fp@(-4)
+    movel %a0,%sp@-
+    fmoves %fp@(0xc,%za0)@(0),%fp0	| 408EB570
+    moveal %fp@(8),%a0
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1B70:
+    linkw %fp,#-94
+    movel #1050638,%fp@(-4)
+    movel %a0,%sp@-
+    fmoved %fp@(0xc,%za0)@(0),%fp0	| 408EB59E
+    moveal %fp@(8),%a0
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addql #2,%sp	| 408EB5B0
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1B9E:
+    .byte   0x4E, 0x56	| 408EB5BE
+    .long   0xFFA22D7C, 0x0010200E, 0xFFFC2F08, 0xF2365000	| 408EB5C0
+    .long   0x8161000C, 0x206E0008, 0xF2276800, 0x30DF548F	| 408EB5D0
+    .byte   0x20, 0xDF, 0x20, 0x9F, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x08	| 408EB5E0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1BCC:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EB5EC
+    movel #1058830,%fp@(-4)
+    movel %a0,%sp@-
+    fmovel %fp@(0xc,%za0)@(0),%fp0	| 408EB5FA
+    moveal %fp@(8),%a0
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (14 instructions): calls rsrc_PACK_4_408E9A20_520 (mechanical summary) */
+rsrc_PACK_4_408E9A20_1BFA:
+    linkw %fp,#-94
+    movel #1060878,%fp@(-4)
+    movel %a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_520
+    fmovex %fp1,%fp0
+    moveal %fp@(8),%a0
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1C28:
+    linkw %fp,#-94
+    movel #1052688,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    moveal %fp@(8),%a0
+    fmoves %fp0,%a0@
+    fnop	| 408EB670
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1C5C:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EB67C
+    movel #1050640,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    moveal %fp@(8),%a0
+    fmoved %fp0,%a0@
+    fnop
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1C90:
+    linkw %fp,#-94
+    movel #1056784,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fmoveml %fpsr/%fpcr,%sp@-
+    movel %sp@,%sp@-
+    clrb %sp@(2)
+    fmovel %sp@+,%fpcr
+    moveal %fp@(8),%a0
+    fmovew %fp0,%a0@
+    fmovel %fpsr,%sp@-
+    btst #5,%sp@(2)
+    addqw #4,%sp
+    fmoveml %sp@+,%fpsr/%fpcr
+    beqs rsrc_PACK_4_408E9A20_1C90_52
+    fmoves #0x7fbfffff,%fp1	| 408EB6F8
+    bras rsrc_PACK_4_408E9A20_1C90_56
+rsrc_PACK_4_408E9A20_1C90_52:
+    fmovew %fp0,%a0@
+rsrc_PACK_4_408E9A20_1C90_56:
+    fnop
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EB70E
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1CF2:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x28, 0x10, 0xFF, 0xFC, 0x2F, 0x08	| 408EB712
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@+,%fp0
+    fmoveml %fpsr/%fpcr,%sp@-
+    movel %sp@,%sp@-
+    clrb %sp@(2)
+    fmovel %sp@+,%fpcr
+    moveal %fp@(8),%a0
+    fmovel %fp0,%a0@
+    fmovel %fpsr,%sp@-
+    btst #5,%sp@(2)
+    addqw #4,%sp
+    fmoveml %sp@+,%fpsr/%fpcr
+    beqs rsrc_PACK_4_408E9A20_1CF2_52
+    fmoves #0x7fbfffff,%fp1	| 408EB75A
+    bras rsrc_PACK_4_408E9A20_1CF2_56
+rsrc_PACK_4_408E9A20_1CF2_52:
+    fmovel %fp0,%a0@
+rsrc_PACK_4_408E9A20_1CF2_56:
+    fnop
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8	| 408EB770
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1D54:
+    .byte   0x4E, 0x56, 0xFF, 0xA2, 0x2D, 0x7C, 0x00, 0x10, 0x30, 0x10, 0xFF, 0xFC	| 408EB774
+    movel %a0,%sp@-
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+    movel %d0,%sp@-
+    fmovel %fpcr,%d0
+    movel %d0,%sp@-
+    andiw #-193,%d0
+    fmovel %d0,%fpcr
+    ftstx %fp0
+    .short  0xF283, 0x0056	| 408EB7A8 fboge 0x408eb800
+    fcmpx %pc@(rsrc_PACK_4_408E9A20_1D54_58_12),%fp0
+    .short  0xF282, 0x0042	| 408EB7B2 fbogt 0x408eb7f6
+    fbun rsrc_PACK_4_408E9A20_1D54_58
+    fblt rsrc_PACK_4_408E9A20_1D54_50
+    btst #4,%d0
+    bnes rsrc_PACK_4_408E9A20_1D54_58_2A	| 408EB7C2
+rsrc_PACK_4_408E9A20_1D54_50:
+    fmoves #0x7fbfffff,%fp1	| 408EB7C4
+rsrc_PACK_4_408E9A20_1D54_58:
+    fmovew #1,%fp0
+    fmovel %sp@+,%fpcr
+    fmovex %fp0,%sp@(4)
+    bras rsrc_PACK_4_408E9A20_1D54_58_70	| 408EB7DC
+rsrc_PACK_4_408E9A20_1D54_58_12:
+    .byte   0xC0, 0x3D	| 408EB7DE
+    orib #-1,%d0
+    .byte   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x40, 0x3D, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	| 408EB7E4
+    .byte   0xFF, 0xFF	| 408EB7F4
+rsrc_PACK_4_408E9A20_1D54_58_2A:
+    fsubs #0x5f000000,%fp0	| 408EB7F6
+    bras rsrc_PACK_4_408E9A20_1D54_58_4A+0x8
+    .byte   0xF2, 0x3A, 0x48, 0x38, 0xFF, 0xE6	| 408EB800
+    fbolt rsrc_PACK_4_408E9A20_1D54_58_4A
+    fbogt rsrc_PACK_4_408E9A20_1D54_50
+    addib #16,%d0
+    lslb #2,%d0
+    bpls rsrc_PACK_4_408E9A20_1D54_50
+rsrc_PACK_4_408E9A20_1D54_58_4A:
+    fadds #0x5f000000,%fp0	| 408EB816
+    fmovel %sp@+,%fpcr
+    fmovemx %fp0,%sp@(4)
+    bclr #7,%sp@(8)
+    tstb %sp@(4)
+    bpls rsrc_PACK_4_408E9A20_1D54_58_70
+    negl %sp@(12)
+    negxl %sp@(8)	| 408EB838
+rsrc_PACK_4_408E9A20_1D54_58_70:
+    movel %sp@+,%d0
+    moveal %fp@(8),%a0
+    addqw #4,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1E30:
+    linkw %fp,#-90
+    movel #786450,%fp@(-4)
+    movel %a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fsqrtx %sp@,%fp0
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    moveal %sp@+,%a0
+    unlk %fp
+    rtd #4	| 408EB880
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1E64:
+    .byte   0x4E, 0x56, 0xFF, 0xA6, 0x2D, 0x7C, 0x00, 0x0C, 0x00, 0x14, 0xFF, 0xFC	| 408EB884
+    .long   0x2F08206E, 0x00085C48, 0x2F102F20, 0x55482F10	| 408EB890
+    .long   0xF2174801, 0xF2176800, 0x30DF548F, 0x20DF209F	| 408EB8A0
+    .byte   0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x04	| 408EB8B0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1E98:
+    .byte   0x4E, 0x56, 0xFF, 0xA6, 0x2D, 0x7C, 0x00, 0x0C	| 408EB8B8
+    .long   0x0016FFFC, 0x2F08206E, 0x00085C48, 0x2F102F20	| 408EB8C0
+    .long   0x55482F10, 0xF2174803, 0xF2176800, 0x30DF548F	| 408EB8D0
+    .byte   0x20, 0xDF, 0x20, 0x9F, 0x20, 0x5F, 0x4E, 0x5E, 0x4E, 0x74, 0x00, 0x04	| 408EB8E0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1ECC:
+    .byte   0x4E, 0x56, 0xFF, 0xA2	| 408EB8EC
+    movel #1056792,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovemx %sp@,%fp0
+rsrc_PACK_4_408E9A20_1ECC_22:
+    subaw #12,%sp
+    movel #-2147483648,%sp@(4)
+    clrl %sp@(8)
+    movew %fp@(0xc,%za0)@(0),%d0	| 408EB91E
+    bpls rsrc_PACK_4_408E9A20_1ECC_5A
+    cmpiw #-16384,%d0
+    bgts rsrc_PACK_4_408E9A20_1ECC_70
+    clrw %sp@
+    addiw #16383,%d0
+    fmulx %sp@,%fp0
+    cmpiw #-16384,%d0
+    bgts rsrc_PACK_4_408E9A20_1ECC_70
+    fmulx %sp@,%fp0
+    addiw #16383,%d0
+    bras rsrc_PACK_4_408E9A20_1ECC_70
+rsrc_PACK_4_408E9A20_1ECC_5A:
+    cmpiw #16384,%d0
+    blts rsrc_PACK_4_408E9A20_1ECC_70
+    movew #32766,%sp@
+    subiw #16384,%d0
+    fmulx %sp@,%fp0
+    faddx %fp0,%fp0
+rsrc_PACK_4_408E9A20_1ECC_70:
+    addiw #16383,%d0
+    movew %d0,%sp@
+    fmulx %sp@+,%fp0
+    btst #5,%fp@(-1)
+    beqs rsrc_PACK_4_408E9A20_1ECC_88
+    fmovex %fp0,%a0@
+    bras rsrc_PACK_4_408E9A20_1ECC_94
+rsrc_PACK_4_408E9A20_1ECC_88:
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+rsrc_PACK_4_408E9A20_1ECC_94:
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (47 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_1F6A:
+    linkw %fp,#-90
+    movel #786458,%fp@(-4)
+    moveml %d0/%a0,%sp@-
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    moveal %sp,%a0
+
+rsrc_PACK_4_408E9A20_1F8A:  /* set %d0 */
+    movew %a0@,%d0
+    andiw #32767,%d0
+    cmpiw #32767,%d0
+    jbeq rsrc_PACK_4_408E9A20_1F8A_22
+    subiw #16383,%d0
+    tstl %a0@(4)
+    jbmi rsrc_PACK_4_408E9A20_1F8A_4C
+    jbeq rsrc_PACK_4_408E9A20_1F8A_36
+    movel %d1,%sp@-
+    bfffo %a0@(4),0,0,%d1
+    jbra rsrc_PACK_4_408E9A20_1F8A_48
+rsrc_PACK_4_408E9A20_1F8A_22:  /* from here: fabsx %a0@,%fp0 */
+    fabsx %a0@,%fp0
+    jbra rsrc_PACK_4_408E9A20_1F8A_50
+rsrc_PACK_4_408E9A20_1F8A_28:  /* loop: fmove */
+    fmovew #-1,%fp0
+    fdivw #0,%fp0
+    jbra rsrc_PACK_4_408E9A20_1F8A_50
+rsrc_PACK_4_408E9A20_1F8A_36:  /* from here: subiw #32,%d0 */
+    subiw #32,%d0
+    tstl %a0@(8)
+    jbeq rsrc_PACK_4_408E9A20_1F8A_28
+    movel %d1,%sp@-
+    bfffo %a0@(8),0,0,%d1
+rsrc_PACK_4_408E9A20_1F8A_48:  /* from here: subw %d1,%d0 */
+    subw %d1,%d0
+    movel %sp@+,%d1
+rsrc_PACK_4_408E9A20_1F8A_4C:  /* from here: fmovew %d0,%fp0 */
+    fmovew %d0,%fp0
+rsrc_PACK_4_408E9A20_1F8A_50:  /* set %a0 */
+    moveal %fp@(8),%a0
+    btst #5,%fp@(-1)
+    jbeq rsrc_PACK_4_408E9A20_1F8A_62
+    fmovex %fp0,%a0@
+    jbra rsrc_PACK_4_408E9A20_1F8A_6E
+rsrc_PACK_4_408E9A20_1F8A_62:  /* from here: fmovex %fp0,%sp@ */
+    fmovex %fp0,%sp@
+    movew %sp@+,%a0@+
+    addql #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+rsrc_PACK_4_408E9A20_1F8A_6E:  /* restore registers, return */
+    moveml %sp@+,%d0/%a0
+    unlk %fp
+    rtd #4
+
+/* subroutine (23 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2002:
+    moveml %d0/%a0,%sp@-
+    moveal %sp@(16),%a0
+    movel %a0@+,%d0
+    swap %d0
+    bpls rsrc_PACK_4_408E9A20_1F8A_A0_8
+    lslw #1,%d0
+    rorw #1,%d0
+    beqs rsrc_PACK_4_408E9A20_2002_1A
+    cmpiw #32767,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_A0_48
+rsrc_PACK_4_408E9A20_2002_1A:
+    moveq #5,%d0
+rsrc_PACK_4_408E9A20_1F8A_94:  /* loop: movea */
+    moveal %sp@(12),%a0
+    movew %d0,%a0@
+    roxrw #1,%d0
+    jbpl rsrc_PACK_4_408E9A20_1F8A_A0
+    negw %a0@
+rsrc_PACK_4_408E9A20_1F8A_A0:  /* restore registers */
+    moveml %sp@+,%d0/%a0
+    rtd #8
+rsrc_PACK_4_408E9A20_1F8A_A0_8:
+    lslw #1,%d0
+    rorw #1,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_A0_8_E
+    cmpiw #32767,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_A0_48
+    bras rsrc_PACK_4_408E9A20_1F8A_A0_8_1C
+rsrc_PACK_4_408E9A20_1F8A_A0_8_E:
+    movew %a0@+,%d0
+    orl %a0@,%d0
+    bnes rsrc_PACK_4_408E9A20_1F8A_A0_8_18
+rsrc_PACK_4_408E9A20_1F8A_A0_8_14:
+    moveq #4,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_94
+rsrc_PACK_4_408E9A20_1F8A_A0_8_18:
+    moveq #6,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_94
+rsrc_PACK_4_408E9A20_1F8A_A0_8_1C:
+    movel %a1,%sp@-
+    moveaw %d0,%a1
+    subqw #2,%a0
+    bfffo %a0@,0,0,%d0
+    bnes rsrc_PACK_4_408E9A20_1F8A_A0_8_32
+    subaw %d0,%a1
+    bfffo %a0@(4),0,0,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_A0_8_3C
+rsrc_PACK_4_408E9A20_1F8A_A0_8_32:
+    subaw %d0,%a1
+    tstw %a1
+    moveal %sp@+,%a1
+    bpls rsrc_PACK_4_408E9A20_2002_1A
+    bmis rsrc_PACK_4_408E9A20_1F8A_A0_8_18
+rsrc_PACK_4_408E9A20_1F8A_A0_8_3C:
+    moveal %sp@+,%a1
+    bras rsrc_PACK_4_408E9A20_1F8A_A0_8_14
+rsrc_PACK_4_408E9A20_1F8A_A0_48:
+    btst #30,%d0
+    jbeq rsrc_PACK_4_408E9A20_1F8A_F2
+    moveq #2,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_94
+rsrc_PACK_4_408E9A20_1F8A_F2:  /* clear bit 31 of %d0 */
+    bclr #31,%d0
+    movew %a0@+,%d0
+    orl %a0@,%d0
+    jbne rsrc_PACK_4_408E9A20_1F8A_100
+    moveq #3,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_94
+rsrc_PACK_4_408E9A20_1F8A_100:  /* result 1 */
+    moveq #1,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_94
+
+/* subroutine (19 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_208E:
+    moveml %d0/%a0,%sp@-
+    moveal %sp@(16),%a0
+    movel %a0@,%d0
+    addl %d0,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_12C_8
+    bfchg %d0,0,8
+    beqs rsrc_PACK_4_408E9A20_1F8A_12C_C
+    bftst %d0,0,8
+    beqs rsrc_PACK_4_408E9A20_1F8A_12C_10
+    moveq #5,%d0
+rsrc_PACK_4_408E9A20_1F8A_120:  /* loop: movea */
+    moveal %sp@(12),%a0
+    movew %d0,%a0@
+    roxrw #1,%d0
+    jbpl rsrc_PACK_4_408E9A20_1F8A_12C
+    negw %a0@
+rsrc_PACK_4_408E9A20_1F8A_12C:  /* restore registers */
+    moveml %sp@+,%d0/%a0
+    rtd #8
+rsrc_PACK_4_408E9A20_1F8A_12C_8:
+    moveq #4,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_120
+rsrc_PACK_4_408E9A20_1F8A_12C_C:
+    moveq #6,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_120
+rsrc_PACK_4_408E9A20_1F8A_12C_10:
+    bftst %d0,8,23	| 408EBAE6
+    bnes rsrc_PACK_4_408E9A20_1F8A_12C_10+0xa
+    moveq #3,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_120
+    btst #23,%d0
+    jbeq rsrc_PACK_4_408E9A20_1F8A_150
+    moveq #2,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_120
+rsrc_PACK_4_408E9A20_1F8A_150:  /* result 1 */
+    moveq #1,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_120
+
+/* subroutine (19 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_20DE:
+    moveml %d0/%a0,%sp@-
+    moveal %sp@(16),%a0
+    movel %a0@+,%d0
+    orw %a0@+,%d0
+    orw %a0@,%d0
+    addl %d0,%d0
+    beqs rsrc_PACK_4_408E9A20_1F8A_180_8
+    bfchg %d0,0,11
+    beqs rsrc_PACK_4_408E9A20_1F8A_180_C
+    bftst %d0,0,11
+    beqs rsrc_PACK_4_408E9A20_1F8A_180_10
+    moveq #5,%d0
+rsrc_PACK_4_408E9A20_1F8A_174:  /* loop: movea */
+    moveal %sp@(12),%a0
+    movew %d0,%a0@
+    roxrw #1,%d0
+    jbpl rsrc_PACK_4_408E9A20_1F8A_180
+    negw %a0@
+rsrc_PACK_4_408E9A20_1F8A_180:  /* restore registers */
+    moveml %sp@+,%d0/%a0
+    rtd #8
+rsrc_PACK_4_408E9A20_1F8A_180_8:
+    moveq #4,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_174
+rsrc_PACK_4_408E9A20_1F8A_180_C:
+    moveq #6,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_174
+rsrc_PACK_4_408E9A20_1F8A_180_10:
+    bftst %d0,11,20	| 408EBB3A
+    bnes rsrc_PACK_4_408E9A20_1F8A_180_10+0xa
+    moveq #3,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_174
+    btst #20,%d0
+    jbeq rsrc_PACK_4_408E9A20_1F8A_1A4
+    moveq #2,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_174
+rsrc_PACK_4_408E9A20_1F8A_1A4:  /* result 1 */
+    moveq #1,%d0
+    jbra rsrc_PACK_4_408E9A20_1F8A_174
+
+/* subroutine (1 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2132:
+    moveml %d0/%a0,%sp@-
+    moveal %sp@(16),%a0
+    movel %a0@+,%d0
+    addl %d0,%d0
+    orl %a0@,%d0
+    sne %d0
+    roxlb #1,%d0
+    moveal %sp@(12),%a0
+    extw %d0
+    movew %pc@(rsrc_PACK_4_408E9A20_2132_28,%d0:w:2),%a0@
+    moveml %sp@+,%d0/%a0
+    rtd #8
+    .short  0x0005, 0xFFFB	| orib #0xfb,%d5
+rsrc_PACK_4_408E9A20_2132_28:
+    orib #2,%d4
+
+/* subroutine (24 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_215E:
+    moveml %d0-%d2/%a0,%sp@-
+    fmovel %fpsr,%d0
+    moveal %sp@(20),%a0
+    moveq #0,%d2
+    fmovel %fpcr,%d1
+    bfextu %d0,24,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21B8,%d0:w),%d0
+    bfins %d0,%d2,19,5
+    bclr #13,%d1
+    bftst %d1,16,2
+    jbeq rsrc_PACK_4_408E9A20_215E_2C
+    bset #13,%d1
+rsrc_PACK_4_408E9A20_215E_2C:  /* from here: bfextu %d1,18,5,%d0 */
+    bfextu %d1,18,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21B8,%d0:w),%d0
+    bfins %d0,%d2,27,5
+    bfextu %d1,24,2,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21D8,%d0:w),%d0
+    bfins %d0,%d2,25,2
+    bfextu %d1,26,2,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21DC,%d0:w),%d0
+    bfins %d0,%d2,17,2
+    movew %d2,%a0@
+    moveml %sp@+,%d0-%d2/%a0
+    rtd #4
+rsrc_PACK_4_408E9A20_21B8:  /* (data) */
+    .long   0x00100818, 0x02120A1A	| 408EBBD8
+    .long   0x04140C1C, 0x06160E1E, 0x01110919, 0x03130B1B	| 408EBBE0
+    .long   0x05150D1D, 0x07170F1F	| 408EBBF0
+rsrc_PACK_4_408E9A20_21D8:  /* (data) */
+    .long   0x00020103	| 408EBBF8
+rsrc_PACK_4_408E9A20_21DC:  /* (data) */
+    .long   0x00030201	| 408EBBFC
+
+/* subroutine (22 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_21E0:
+    moveml %d0-%d2/%a0,%sp@-
+    moveal %sp@(20),%a0
+    movew %a0@,%d2
+    fmovel %fpsr,%d1
+    bfextu %d2,19,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_2236,%d0:w),%d0
+    bfins %d0,%d1,24,5
+    fmovel %d1,%fpsr
+    fmovel %fpcr,%d1
+    bfextu %d2,27,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_2236,%d0:w),%d0
+    bset #4,%d0
+    bfins %d0,%d1,16,7
+    bfextu %d2,25,2,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21D8,%d0:w),%d0
+    bfins %d0,%d1,24,2
+    bfextu %d2,17,2,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21DC,%d0:w),%d0
+    bfins %d0,%d1,26,2
+    fmovel %d1,%fpcr
+    moveml %sp@+,%d0-%d2/%a0
+    rtd #4
+rsrc_PACK_4_408E9A20_2236:  /* (data) */
+    .short  0x0070, 0x0474, 0x0878, 0x0C7C, 0x0272	| 408EBC56
+    .long   0x06760A7A, 0x0E7E0171, 0x05750979, 0x0D7D0373	| 408EBC60
+    .byte   0x07, 0x77, 0x0B, 0x7B, 0x0F, 0x7F	| 408EBC70
+
+/* subroutine (23 instructions): calls rsrc_PACK_4_408E9A20_2D7C; low memory CPUFlag (mechanical summary) */
+rsrc_PACK_4_408E9A20_2256:
+    .byte   0x48, 0xE7, 0x80, 0xC0, 0x20, 0x6F, 0x00, 0x10, 0x21, 0xD0	| 408EBC76
+    .short  0x0A4C	| 408EBC80
+    cmpib #4,CPUFlag
+    jblt rsrc_PACK_4_408E9A20_2288
+    pea %pc@(rsrc_PACK_4_408E9A20_286A)
+    pea %pc@(rsrc_PACK_4_408E9A20_299C)
+    pea %pc@(rsrc_PACK_4_408E9A20_28DC)
+    pea %pc@(rsrc_PACK_4_408E9A20_299C)
+    pea %pc@(rsrc_PACK_4_408E9A20_27B2)
+    pea %pc@(rsrc_PACK_4_408E9A20_299C)
+    pea %pc@(rsrc_PACK_4_408E9A20_299C)
+    jbra rsrc_PACK_4_408E9A20_22A4
+rsrc_PACK_4_408E9A20_2288:  /* from here: pea %pc@(rsrc_PACK_4_408E9A20_2B4A) */
+    pea %pc@(rsrc_PACK_4_408E9A20_2B4A)
+    pea %pc@(rsrc_PACK_4_408E9A20_2C60)
+    pea %pc@(rsrc_PACK_4_408E9A20_2BC2)
+    pea %pc@(rsrc_PACK_4_408E9A20_2C60)
+    pea %pc@(rsrc_PACK_4_408E9A20_2AA8)
+    pea %pc@(rsrc_PACK_4_408E9A20_2C60)
+    pea %pc@(rsrc_PACK_4_408E9A20_2C60)
+rsrc_PACK_4_408E9A20_22A4:  /* set %a0 */
+    moveal %sp,%a0
+    movew #2,%d0
+    jbsr rsrc_PACK_4_408E9A20_2D7C
+    lea %sp@(28),%sp
+    moveml %sp@+,%d0/%a0-%a1
+    rtd #4
+
+/* subroutine (1 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_22BA:
+    movel FPHaltVector,%sp@(4,%za0)@(0)	| 408EBCDA
+    rtd #4
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_22C6:
+    .short  0x0877, 0x0007, 0x8161, 0x0004	| bchg #7,%sp@(4)@(0)
+    .short  0x4E74	| 408EBCEE
+    .byte   0x00, 0x04	| 408EBCF0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_22D2:
+    .byte   0x08, 0xB7, 0x00, 0x07, 0x81, 0x61, 0x00, 0x04, 0x4E, 0x74, 0x00, 0x04	| 408EBCF2
+
+/* subroutine (4 instructions): calls rsrc_PACK_4_408E9A20_215E (mechanical summary) */
+rsrc_PACK_4_408E9A20_22DE:
+    movel %sp@(4),%sp@-
+    jbsr rsrc_PACK_4_408E9A20_215E
+    fmoveml %pc@(rsrc_PACK_4_408E9A20_22F0),%fpsr/%fpcr
+    rtd #4
+rsrc_PACK_4_408E9A20_22F0:  /* (data) */
+    .byte   0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00	| 408EBD10
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_22F8:
+    .byte   0x48, 0xE7, 0xC0, 0x80, 0x70, 0x00, 0x20, 0x6F	| 408EBD18
+    .short  0x0010, 0xF201	| orib #1,%a0@
+    _SoundDispatch
+    movew %a0@,%d0
+    movew %pc@(rsrc_PACK_4_408E9A20_22F8_22,%d0:w:2),%d0
+    bfextu %d1,%d0,1,%d1
+    moveb %d1,%a0@
+    moveml %sp@+,%d0-%d1/%a0
+    rtd #4
+rsrc_PACK_4_408E9A20_22F8_22:
+    orib #26,%a0@+
+    orib #27,%a1@+
+    .short  0x001C	| 408EBD42
+
+/* subroutine (7 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2324:
+    fmovel %fpcr,%d2
+    movel #2240,%d3
+    andl %d2,%d3
+    jbeq rsrc_PACK_4_408E9A20_2324_14
+    eorl %d3,%d2
+    fmovel %d2,%fpcr
+rsrc_PACK_4_408E9A20_2324_14:  /* return */
+    rts
+
+/* subroutine (5 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_233A:
+    tstl %d3
+    jbeq rsrc_PACK_4_408E9A20_233A_A
+    eorl %d3,%d2
+    fmovel %d2,%fpcr
+rsrc_PACK_4_408E9A20_233A_A:  /* return */
+    rts
+
+/* subroutine (11 instructions): calls rsrc_PACK_4_408E9A20_2324 (mechanical summary) */
+rsrc_PACK_4_408E9A20_2346:
+    linkw %fp,#-94
+    movel #1048627,%fp@(-4)
+    moveml %d0-%d3/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2324
+    moveal %fp@(8),%a0
+    fmovex %a0@,%fp1
+    moveal %fp@(12),%a0
+    fmovex %a0@,%fp0
+    fmovex %fp0,%a0@
+    movew %a0@+,%a0@
+    jbra rsrc_PACK_4_408E9A20_2346_6E
+
+/* subroutine (95 instructions): calls rsrc_PACK_4_408E9A20_2324, rsrc_PACK_4_408E9A20_233A (mechanical summary) */
+rsrc_PACK_4_408E9A20_2370:
+    linkw %fp,#-94
+    movel #1048595,%fp@(-4)
+    moveml %d0-%d3/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2324
+    moveal %fp@(8),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovex %sp@+,%fp1
+    moveal %fp@(12),%a0
+    addqw #6,%a0
+    movel %a0@,%sp@-
+    movel %a0@-,%sp@-
+    subqw #2,%a0
+    movel %a0@,%sp@-
+    fmovex %sp@+,%fp0
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addqw #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    subqw #6,%a0
+rsrc_PACK_4_408E9A20_2346_6E:  /* from here: fcmpx %fp0,%fp1 */
+    fcmpx %fp0,%fp1
+    fbogl rsrc_PACK_4_408E9A20_2346_9C
+    fbeq rsrc_PACK_4_408E9A20_2346_86
+    fcmpx %fp0,%fp0
+    fbun rsrc_PACK_4_408E9A20_2346_86
+    fmovex %fp1,%fp0
+rsrc_PACK_4_408E9A20_2346_86:  /* from here: fmovex %fp0,%sp@- */
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addqw #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    subqw #6,%a0
+    jbsr rsrc_PACK_4_408E9A20_233A
+    jbra rsrc_PACK_4_408E9A20_2346_15A
+rsrc_PACK_4_408E9A20_2346_9C:  /* from here: fsolt %d1 */
+    fsolt %d1
+    ftstx %fp0
+    fbne rsrc_PACK_4_408E9A20_2346_D4
+    fmovex #0x000000000000000000000001,%fp0	| 408EBE0E
+    ftstx %fp1
+    fbogt rsrc_PACK_4_408E9A20_2346_C4
+    fnegx %fp0,%fp0
+rsrc_PACK_4_408E9A20_2346_C4:  /* from here: fmovex %fp0,%sp@- */
+    fmovex %fp0,%sp@-
+    movew %sp@+,%a0@+
+    addqw #2,%sp
+    movel %sp@+,%a0@+
+    movel %sp@+,%a0@
+    subqw #6,%a0
+    jbra rsrc_PACK_4_408E9A20_2346_11A
+rsrc_PACK_4_408E9A20_2346_D4:  /* from here: fsolt %d0 */
+    fsolt %d0
+    eorb %d1,%d0
+    jbpl rsrc_PACK_4_408E9A20_2346_F8
+    bftst %a0@,1,15
+    jbeq rsrc_PACK_4_408E9A20_2346_E8
+    bclr #7,%a0@(2)
+rsrc_PACK_4_408E9A20_2346_E8:  /* subtract 1 to %a0@(6) */
+    subql #1,%a0@(6)
+    jbcc rsrc_PACK_4_408E9A20_2346_112
+    subql #1,%a0@(2)
+    jbcc rsrc_PACK_4_408E9A20_2346_112
+    subqw #1,%a0@
+    jbra rsrc_PACK_4_408E9A20_2346_112
+rsrc_PACK_4_408E9A20_2346_F8:  /* from here: bftst %a0@,1,15 */
+    bftst %a0@,1,15
+    jbeq rsrc_PACK_4_408E9A20_2346_104
+    bset #7,%a0@(2)
+rsrc_PACK_4_408E9A20_2346_104:  /* add 1 to %a0@(6) */
+    addql #1,%a0@(6)
+    jbcc rsrc_PACK_4_408E9A20_2346_112
+    addql #1,%a0@(2)
+    jbcc rsrc_PACK_4_408E9A20_2346_112
+    addqw #1,%a0@
+rsrc_PACK_4_408E9A20_2346_112:  /* set %d0 */
+    movel %a0@,%d0
+    bfchg %d0,1,15
+    jbne rsrc_PACK_4_408E9A20_2346_138
+rsrc_PACK_4_408E9A20_2346_11A:  /* call rsrc_PACK_4_408E9A20_233A */
+    jbsr rsrc_PACK_4_408E9A20_233A
+    btst #7,%a0@(2)
+    jbne rsrc_PACK_4_408E9A20_2346_15A
+    fmovew #1,%fp1
+    fscalew #-32768,%fp1
+    fnop
+    jbra rsrc_PACK_4_408E9A20_2346_15A
+rsrc_PACK_4_408E9A20_2346_138:  /* call rsrc_PACK_4_408E9A20_233A */
+    jbsr rsrc_PACK_4_408E9A20_233A
+    bfchg %d0,1,15
+    jbeq rsrc_PACK_4_408E9A20_2346_14A
+    bset #7,%a0@(2)
+    jbra rsrc_PACK_4_408E9A20_2346_15A
+rsrc_PACK_4_408E9A20_2346_14A:  /* from here: fmovew #1,%fp1 */
+    fmovew #1,%fp1
+    fscalew #32767,%fp1
+    fnop
+rsrc_PACK_4_408E9A20_2346_15A:  /* test bit 5 of %fp@(-1) */
+    btst #5,%fp@(-1)
+    jbeq rsrc_PACK_4_408E9A20_2346_164
+    movew %a0@,%a0@-
+rsrc_PACK_4_408E9A20_2346_164:  /* restore registers, return */
+    moveml %sp@+,%d0-%d3/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (53 instructions): calls rsrc_PACK_4_408E9A20_2324, rsrc_PACK_4_408E9A20_233A (mechanical summary) */
+rsrc_PACK_4_408E9A20_24B4:
+    linkw %fp,#-94
+    movel #1050643,%fp@(-4)
+    moveml %d0-%d3/%a0,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2324
+    moveal %fp@(8),%a0
+    fmoved %a0@,%fp1
+    moveal %fp@(12),%a0
+    fmoved %a0@,%fp0
+    fcmpx %fp0,%fp1
+    fbogl rsrc_PACK_4_408E9A20_2346_1B4
+    fbeq rsrc_PACK_4_408E9A20_2346_1AA
+    fcmpx %fp0,%fp0
+    fbun rsrc_PACK_4_408E9A20_2346_1AA
+    fmovex %fp1,%fp0
+rsrc_PACK_4_408E9A20_2346_1AA:  /* from here: fmoved %fp0,%a0@ */
+    fmoved %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_233A
+    jbra rsrc_PACK_4_408E9A20_2346_230
+rsrc_PACK_4_408E9A20_2346_1B4:  /* from here: fsolt %d1 */
+    fsolt %d1
+    ftstx %fp0
+    fbne rsrc_PACK_4_408E9A20_2346_1DE
+    fmoved #0e4.94066e-324,%fp0
+    ftstx %fp1
+    fbogt rsrc_PACK_4_408E9A20_2346_1D8
+    fnegx %fp0,%fp0
+rsrc_PACK_4_408E9A20_2346_1D8:  /* from here: fmoved %fp0,%a0@ */
+    fmoved %fp0,%a0@
+    jbra rsrc_PACK_4_408E9A20_2346_200
+rsrc_PACK_4_408E9A20_2346_1DE:  /* from here: fsolt %d0 */
+    fsolt %d0
+    eorb %d1,%d0
+    jbpl rsrc_PACK_4_408E9A20_2346_1F0
+    subql #1,%a0@(4)
+    jbcc rsrc_PACK_4_408E9A20_2346_1F8
+    subql #1,%a0@
+    jbra rsrc_PACK_4_408E9A20_2346_1F8
+rsrc_PACK_4_408E9A20_2346_1F0:  /* add 1 to %a0@(4) */
+    addql #1,%a0@(4)
+    jbcc rsrc_PACK_4_408E9A20_2346_1F8
+    addql #1,%a0@
+rsrc_PACK_4_408E9A20_2346_1F8:  /* set %d0 */
+    movel %a0@,%d0
+    bfchg %d0,1,11
+    jbne rsrc_PACK_4_408E9A20_2346_216
+rsrc_PACK_4_408E9A20_2346_200:  /* call rsrc_PACK_4_408E9A20_233A */
+    jbsr rsrc_PACK_4_408E9A20_233A
+    fmovew #1,%fp1
+    fscalew #-32768,%fp1
+    fnop
+    jbra rsrc_PACK_4_408E9A20_2346_230
+rsrc_PACK_4_408E9A20_2346_216:  /* call rsrc_PACK_4_408E9A20_233A */
+    jbsr rsrc_PACK_4_408E9A20_233A
+    bfchg %d0,1,11
+    jbne rsrc_PACK_4_408E9A20_2346_230
+    fmovew #1,%fp1
+    fscalew #32767,%fp1
+    fnop
+rsrc_PACK_4_408E9A20_2346_230:  /* restore registers, return */
+    moveml %sp@+,%d0-%d3/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (50 instructions): calls rsrc_PACK_4_408E9A20_2324, rsrc_PACK_4_408E9A20_233A (mechanical summary) */
+rsrc_PACK_4_408E9A20_2580:
+    linkw %fp,#-94
+    movel #1052691,%fp@(-4)
+    moveml %d0-%d3/%a0,%sp@-
+    moveal %fp@(8),%a0
+    movel %a0@,%d1
+    moveal %fp@(12),%a0
+    movel %a0@,%d0
+    jbsr rsrc_PACK_4_408E9A20_2324
+    fmoves %d1,%fp1
+    fmoves %d0,%fp0
+    fcmpx %fp0,%fp1
+    fbogl rsrc_PACK_4_408E9A20_2346_284
+    fbeq rsrc_PACK_4_408E9A20_2346_27A
+    fcmpx %fp0,%fp0
+    fbun rsrc_PACK_4_408E9A20_2346_27A
+    fmovex %fp1,%fp0
+rsrc_PACK_4_408E9A20_2346_27A:  /* from here: fmoves %fp0,%a0@ */
+    fmoves %fp0,%a0@
+    jbsr rsrc_PACK_4_408E9A20_233A
+    jbra rsrc_PACK_4_408E9A20_2346_2DC
+rsrc_PACK_4_408E9A20_2346_284:  /* call rsrc_PACK_4_408E9A20_233A */
+    jbsr rsrc_PACK_4_408E9A20_233A
+    bftst %d0,1,31
+    jbne rsrc_PACK_4_408E9A20_2346_298
+    moveq #2,%d0
+    addl %d1,%d1
+    roxrl #1,%d0
+    movel %d0,%a0@
+    jbra rsrc_PACK_4_408E9A20_2346_2B4
+rsrc_PACK_4_408E9A20_2346_298:  /* test bit 31 of %d0 */
+    btst #31,%d0
+    sne %d0
+    fsolt %d1
+    eorb %d1,%d0
+    extbl %d0
+    addl %d0,%d0
+    addql #1,%d0
+    addl %d0,%a0@
+    movel %a0@,%d0
+    bfchg %d0,1,8
+    jbne rsrc_PACK_4_408E9A20_2346_2C6
+rsrc_PACK_4_408E9A20_2346_2B4:  /* from here: fmovew #1,%fp1 */
+    fmovew #1,%fp1
+    fscalew #-32768,%fp1
+    fnop
+    jbra rsrc_PACK_4_408E9A20_2346_2DC
+rsrc_PACK_4_408E9A20_2346_2C6:  /* from here: bfchg %d0,1,8 */
+    bfchg %d0,1,8
+    jbne rsrc_PACK_4_408E9A20_2346_2DC
+    fmovew #1,%fp1
+    fscalew #32767,%fp1
+    fnop
+rsrc_PACK_4_408E9A20_2346_2DC:  /* restore registers, return */
+    moveml %sp@+,%d0-%d3/%a0
+    unlk %fp
+    rtd #8
+
+/* subroutine (9 instructions): calls rsrc_PACK_4_408E9A20_21E0 (mechanical summary) */
+rsrc_PACK_4_408E9A20_262C:
+    linkw %fp,#-90
+    movel #786457,%fp@(-4)
+    moveml %d0-%d1/%a0,%sp@-
+    fmovel %fpsr,%d1
+    bfexts %d1,24,5,%d0
+    bfins %d0,%d1,16,7
+    movel %fp@(8),%sp@-
+    jbsr rsrc_PACK_4_408E9A20_21E0
+    jbra rsrc_PACK_4_408E9A20_265C_1C
+rsrc_PACK_4_408E9A20_2652:  /* (data) */
+    .short  0xE080, 0x0820, 0x1040, 0x0410, 0x0208	| 408EC072
+
+/* subroutine (55 instructions): calls rsrc_PACK_4_408E9A20_2D7C; low memory CPUFlag (mechanical summary) */
+rsrc_PACK_4_408E9A20_265C:
+    linkw %fp,#-90
+    movel #786453,%fp@(-4)
+    moveml %d0-%d1/%a0,%sp@-
+    moveal %fp@(8),%a0
+    moveq #0,%d1
+    movew %a0@,%d1
+    movew %pc@(rsrc_PACK_4_408E9A20_2652,%d1:w:2),%d1
+rsrc_PACK_4_408E9A20_265C_1C:  /* from here: fmovel %fpcr,%d0 */
+    fmovel %fpcr,%d0
+    andw %d1,%d0
+    andiw #-8448,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_C8
+    cmpib #4,CPUFlag
+    jblt rsrc_PACK_4_408E9A20_265C_BA
+    moveal %d0,%a0
+    fmovel %fpsr,%d0
+    orw %d1,%d0
+    fmovel %d0,%fpsr
+    movel %a0,%d0
+    btst #15,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_5A
+    fmoves #0enan,%fp1
+    fbgt rsrc_PACK_4_408E9A20_265C_B4
+    fnop
+    jbra rsrc_PACK_4_408E9A20_265C_D6
+rsrc_PACK_4_408E9A20_265C_5A:  /* test bit 14 of %d0 */
+    btst #14,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_6A
+    fcmps #0x7fbfffff,%fp1	| 408EC0DC
+    jbra rsrc_PACK_4_408E9A20_265C_B4
+rsrc_PACK_4_408E9A20_265C_6A:  /* test bit 12 of %d0 */
+    btst #12,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_7E
+    fmoves #0x7f000000,%fp1	| 408EC0EC
+    fsmulx %fp1,%fp1
+    jbra rsrc_PACK_4_408E9A20_265C_B4
+rsrc_PACK_4_408E9A20_265C_7E:  /* test bit 11 of %d0 */
+    btst #11,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_92
+    fmoves #0x1f000000,%fp1	| 408EC100
+    fsmulx %fp1,%fp1
+    jbra rsrc_PACK_4_408E9A20_265C_B4
+rsrc_PACK_4_408E9A20_265C_92:  /* test bit 10 of %d0 */
+    btst #10,%d0
+    jbeq rsrc_PACK_4_408E9A20_265C_A6
+    fmoveb #1,%fp1
+    fdivb #0,%fp1
+    jbra rsrc_PACK_4_408E9A20_265C_B4
+rsrc_PACK_4_408E9A20_265C_A6:  /* from here: fmoveb #1,%fp1 */
+    fmoveb #1,%fp1
+    fadds #0x01000000,%fp1	| 408EC128
+rsrc_PACK_4_408E9A20_265C_B4:  /* from here: fnop */
+    fnop
+    jbra rsrc_PACK_4_408E9A20_265C_D6
+rsrc_PACK_4_408E9A20_265C_BA:  /* set %a0 */
+    moveal %d1,%a0
+    moveq #0,%d0
+    jbsr rsrc_PACK_4_408E9A20_2D7C
+    fnop
+    jbra rsrc_PACK_4_408E9A20_265C_D6
+rsrc_PACK_4_408E9A20_265C_C8:  /* from here: fmovel %fpsr,%d0 */
+    fmovel %fpsr,%d0
+    andw 0xff,%d0
+    orw %d1,%d0
+    fmovel %d0,%fpsr
+rsrc_PACK_4_408E9A20_265C_D6:  /* restore registers, return */
+    moveml %sp@+,%d0-%d1/%a0
+    unlk %fp
+    rtd #4
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_273C:
+    movel %a0,%sp@-
+    moveal %sp@(12),%a0
+    bclr #7,%a0@
+    tstw %sp@(8,%za0)@(0)	| 408EC166
+    bpls rsrc_PACK_4_408E9A20_273C_16
+    bset #7,%a0@
+rsrc_PACK_4_408E9A20_273C_16:
+    moveal %sp@+,%a0
+    rtd #8
+
+/* subroutine (5 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2758:
+    moveal %sp@+,%a0
+    jmp %pc@(rsrc_PACK_4_408E9A20_275E,%d0:w:8)
+rsrc_PACK_4_408E9A20_275E:  /* from here: fmovemx %sp@+,%fp0 */
+    fmovemx %sp@+,%fp0	| 408EC17E
+    braw rsrc_PACK_4_408E9A20_279A	| 408EC182
+    .byte   0xF2, 0x1F, 0xD0, 0x40, 0x60, 0x00, 0x00, 0x2E, 0xF2, 0x1F, 0xD0, 0x20, 0x60, 0x00, 0x00, 0x26	| 408EC186
+    .byte   0xF2, 0x1F, 0xD0, 0x10, 0x60, 0x00, 0x00, 0x1E, 0xF2, 0x1F, 0xD0, 0x08, 0x60, 0x00, 0x00, 0x16	| 408EC196
+    .byte   0xF2, 0x1F, 0xD0, 0x04, 0x60, 0x00, 0x00, 0x0E, 0xF2, 0x1F, 0xD0, 0x02, 0x60, 0x00, 0x00, 0x06	| 408EC1A6
+    .byte   0xF2, 0x1F, 0xD0, 0x01	| 408EC1B6
+rsrc_PACK_4_408E9A20_279A:  /* jump through %a0@ */
+    jmp %a0@	| 408EC1BA
+
+/* subroutine (6 instructions): calls rsrc_PACK_4_408E9A20_2758 (mechanical summary) */
+rsrc_PACK_4_408E9A20_279C:
+    clrl %sp@-
+    movel #1073741824,%sp@-
+    moveb %d1,%sp@(1)
+    movel #2147418112,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2758
+    rts
+
+/* subroutine (57 instructions): calls rsrc_PACK_4_408E9A20_2758 (mechanical summary) */
+rsrc_PACK_4_408E9A20_27B2:
+    fsave %sp@-	| 408EC1D2
+    tstb %sp@	| 408EC1D4
+    jbeq rsrc_PACK_4_408E9A20_27BE	| 408EC1D6
+    tstb %sp@(1)	| 408EC1D8
+    jbne rsrc_PACK_4_408E9A20_27C2	| 408EC1DC
+rsrc_PACK_4_408E9A20_27BE:  /* from here: frestore %sp@+ */
+    frestore %sp@+	| 408EC1DE
+    rte	| 408EC1E0
+rsrc_PACK_4_408E9A20_27C2:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC1E2
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC1E6
+    moveq #4,%d0	| 408EC1EA
+    addb %sp@(33),%d0	| 408EC1EC
+    lea %sp@(32),%a1	| 408EC1F0
+    addal %d0,%a1	| 408EC1F4
+    moveal %sp@(8),%a0	| 408EC1F6
+    movel %a0@,%d2	| 408EC1FA
+    moveq #127,%d1	| 408EC1FC
+    bftst %d2,7,3	| 408EC1FE
+    jbne rsrc_PACK_4_408E9A20_29C0	| 408EC202
+    andw %d2,%d1	| 408EC206
+    bclr #6,%d1	| 408EC208
+    jbeq rsrc_PACK_4_408E9A20_27F2	| 408EC20C
+    bclr #2,%d1	| 408EC20E
+rsrc_PACK_4_408E9A20_27F2:  /* from here: bfextu %d2,22,3,%d0 */
+    bfextu %d2,22,3,%d0	| 408EC212
+    clrl %sp@-	| 408EC216
+    clrl %sp@-	| 408EC218
+    movel #2147418112,%sp@-	| 408EC21A
+    cmpib #32,%d1	| 408EC220
+    jbeq rsrc_PACK_4_408E9A20_2832	| 408EC224
+    cmpib #36,%d1	| 408EC226
+    jbeq rsrc_PACK_4_408E9A20_2832	| 408EC22A
+    cmpib #6,%d1	| 408EC22C
+    jbeq rsrc_PACK_4_408E9A20_284A	| 408EC230
+    cmpib #20,%d1	| 408EC232
+    jbeq rsrc_PACK_4_408E9A20_284A	| 408EC236
+    cmpib #21,%d1	| 408EC238
+    jbeq rsrc_PACK_4_408E9A20_284A	| 408EC23C
+    cmpib #22,%d1	| 408EC23E
+    jbeq rsrc_PACK_4_408E9A20_284A	| 408EC242
+    cmpib #13,%d1	| 408EC244
+    jbeq rsrc_PACK_4_408E9A20_2856	| 408EC248
+    lea %sp@(12),%sp	| 408EC24A
+    jbra rsrc_PACK_4_408E9A20_29C0	| 408EC24E
+rsrc_PACK_4_408E9A20_2832:  /* set %d1 */
+    movel %a1@(-24),%d1
+    movel %a1@(-12),%d2
+    eorl %d1,%d2
+    jbpl rsrc_PACK_4_408E9A20_2842
+    bset #7,%sp@
+rsrc_PACK_4_408E9A20_2842:  /* call rsrc_PACK_4_408E9A20_2758 */
+    jbsr rsrc_PACK_4_408E9A20_2758
+    jbra rsrc_PACK_4_408E9A20_29C0
+rsrc_PACK_4_408E9A20_284A:  /* set bit 7 of %sp@ */
+    bset #7,%sp@	| 408EC26A
+    jbsr rsrc_PACK_4_408E9A20_2758	| 408EC26E
+    jbra rsrc_PACK_4_408E9A20_29C0	| 408EC272
+rsrc_PACK_4_408E9A20_2856:  /* test bit 7 of %a1@(-12) */
+    btst #7,%a1@(-12)
+    jbeq rsrc_PACK_4_408E9A20_2862
+    bset #7,%sp@
+rsrc_PACK_4_408E9A20_2862:  /* call rsrc_PACK_4_408E9A20_2758 */
+    jbsr rsrc_PACK_4_408E9A20_2758
+    jbra rsrc_PACK_4_408E9A20_29C0
+
+/* subroutine (36 instructions): calls rsrc_PACK_4_408E9A20_2758 (mechanical summary) */
+rsrc_PACK_4_408E9A20_286A:
+    fsave %sp@-	| 408EC28A
+    tstb %sp@	| 408EC28C
+    jbeq rsrc_PACK_4_408E9A20_2876	| 408EC28E
+    tstb %sp@(1)	| 408EC290
+    jbne rsrc_PACK_4_408E9A20_287A	| 408EC294
+rsrc_PACK_4_408E9A20_2876:  /* from here: frestore %sp@+ */
+    frestore %sp@+	| 408EC296
+    rte	| 408EC298
+rsrc_PACK_4_408E9A20_287A:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC29A
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC29E
+    moveq #4,%d0	| 408EC2A2
+    addb %sp@(33),%d0	| 408EC2A4
+    lea %sp@(32),%a1	| 408EC2A8
+    addal %d0,%a1	| 408EC2AC
+    moveal %sp@(8),%a0	| 408EC2AE
+    movel %a0@,%d2	| 408EC2B2
+    bftst %d2,7,3	| 408EC2B4
+    jbne rsrc_PACK_4_408E9A20_29C0	| 408EC2B8
+    bfextu %d2,16,3,%d0	| 408EC2BC
+    jbeq rsrc_PACK_4_408E9A20_28AA	| 408EC2C0
+    subqw #2,%d0	| 408EC2C2
+    jbeq rsrc_PACK_4_408E9A20_28AA	| 408EC2C4
+    jbra rsrc_PACK_4_408E9A20_29C0	| 408EC2C6
+rsrc_PACK_4_408E9A20_28AA:  /* from here: bfextu %d2,22,3,%d0 */
+    bfextu %d2,22,3,%d0	| 408EC2CA
+    lea %a1@(-12),%a0	| 408EC2CE
+    bfextu %a1@(-40),0,3,%d1	| 408EC2D2
+    cmpib #3,%d1	| 408EC2D8
+    jbeq rsrc_PACK_4_408E9A20_28C2	| 408EC2DC
+    lea %a0@(-12),%a0	| 408EC2DE
+rsrc_PACK_4_408E9A20_28C2:  /* set %d1 */
+    movel %a0@(8),%d1	| 408EC2E2
+    movel %d1,%sp@-
+    movel %a0@(4),%d1
+    bset #30,%d1
+    movel %d1,%sp@-
+    movel %a0@,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2758
+    jbra rsrc_PACK_4_408E9A20_29C0
+
+/* subroutine (40 instructions): calls rsrc_PACK_4_408E9A20_279C (mechanical summary) */
+rsrc_PACK_4_408E9A20_28DC:
+    fsave %sp@-
+    tstb %sp@
+    jbeq rsrc_PACK_4_408E9A20_28E8
+    tstb %sp@(1)
+    jbne rsrc_PACK_4_408E9A20_28EC
+rsrc_PACK_4_408E9A20_28E8:  /* from here: frestore %sp@+ */
+    frestore %sp@+
+    rte
+rsrc_PACK_4_408E9A20_28EC:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-
+    moveq #4,%d0
+    addb %sp@(33),%d0
+    lea %sp@(32),%a1
+    addal %d0,%a1
+    moveal %sp@(8),%a0
+    movel %a0@,%d2
+    bftst %d2,7,3
+    jbne rsrc_PACK_4_408E9A20_29C0
+    bfextu %d2,16,3,%d0
+    jbeq rsrc_PACK_4_408E9A20_291C
+    subqw #2,%d0
+    jbeq rsrc_PACK_4_408E9A20_291C
+    jbra rsrc_PACK_4_408E9A20_29C0
+rsrc_PACK_4_408E9A20_291C:  /* from here: bfextu %d2,25,7,%d1 */
+    bfextu %d2,25,7,%d1
+    jbpl rsrc_PACK_4_408E9A20_2932
+    bclr #6,%d1
+    bclr #2,%d1
+    cmpib #1,%d1
+    jbne rsrc_PACK_4_408E9A20_2932
+    moveq #4,%d1
+rsrc_PACK_4_408E9A20_2932:  /* set %d1 */
+    moveb %pc@(rsrc_PACK_4_408E9A20_2958,%d1:w),%d1
+    jbeq rsrc_PACK_4_408E9A20_2942
+    bfextu %d2,22,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    jbra rsrc_PACK_4_408E9A20_29C0
+rsrc_PACK_4_408E9A20_2942:  /* set %d1 */
+    moveb #33,%d1
+    bfextu %d2,22,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    bfextu %d2,29,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    jbra rsrc_PACK_4_408E9A20_29C0
+rsrc_PACK_4_408E9A20_2958:  /* (data) */
+    .byte   0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0xFF, 0x24, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x22, 0x24, 0x21, 0x21	| 408EC378
+    .byte   0xFF, 0xFF, 0xFF, 0xFF, 0x24, 0x24, 0x24, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x22, 0x21, 0xFF, 0xFF	| 408EC388
+    .byte   0x04, 0x09, 0x02, 0x08, 0x04, 0x09, 0xFF, 0x08, 0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	| 408EC398
+    .byte   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	| 408EC3A8
+rsrc_PACK_4_408E9A20_2998:  /* (data) */
+    .byte   0xEF, 0xE0, 0x2A, 0xDE	| 408EC3B8
+
+/* subroutine (60 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_299C:
+    fsave %sp@-	| 408EC3BC
+    tstb %sp@	| 408EC3BE
+    jbeq rsrc_PACK_4_408E9A20_29A8	| 408EC3C0
+    tstb %sp@(1)	| 408EC3C2
+    jbne rsrc_PACK_4_408E9A20_29AC	| 408EC3C6
+rsrc_PACK_4_408E9A20_29A8:  /* from here: frestore %sp@+ */
+    frestore %sp@+	| 408EC3C8
+    rte	| 408EC3CA
+rsrc_PACK_4_408E9A20_29AC:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC3CC
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC3D0
+    moveq #4,%d0	| 408EC3D4
+    addb %sp@(33),%d0	| 408EC3D6
+    lea %sp@(32),%a1	| 408EC3DA
+    addal %d0,%a1	| 408EC3DE
+rsrc_PACK_4_408E9A20_29C0:  /* set %d1-%d2 */
+    moveml %sp@,%d1-%d2
+    bclr #1,%a1@(-28)
+    jbne rsrc_PACK_4_408E9A20_29D2
+    bclr #2,%a1@(-28)
+rsrc_PACK_4_408E9A20_29D2:  /* set %a0 */
+    moveal %sp@(8),%a0
+    subal 0xb6e,%a0
+    cmp2w %pc@(rsrc_PACK_4_408E9A20_2998),%a0
+    jbcs rsrc_PACK_4_408E9A20_2D1E
+    subaw #24,%fp
+    fmoveml %fpiar/%fpsr/%fpcr,%fp@-
+    subaw #12,%fp
+    movel %d1,%d0
+    bfclr %d0,16,8
+    fmovel %d0,%fpcr
+    movel %d1,%d0
+    bfclr %d0,16,3
+    bftst %d1,16,2
+    jbeq rsrc_PACK_4_408E9A20_2A0A
+    bfset %d0,16,3
+rsrc_PACK_4_408E9A20_2A0A:  /* from here: andw %d2,%d0 */
+    andw %d2,%d0
+    bftst %d0,16,2
+    jbeq rsrc_PACK_4_408E9A20_2A16
+    bset #13,%d0
+rsrc_PACK_4_408E9A20_2A16:  /* from here: bfextu %d0,18,5,%d0 */
+    bfextu %d0,18,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21B8,%d0:w),%d0
+    lea %fp@(48),%a0
+    subqw #8,%fp
+    movew %d0,%fp@
+    movel %fp,%fp@-
+    movel %a0@(16),%fp@-
+    movel %a0@(12),%fp@-
+    movel %a0@(8),%fp@-
+    movew %a0@(-2),%fp@-
+    movew %a0@(-4),%d0
+    lsrw #2,%d0
+    subqw #4,%d0
+    jbeq rsrc_PACK_4_408E9A20_2A4A
+    jbmi rsrc_PACK_4_408E9A20_2A4E
+    movel %a0@(16),%fp@-
+rsrc_PACK_4_408E9A20_2A4A:  /* set %fp@- */
+    movel %a0@(12),%fp@-
+rsrc_PACK_4_408E9A20_2A4E:  /* set %fp@- */
+    movel %a0@(8),%fp@-
+    lea %pc@(rsrc_PACK_4_408E9A20_2D2A),%a1
+    movel %a1,%fp@-
+    movel %a0@,%fp@-
+    movel %a0@(-4),%fp@-
+    addqw #4,%fp
+    jbra rsrc_PACK_4_408E9A20_2D1E
+
+/* subroutine (5 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2A64:
+    moveal %sp@+,%a0	| 408EC484
+    jmp %pc@(rsrc_PACK_4_408E9A20_2A6A,%d0:w:8)	| 408EC486
+rsrc_PACK_4_408E9A20_2A6A:  /* from here: fmovemx %fp0,%sp@- */
+    fmovemx %fp0,%sp@-	| 408EC48A
+    braw rsrc_PACK_4_408E9A20_2AA6	| 408EC48E
+    .byte   0xF2, 0x27, 0xE0, 0x02, 0x60, 0x00, 0x00, 0x2E, 0xF2, 0x27, 0xE0, 0x04, 0x60, 0x00, 0x00, 0x26	| 408EC492
+    .byte   0xF2, 0x27, 0xE0, 0x08, 0x60, 0x00, 0x00, 0x1E, 0xF2, 0x27, 0xE0, 0x10, 0x60, 0x00, 0x00, 0x16	| 408EC4A2
+    .byte   0xF2, 0x27, 0xE0, 0x20, 0x60, 0x00, 0x00, 0x0E, 0xF2, 0x27, 0xE0, 0x40, 0x60, 0x00, 0x00, 0x06	| 408EC4B2
+    .byte   0xF2, 0x27, 0xE0, 0x80	| 408EC4C2
+rsrc_PACK_4_408E9A20_2AA6:  /* jump through %a0@ */
+    jmp %a0@	| 408EC4C6
+
+/* subroutine (51 instructions): calls rsrc_PACK_4_408E9A20_2A64, rsrc_PACK_4_408E9A20_2758 (mechanical summary) */
+rsrc_PACK_4_408E9A20_2AA8:
+    fsave %sp@-	| 408EC4C8
+    tstb %sp@	| 408EC4CA
+    jbne rsrc_PACK_4_408E9A20_2AB2	| 408EC4CC
+    frestore %sp@+	| 408EC4CE
+    rte	| 408EC4D0
+rsrc_PACK_4_408E9A20_2AB2:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC4D2
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC4D6
+    moveal %sp@(8),%a0	| 408EC4DA
+    movel %a0@,%d2	| 408EC4DE
+    moveq #63,%d1	| 408EC4E0
+    bftst %d2,7,3	| 408EC4E2
+    jbne rsrc_PACK_4_408E9A20_2C72	| 408EC4E6
+    andw %d2,%d1	| 408EC4EA
+    bfextu %d2,22,3,%d0	| 408EC4EC
+    clrw %d2	| 408EC4F0
+    moveb %sp@(33),%d2	| 408EC4F2
+    movel %sp@(0x10,%d2:w),%d2	| 408EC4F6
+    clrl %sp@-	| 408EC4FA
+    clrl %sp@-	| 408EC4FC
+    movel #2147418112,%sp@-	| 408EC4FE
+    cmpib #32,%d1	| 408EC504
+    jbeq rsrc_PACK_4_408E9A20_2B16	| 408EC508
+    cmpib #36,%d1	| 408EC50A
+    jbeq rsrc_PACK_4_408E9A20_2B16	| 408EC50E
+    cmpib #6,%d1	| 408EC510
+    jbeq rsrc_PACK_4_408E9A20_2B2E	| 408EC514
+    cmpib #20,%d1	| 408EC516
+    jbeq rsrc_PACK_4_408E9A20_2B2E	| 408EC51A
+    cmpib #21,%d1	| 408EC51C
+    jbeq rsrc_PACK_4_408E9A20_2B2E	| 408EC520
+    cmpib #22,%d1	| 408EC522
+    jbeq rsrc_PACK_4_408E9A20_2B2E	| 408EC526
+    cmpib #13,%d1	| 408EC528
+    jbeq rsrc_PACK_4_408E9A20_2B3A	| 408EC52C
+    lea %sp@(12),%sp	| 408EC52E
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC532
+rsrc_PACK_4_408E9A20_2B16:  /* call rsrc_PACK_4_408E9A20_2A64 */
+    jbsr rsrc_PACK_4_408E9A20_2A64	| 408EC536
+    movel %sp@+,%d1	| 408EC53A
+    addqw #8,%sp	| 408EC53C
+    eorl %d1,%d2	| 408EC53E
+    jbpl rsrc_PACK_4_408E9A20_2B26	| 408EC540
+    bset #7,%sp@	| 408EC542
+rsrc_PACK_4_408E9A20_2B26:  /* call rsrc_PACK_4_408E9A20_2758 */
+    jbsr rsrc_PACK_4_408E9A20_2758	| 408EC546
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC54A
+rsrc_PACK_4_408E9A20_2B2E:  /* set bit 7 of %sp@ */
+    bset #7,%sp@	| 408EC54E
+    jbsr rsrc_PACK_4_408E9A20_2758	| 408EC552
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC556
+rsrc_PACK_4_408E9A20_2B3A:  /* test %d2 */
+    tstl %d2	| 408EC55A
+    jbpl rsrc_PACK_4_408E9A20_2B42	| 408EC55C
+    bset #7,%sp@	| 408EC55E
+rsrc_PACK_4_408E9A20_2B42:  /* call rsrc_PACK_4_408E9A20_2758 */
+    jbsr rsrc_PACK_4_408E9A20_2758	| 408EC562
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC566
+
+/* subroutine (37 instructions): calls rsrc_PACK_4_408E9A20_2A64, rsrc_PACK_4_408E9A20_2758 (mechanical summary) */
+rsrc_PACK_4_408E9A20_2B4A:
+    fsave %sp@-	| 408EC56A
+    tstb %sp@	| 408EC56C
+    jbne rsrc_PACK_4_408E9A20_2B54	| 408EC56E
+    frestore %sp@+	| 408EC570
+    rte	| 408EC572
+rsrc_PACK_4_408E9A20_2B54:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC574
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC578
+    moveal %sp@(8),%a0	| 408EC57C
+    movel %a0@,%d2	| 408EC580
+    bftst %d2,7,3	| 408EC582
+    jbne rsrc_PACK_4_408E9A20_2C72	| 408EC586
+    bfextu %d2,16,3,%d0	| 408EC58A
+    jbeq rsrc_PACK_4_408E9A20_2B78	| 408EC58E
+    subqw #2,%d0	| 408EC590
+    jbeq rsrc_PACK_4_408E9A20_2B78	| 408EC592
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC594
+rsrc_PACK_4_408E9A20_2B78:  /* from here: bfextu %d2,22,3,%d0 */
+    bfextu %d2,22,3,%d0	| 408EC598
+    jbsr rsrc_PACK_4_408E9A20_2A64	| 408EC59C
+    lea %sp@,%a1	| 408EC5A0
+    movel %a1@+,%d1	| 408EC5A2
+    notl %d1	| 408EC5A4
+    bftst %d1,1,15	| 408EC5A6
+    jbne rsrc_PACK_4_408E9A20_2BA2	| 408EC5AA
+    movel %a1@+,%d1	| 408EC5AC
+    bclr #31,%d1	| 408EC5AE
+    orl %a1@,%d1	| 408EC5B2
+    jbeq rsrc_PACK_4_408E9A20_2BA2	| 408EC5B4
+    bset #6,%a1@-	| 408EC5B6
+    jbsr rsrc_PACK_4_408E9A20_2758	| 408EC5BA
+    jbra rsrc_PACK_4_408E9A20_2C72	| 408EC5BE
+rsrc_PACK_4_408E9A20_2BA2:  /* address %sp@(12) */
+    lea %sp@(12),%sp	| 408EC5C2
+    clrw %d1	| 408EC5C6
+    moveb %sp@(33),%d1	| 408EC5C8
+    lea %sp@(0x18,%d1:w),%a1	| 408EC5CC
+    movel %a1@,%sp@-	| 408EC5D0
+    movel %a1@-,%sp@-	| 408EC5D2
+    bset #6,%sp@	| 408EC5D4
+    movel %a1@-,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_2758
+    jbra rsrc_PACK_4_408E9A20_2C72
+
+/* subroutine (29 instructions): calls rsrc_PACK_4_408E9A20_279C (mechanical summary) */
+rsrc_PACK_4_408E9A20_2BC2:
+    fsave %sp@-
+    tstb %sp@
+    jbne rsrc_PACK_4_408E9A20_2BCC
+    frestore %sp@+
+    rte
+rsrc_PACK_4_408E9A20_2BCC:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-
+    moveal %sp@(8),%a0
+    movel %a0@,%d2
+    bftst %d2,7,3
+    jbne rsrc_PACK_4_408E9A20_2C72
+    bfextu %d2,16,3,%d0
+    jbeq rsrc_PACK_4_408E9A20_2BF0
+    subqw #2,%d0
+    jbeq rsrc_PACK_4_408E9A20_2BF0
+    jbra rsrc_PACK_4_408E9A20_2C72
+rsrc_PACK_4_408E9A20_2BF0:  /* set %d1 */
+    movew %d2,%d1
+    andiw #63,%d1
+    moveb %pc@(rsrc_PACK_4_408E9A20_2C1C,%d1:w),%d1
+    jbeq rsrc_PACK_4_408E9A20_2C06
+    bfextu %d2,22,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    jbra rsrc_PACK_4_408E9A20_2C72
+rsrc_PACK_4_408E9A20_2C06:  /* set %d1 */
+    moveb #33,%d1
+    bfextu %d2,22,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    bfextu %d2,29,3,%d0
+    jbsr rsrc_PACK_4_408E9A20_279C
+    jbra rsrc_PACK_4_408E9A20_2C72
+rsrc_PACK_4_408E9A20_2C1C:  /* (data) */
+    .byte   0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0xFF, 0x24, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x22, 0x24, 0x21, 0x21	| 408EC63C
+    .byte   0xFF, 0xFF, 0xFF, 0xFF, 0x24, 0x24, 0x24, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x22, 0x21, 0xFF, 0xFF	| 408EC64C
+    .byte   0x04, 0x09, 0x02, 0x08, 0x04, 0x09, 0xFF, 0x08, 0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	| 408EC65C
+    .byte   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	| 408EC66C
+rsrc_PACK_4_408E9A20_2C5C:  /* (data) */
+    .byte   0x00, 0x00, 0x00, 0x80	| 408EC67C
+
+/* subroutine (85 instructions): low memory FPHaltVector (mechanical summary) */
+rsrc_PACK_4_408E9A20_2C60:
+    fsave %sp@-	| 408EC680
+    tstb %sp@	| 408EC682
+    jbne rsrc_PACK_4_408E9A20_2C6A	| 408EC684
+    frestore %sp@+	| 408EC686
+    rte	| 408EC688
+rsrc_PACK_4_408E9A20_2C6A:  /* save registers */
+    moveml %d0-%d2/%a0-%a1,%sp@-	| 408EC68A
+    fmoveml %fpiar/%fpsr/%fpcr,%sp@-	| 408EC68E
+rsrc_PACK_4_408E9A20_2C72:  /* set %d1-%d2 */
+    moveml %sp@,%d1-%d2
+    clrw %d0
+    moveb %sp@(33),%d0
+    bset #3,%sp@(0x20,%d0:w)
+    moveal %sp@(8),%a0
+    subal 0xb6e,%a0
+    cmp2w %pc@(rsrc_PACK_4_408E9A20_2998),%a0
+    jbcc rsrc_PACK_4_408E9A20_2CA2
+    moveal %sp@(8),%a0
+    subal 0x65c,%a0
+    cmp2w %pc@(rsrc_PACK_4_408E9A20_2C5C),%a0
+    jbcs rsrc_PACK_4_408E9A20_2D1E
+rsrc_PACK_4_408E9A20_2CA2:  /* from here: subaw #24,%fp */
+    subaw #24,%fp
+    fmoveml %fpiar/%fpsr/%fpcr,%fp@-
+    subaw #12,%fp
+    movel %d1,%d0
+    bfclr %d0,16,8
+    fmovel %d0,%fpcr
+    movel %d1,%d0
+    bfclr %d0,16,3
+    bftst %d1,16,2
+    jbeq rsrc_PACK_4_408E9A20_2CC8
+    bfset %d0,16,3
+rsrc_PACK_4_408E9A20_2CC8:  /* from here: andw %d2,%d0 */
+    andw %d2,%d0
+    bftst %d0,16,2
+    jbeq rsrc_PACK_4_408E9A20_2CD4
+    bset #13,%d0
+rsrc_PACK_4_408E9A20_2CD4:  /* from here: bfextu %d0,18,5,%d0 */
+    bfextu %d0,18,5,%d0
+    moveb %pc@(rsrc_PACK_4_408E9A20_21B8,%d0:w),%d0
+    lea %fp@(48),%a0
+    subqw #8,%fp
+    movew %d0,%fp@
+    movel %fp,%fp@-
+    movel %a0@(16),%fp@-
+    movel %a0@(12),%fp@-
+    movel %a0@(8),%fp@-
+    movew %a0@(-2),%fp@-
+    movew %a0@(-4),%d0
+    lsrw #2,%d0
+    subqw #4,%d0
+    jbeq rsrc_PACK_4_408E9A20_2D08
+    jbmi rsrc_PACK_4_408E9A20_2D0C
+    movel %a0@(16),%fp@-
+rsrc_PACK_4_408E9A20_2D08:  /* set %fp@- */
+    movel %a0@(12),%fp@-
+rsrc_PACK_4_408E9A20_2D0C:  /* set %fp@- */
+    movel %a0@(8),%fp@-
+    lea %pc@(rsrc_PACK_4_408E9A20_2D2A),%a1
+    movel %a1,%fp@-
+    movel %a0@,%fp@-
+    movel %a0@(-4),%fp@-
+    addqw #4,%fp
+rsrc_PACK_4_408E9A20_2D1E:  /* address %sp@(12) */
+    lea %sp@(12),%sp
+    moveml %sp@+,%d0-%d2/%a0-%a1
+    frestore %sp@+
+    rte
+rsrc_PACK_4_408E9A20_2D2A:  /* from here: fmovemx %fp3,%sp@(26) */
+    fmovemx %fp3,%sp@(26)
+    moveml %d0-%d2/%a0-%a1,%sp@(50)
+    lea %sp@(20),%a0
+    movew %ccr,%a0@+
+    movel %d0,%a0@
+    tstw %a0@(-4)
+    jbeq rsrc_PACK_4_408E9A20_2D4C
+    moveal FPHaltVector,%a0
+    jsr %a0@
+    jbra rsrc_PACK_4_408E9A20_2D50
+rsrc_PACK_4_408E9A20_2D4C:  /* address %sp@(18) */
+    lea %sp@(18),%sp
+rsrc_PACK_4_408E9A20_2D50:  /* address %sp@(52) */
+    lea %sp@(52),%fp
+    movew %fp@,%d1
+    movel %fp@(8),%fp@(0x0,%d1:w)
+    addqw #2,%sp
+    movel %sp@(2),%sp@(30)
+    movew %sp@,%ccr
+    addqw #6,%sp
+    fmovemx %sp@+,%fp3
+    fmoveml %sp@+,%fpiar/%fpsr/%fpcr
+    moveml %sp@+,%d0-%d2/%a0-%a1
+    moveal %fp@(4),%fp
+    addaw %sp@,%sp
+    rts
+
+/* subroutine (2 instructions): traps PRIVTRAP040 (mechanical summary) */
+rsrc_PACK_4_408E9A20_2D7C:
+    _PRIVTRAP040
+    rts
+
+/* subroutine (4 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2D80:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #10240,%d7
+    jbra rsrc_PACK_4_408E9A20_2D80_5C
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2D8E:
+    .short  0x48E7	| 408EC7AE
+    .byte   0xFF, 0xF8, 0x4E, 0x56, 0xFF, 0xF0, 0x3E, 0x3C, 0x20, 0x00, 0x60, 0x40	| 408EC7B0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2D9C:
+    .byte   0x48, 0xE7, 0xFF, 0xF8	| 408EC7BC
+    .byte   0x4E, 0x56, 0xFF, 0xF0, 0x3E, 0x3C, 0x30, 0x00, 0x60, 0x32	| 408EC7C0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2DAA:
+    .byte   0x48, 0xE7, 0xFF, 0xF8, 0x4E, 0x56	| 408EC7CA
+    .byte   0xFF, 0xF0, 0x3E, 0x3C, 0x10, 0x00, 0x60, 0x24	| 408EC7D0
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2DB8:
+    .byte   0x48, 0xE7, 0xFF, 0xF8, 0x4E, 0x56, 0xFF, 0xF0	| 408EC7D8
+    .byte   0x3E, 0x3C, 0x08, 0x00, 0x60, 0x16	| 408EC7E0
+
+/* subroutine (3 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2DC6:
+    .byte   0x48, 0xE7, 0xFF, 0xF8	| 408EC7E6
+    linkw %fp,#-16
+    moveq #32,%d7
+    jbra rsrc_PACK_4_408E9A20_2D80_5C
+
+/* subroutine (62 instructions): calls rsrc_PACK_4_408E9A20_22DE, rsrc_PACK_4_408E9A20_21E0, rsrc_PACK_4_408E9A20, rsrc_PACK_4_408E9A20_265C, rsrc_PACK_4_408E9A20_2EA0 (mechanical summary) */
+rsrc_PACK_4_408E9A20_2DD2:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    clrw %d7
+rsrc_PACK_4_408E9A20_2D80_5C:  /* from here: pea %fp@(-2) */
+    pea %fp@(-2)
+    jbsr rsrc_PACK_4_408E9A20_22DE
+    bclr #7,0xa4b
+    movew %fp@(-2),%d3
+    andiw #24576,%d3
+    jbeq rsrc_PACK_4_408E9A20_2D80_80
+    movew %d3,%fp@(-4)
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_21E0
+rsrc_PACK_4_408E9A20_2D80_80:  /* set %a3 */
+    moveal %fp@(64),%a3
+    lea %fp@(-16),%a0
+    movel %a0,%fp@(64)
+    movel %a3,%sp@-
+    movel %a0,%sp@-
+    movew %d7,%sp@-
+    addiw #14,%sp@
+    jbsr rsrc_PACK_4_408E9A20
+    tstb %d7
+    jbeq rsrc_PACK_4_408E9A20_2D80_AA
+    movel %fp@(-12),%fp@(-14)
+    movel %fp@(-8),%fp@(-10)
+rsrc_PACK_4_408E9A20_2D80_AA:  /* set %a1 */
+    moveal %fp@(68),%a1
+    movel %a1@,%d2
+    moveal %fp@(60),%a1
+    movew %a0@+,%d0
+    clrw %a1@
+    bclr #15,%d0
+    jbeq rsrc_PACK_4_408E9A20_2D80_C2
+    moveb #1,%a1@
+rsrc_PACK_4_408E9A20_2D80_C2:  /* set %d4 */
+    movel %a0@+,%d4
+    movel %a0@,%d5
+    moveb #1,%a1@(4)
+    cmpiw #32767,%d0
+    jbne rsrc_PACK_4_408E9A20_2D80_EA
+    movel %d4,%d0
+    andil #2147483647,%d0
+    jbne rsrc_PACK_4_408E9A20_2D80_F6
+    tstl %d5
+    jbne rsrc_PACK_4_408E9A20_2D80_F6
+    moveq #73,%d0
+rsrc_PACK_4_408E9A20_2D80_E2:  /* loop: move */
+    moveb %d0,%a1@(5)
+    jbra rsrc_PACK_4_408E9A20_2EA0_C0
+rsrc_PACK_4_408E9A20_2D80_EA:  /* test %d4 */
+    tstl %d4
+    jbne rsrc_PACK_4_408E9A20_2EA0_1C
+    tstl %d5
+    jbne rsrc_PACK_4_408E9A20_2EA0_1C
+    moveq #48,%d0
+    jbra rsrc_PACK_4_408E9A20_2D80_E2
+rsrc_PACK_4_408E9A20_2D80_F6:  /* set bit 30 of %d4 */
+    bset #30,%d4
+    jbne rsrc_PACK_4_408E9A20_2D80_108
+    clrw %sp@-
+    pea %sp@
+    jbsr rsrc_PACK_4_408E9A20_265C
+    lea %sp@(2),%sp
+rsrc_PACK_4_408E9A20_2D80_108:  /* add 4 to %a1 */
+    addql #4,%a1
+    moveb #17,%a1@+
+    moveb #78,%a1@+
+    jbsr rsrc_PACK_4_408E9A20_2EA0
+    movel %d5,%d4
+    jbsr rsrc_PACK_4_408E9A20_2EA0
+    subaw #22,%a1
+    jbra rsrc_PACK_4_408E9A20_2EA0_C0
+
+/* subroutine (105 instructions): calls rsrc_PACK_4_408E9A20_3486, rsrc_PACK_4_408E9A20_215E, rsrc_PACK_4_408E9A20_21E0, rsrc_PACK_4_408E9A20_22BA (mechanical summary) */
+rsrc_PACK_4_408E9A20_2EA0:
+    moveq #8,%d0
+rsrc_PACK_4_408E9A20_2EA0_2:  /* loop: ro */
+    roll #4,%d4
+    moveq #15,%d1
+    andb %d4,%d1
+    orib #48,%d1
+    cmpib #57,%d1
+    jble rsrc_PACK_4_408E9A20_2EA0_14
+    addqb #7,%d1
+rsrc_PACK_4_408E9A20_2EA0_14:  /* set %a1@+ */
+    moveb %d1,%a1@+
+    subqw #1,%d0
+    jbne rsrc_PACK_4_408E9A20_2EA0_2
+    rts
+rsrc_PACK_4_408E9A20_2EA0_1C:  /* test %d4 */
+    tstl %d4
+    jbmi rsrc_PACK_4_408E9A20_2EA0_28
+rsrc_PACK_4_408E9A20_2EA0_20:  /* loop: subq */
+    subqw #1,%d0
+    addl %d5,%d5
+    addxl %d4,%d4
+    jbpl rsrc_PACK_4_408E9A20_2EA0_20
+rsrc_PACK_4_408E9A20_2EA0_28:  /* set %d1 */
+    movel %d4,%d1
+    movew %d0,%d1
+    subiw #16383,%d1
+    swap %d1
+    addw %d1,%d1
+    movel #1292913986,%d0
+    tstl %d1
+    jbpl rsrc_PACK_4_408E9A20_2EA0_40
+    addqw #1,%d0
+rsrc_PACK_4_408E9A20_2EA0_40:  /* set %d4 */
+    movel %d0,%d4
+    swap %d4
+    muluw %d1,%d4
+    clrw %d4
+    swap %d4
+    swap %d1
+    movew %d1,%d5
+    mulsw %d0,%d5
+    swap %d5
+    extl %d5
+    addl %d5,%d4
+    swap %d0
+    mulsw %d1,%d0
+    addl %d0,%d4
+    swap %d4
+    movew %d2,%d1
+    jbmi rsrc_PACK_4_408E9A20_2EA0_6E
+    cmpiw #8192,%d1
+    jblt rsrc_PACK_4_408E9A20_2EA0_78
+    movew #8192,%d1
+    jbra rsrc_PACK_4_408E9A20_2EA0_78
+rsrc_PACK_4_408E9A20_2EA0_6E:  /* test #-8192,%d1 */
+    cmpiw #-8192,%d1
+    jbgt rsrc_PACK_4_408E9A20_2EA0_78
+    movew #-8192,%d1
+rsrc_PACK_4_408E9A20_2EA0_78:  /* from here: swap %d2 */
+    swap %d2
+    rorw #8,%d2
+    tstb %d2
+    jbne rsrc_PACK_4_408E9A20_2EA0_86
+    tstw %d1
+    jbgt rsrc_PACK_4_408E9A20_2EA0_86
+    moveq #1,%d1
+rsrc_PACK_4_408E9A20_2EA0_86:  /* loop: addq */
+    addqw #1,%d4
+    movew %d1,%d5
+    tstb %d2
+    jbeq rsrc_PACK_4_408E9A20_2EA0_90
+    addw %d4,%d5
+rsrc_PACK_4_408E9A20_2EA0_90:  /* test #19,%d5 */
+    cmpiw #19,%d5
+    jble rsrc_PACK_4_408E9A20_2EA0_9A
+    movew #19,%d5
+rsrc_PACK_4_408E9A20_2EA0_9A:  /* set %a1@(2) */
+    movew %d5,%a1@(2)
+    subw %d4,%a1@(2)
+    tstw %d5
+    jbgt rsrc_PACK_4_408E9A20_2EA0_A8
+    moveq #1,%d5
+rsrc_PACK_4_408E9A20_2EA0_A8:  /* set %sp@- */
+    movel %fp@(64),%sp@-
+    movel %a1,%sp@-
+    moveb %d5,%a1@(4)
+    jsr %pc@(rsrc_PACK_4_408E9A20_3486)
+    cmpb %a1@(4),%d5
+    jbcs rsrc_PACK_4_408E9A20_2EA0_86
+    negw %a1@(2)
+rsrc_PACK_4_408E9A20_2EA0_C0:  /* from here: pea %fp@(-4) */
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    movew %fp@(-4),%d0
+    andiw #7936,%d0
+    orw %d0,%fp@(-2)
+    pea %fp@(-2)
+    jbsr rsrc_PACK_4_408E9A20_21E0
+    rorw #8,%d0
+    andw %fp@(-2),%d0
+    jbeq rsrc_PACK_4_408E9A20_2EA0_110
+    movel %fp@(4),%fp@(-6)
+    movew %d0,%fp@(-10)
+    pea %fp@(-10)
+    movel %fp@(68),%sp@-
+    movel %a3,%sp@-
+    movel %fp@(60),%sp@-
+    movew %d7,%sp@-
+    addiw #11,%sp@
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_22BA
+    moveal %fp@(-4),%a0
+    jsr %a0@
+rsrc_PACK_4_408E9A20_2EA0_110:  /* return */
+    unlk %fp
+    moveml %sp@+,%d0-%a4
+    movel %sp@,%sp@(12)
+    lea %sp@(12),%sp
+    rts
+
+/* subroutine (5 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2FC0:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #10240,%d7
+    movew #24576,%d0
+    jbra rsrc_PACK_4_408E9A20_2FC0_58
+
+/* subroutine (2 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2FD2:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #8192,%d7
+    movew #24576,%d0
+    jbra rsrc_PACK_4_408E9A20_2FC0_58
+
+/* subroutine (2 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2FE4:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #12288,%d7
+    movew #24576,%d0
+    jbra rsrc_PACK_4_408E9A20_2FC0_58
+
+/* subroutine (2 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_2FF6:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #4096,%d7
+    movew #24640,%d0
+    jbra rsrc_PACK_4_408E9A20_2FC0_58
+
+/* subroutine (6 instructions): calls rsrc_PACK_4_408E9A20_22DE; low memory FPState (mechanical summary) */
+rsrc_PACK_4_408E9A20_3008:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    movew #2048,%d7
+    movew #24672,%d0
+rsrc_PACK_4_408E9A20_2FC0_58:  /* from here: pea %fp@(-2) */
+    pea %fp@(-2)
+    jbsr rsrc_PACK_4_408E9A20_22DE
+    movew %fp@(-2),%d3
+    andw %d0,%d3
+    oriw #128,FPState
+    jbra rsrc_PACK_4_408E9A20_2FC0_A2
+
+/* subroutine (4 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_302E:
+    .short  0x48E7, 0xFFF8	| 408ECA4E
+    linkw %fp,#-16
+    moveq #32,%d7
+    movew #24672,%d0
+    jbra rsrc_PACK_4_408E9A20_2FC0_8C
+
+/* subroutine (39 instructions): calls rsrc_PACK_4_408E9A20_22DE, rsrc_PACK_4_408E9A20_21E0, rsrc_PACK_4_408E9A20_30BE (mechanical summary) */
+rsrc_PACK_4_408E9A20_303E:
+    moveml %d0-%a4,%sp@-
+    linkw %fp,#-16
+    clrw %d7
+    movew #24672,%d0
+rsrc_PACK_4_408E9A20_2FC0_8C:  /* from here: pea %fp@(-2) */
+    pea %fp@(-2)
+    jbsr rsrc_PACK_4_408E9A20_22DE
+    bclr #7,0xa4b
+    movew %fp@(-2),%d3
+    andw %d0,%d3
+    jbeq rsrc_PACK_4_408E9A20_2FC0_AE
+rsrc_PACK_4_408E9A20_2FC0_A2:  /* set %fp@(-4) */
+    movew %d3,%fp@(-4)
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_21E0
+rsrc_PACK_4_408E9A20_2FC0_AE:  /* set %a3 */
+    moveal %fp@(60),%a3
+    cmpiw #32,%d7
+    jble rsrc_PACK_4_408E9A20_2FC0_C0
+    lea %fp@(-16),%a0
+    movel %a0,%fp@(60)
+rsrc_PACK_4_408E9A20_2FC0_C0:  /* set %a2 */
+    moveal %fp@(64),%a2
+    lea %a2@(4),%a4
+    moveq #0,%d4
+    movel %d4,%d5
+    moveb %a4@+,%d6
+    jbeq rsrc_PACK_4_408E9A20_30DC_22
+    moveb %a4@,%d0
+    cmpib #73,%d0
+    jbeq rsrc_PACK_4_408E9A20_30DC_16
+    cmpib #78,%d0
+    jbne rsrc_PACK_4_408E9A20_30DC_1C
+    moveb %a4@(-1),%d2
+    addql #1,%a4
+    subqb #1,%d2
+    moveq #8,%d0
+    cmpib #4,%d2
+    jbge rsrc_PACK_4_408E9A20_2FC0_F2
+    subqb #4,%d0
+    addb %d2,%d0
+rsrc_PACK_4_408E9A20_2FC0_F2:  /* call rsrc_PACK_4_408E9A20_30BE */
+    jbsr rsrc_PACK_4_408E9A20_30BE
+    movel %d5,%d4
+    moveq #0,%d5
+    moveq #8,%d0
+    jbsr rsrc_PACK_4_408E9A20_30BE
+    jbra rsrc_PACK_4_408E9A20_30DC
+
+/* subroutine (97 instructions): calls rsrc_PACK_4_408E9A20_31F0, rsrc_PACK_4_408E9A20, rsrc_PACK_4_408E9A20_215E, rsrc_PACK_4_408E9A20_21E0, rsrc_PACK_4_408E9A20_22BA (mechanical summary) */
+rsrc_PACK_4_408E9A20_30BE:
+    roll #4,%d5
+    subqb #1,%d2
+    jbmi rsrc_PACK_4_408E9A20_30BE_18
+    moveb %a4@+,%d1
+    cmpib #57,%d1
+    jble rsrc_PACK_4_408E9A20_30BE_12
+    addib #9,%d1
+rsrc_PACK_4_408E9A20_30BE_12:  /* from here: andib #15,%d1 */
+    andib #15,%d1
+    orb %d1,%d5
+rsrc_PACK_4_408E9A20_30BE_18:  /* subtract 1 to %d0 */
+    subqw #1,%d0
+    jbne rsrc_PACK_4_408E9A20_30BE
+    rts
+
+rsrc_PACK_4_408E9A20_30DC:  /* set bit 30 of %d4 */
+    bset #30,%d4
+    movel %d4,%d0
+    swap %d0
+    andib #0xff,%d0
+    jbne rsrc_PACK_4_408E9A20_30DC_16
+    oriw #21,%d0
+    swap %d0
+    movel %d0,%d4
+rsrc_PACK_4_408E9A20_30DC_16:  /* set %d0 */
+    movew #32767,%d0
+    jbra rsrc_PACK_4_408E9A20_30DC_24
+rsrc_PACK_4_408E9A20_30DC_1C:  /* test #48,%d0 */
+    cmpib #48,%d0
+    jbne rsrc_PACK_4_408E9A20_30DC_5A
+rsrc_PACK_4_408E9A20_30DC_22:  /* clear %d0 */
+    moveq #0,%d0
+rsrc_PACK_4_408E9A20_30DC_24:  /* test %a2@ */
+    tstb %a2@
+    jbeq rsrc_PACK_4_408E9A20_30DC_2C
+    bset #15,%d0
+rsrc_PACK_4_408E9A20_30DC_2C:  /* set %a0 */
+    moveal %fp@(60),%a0
+    movew %d0,%a0@+
+    movel %d4,%a0@+
+    movel %d5,%a0@
+    jbra rsrc_PACK_4_408E9A20_30DC_6C
+rsrc_PACK_4_408E9A20_30DC_38:  /* loop: move */
+    movew %a2@(2),%sp@-
+    moveq #0,%d0
+    moveb %d6,%d0
+    subiw #19,%d0
+    subw %d0,%a2@(2)
+    movel %fp@(60),%sp@-
+    movel %fp@(64),%sp@-
+    jsr %pc@(rsrc_PACK_4_408E9A20_31F0)
+    movew %sp@+,%a2@(2)
+    jbra rsrc_PACK_4_408E9A20_30DC_6C
+rsrc_PACK_4_408E9A20_30DC_5A:  /* test #19,%d6 */
+    cmpib #19,%d6
+    jbhi rsrc_PACK_4_408E9A20_30DC_38
+    movel %fp@(60),%sp@-
+    movel %fp@(64),%sp@-
+    jsr %pc@(rsrc_PACK_4_408E9A20_31F0)
+rsrc_PACK_4_408E9A20_30DC_6C:  /* test #32,%d7 */
+    cmpiw #32,%d7
+    jblt rsrc_PACK_4_408E9A20_30DC_B6
+    jbgt rsrc_PACK_4_408E9A20_30DC_82
+    movel %a3@(6),%a3@(8)
+    movel %a3@(2),%a3@(4)
+    jbra rsrc_PACK_4_408E9A20_30DC_B6
+rsrc_PACK_4_408E9A20_30DC_82:  /* from here: pea %fp@(-16) */
+    pea %fp@(-16)
+    movel %a3,%sp@-
+    movew %d7,%sp@-
+    addiw #16,%sp@
+    jbsr rsrc_PACK_4_408E9A20
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    movew %fp@(-4),%d0
+    btst #8,%d0
+    jbeq rsrc_PACK_4_408E9A20_30DC_AA
+    andiw #-7681,%d0
+    jbra rsrc_PACK_4_408E9A20_30DC_C2
+rsrc_PACK_4_408E9A20_30DC_AA:  /* test #4096,%d7 */
+    cmpiw #4096,%d7
+    jble rsrc_PACK_4_408E9A20_30DC_C2
+    andiw #-513,%d0
+    jbra rsrc_PACK_4_408E9A20_30DC_C2
+rsrc_PACK_4_408E9A20_30DC_B6:  /* from here: pea %fp@(-4) */
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    movew %fp@(-4),%d0
+rsrc_PACK_4_408E9A20_30DC_C2:  /* from here: andiw #7936,%d0 */
+    andiw #7936,%d0
+    orw %d0,%fp@(-2)
+    pea %fp@(-2)
+    jbsr rsrc_PACK_4_408E9A20_21E0
+    rorw #8,%d0
+    andw %fp@(-2),%d0
+    jbeq rsrc_PACK_4_408E9A20_30DC_104
+    movel %fp@(4),%fp@(-6)
+    movew %d0,%fp@(-10)
+    pea %fp@(-10)
+    subqw #4,%sp
+    movel %fp@(64),%sp@-
+    movel %a3,%sp@-
+    movew %d7,%sp@-
+    addiw #9,%sp@
+    pea %fp@(-4)
+    jbsr rsrc_PACK_4_408E9A20_22BA
+    moveal %fp@(-4),%a0
+    jsr %a0@
+rsrc_PACK_4_408E9A20_30DC_104:  /* return */
+    unlk %fp
+    moveml %sp@+,%d0-%a4
+    movel %sp@,%sp@(8)
+    lea %sp@(8),%sp
+    rts
+
+/* subroutine (80 instructions): calls rsrc_PACK_4_408E9A20_38E2, rsrc_PACK_4_408E9A20_3AA2, rsrc_PACK_4_408E9A20_3438, rsrc_PACK_4_408E9A20_39B0, rsrc_PACK_4_408E9A20_365C ... (mechanical summary) */
+rsrc_PACK_4_408E9A20_31F0:
+    moveml %d0-%d7/%a1-%a4,%sp@-
+    linkw %fp,#-160
+    moveal %fp@(56),%a0
+    addqw #2,%a0
+    movew %a0@,%d0
+    jblt rsrc_PACK_4_408E9A20_32D6_62
+    jbsr rsrc_PACK_4_408E9A20_38E2
+    jbsr rsrc_PACK_4_408E9A20_3AA2
+    jbsr rsrc_PACK_4_408E9A20_3438
+    movel %fp@(-16),%fp@(-12)
+    jbsr rsrc_PACK_4_408E9A20_39B0
+    moveal %a1,%a3
+    movew #79,%d6
+    movew %d1,%d2
+    moveal %a3,%a2
+rsrc_PACK_4_408E9A20_31F0_34:  /* loop: subi */
+    subiw #16,%d6
+    movew %a2@+,%d0
+    jbne rsrc_PACK_4_408E9A20_31F0_44
+    dbf %d2,rsrc_PACK_4_408E9A20_31F0_34
+rsrc_PACK_4_408E9A20_31F0_40:  /* loop: addq */
+    addqw #1,%d6
+    lslw #1,%d0
+rsrc_PACK_4_408E9A20_31F0_44:  /* from here: jbpl rsrc_PACK_4_408E9A20_31F0_40 */
+    jbpl rsrc_PACK_4_408E9A20_31F0_40
+    moveq #-1,%d5
+    jbsr rsrc_PACK_4_408E9A20_365C
+    movew %d1,%d7
+    aslw #4,%d7
+    moveal %fp@(56),%a0
+    addqw #2,%a0
+    addw %a0@,%d7
+    addiw #16398,%d7
+    jbsr rsrc_PACK_4_408E9A20_32D6
+    tstl %d4
+    jbmi rsrc_PACK_4_408E9A20_31F0_6E
+rsrc_PACK_4_408E9A20_31F0_64:  /* loop: subq */
+    subqw #1,%d7
+    asll #1,%d6
+    roxll #1,%d5
+    roxll #1,%d4
+    jbpl rsrc_PACK_4_408E9A20_31F0_64
+rsrc_PACK_4_408E9A20_31F0_6E:  /* set %a0 */
+    moveal %fp@(60),%a0
+    cmpiw #32767,%d7
+    jbcc rsrc_PACK_4_408E9A20_31F0_88
+    aslw #1,%d7
+rsrc_PACK_4_408E9A20_31F0_7A:  /* loop: as */
+    aslw %a0@
+    roxrw #1,%d7
+    movew %d7,%a0@+
+    movel %d4,%a0@+
+    movel %d5,%a0@
+    jbra rsrc_PACK_4_408E9A20_34C6
+rsrc_PACK_4_408E9A20_31F0_88:  /* set %sp@- */
+    movew #2,%sp@-
+    pea %sp@
+    jbsr rsrc_PACK_4_408E9A20_265C
+    movew #4,%sp@
+    pea %sp@
+    jbsr rsrc_PACK_4_408E9A20_265C
+    lea %sp@(2),%sp
+    pea %fp@(-20)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    lea %fp@(-20),%a4
+    movew %a4@,%d2
+    btst #14,%d2
+    jbne rsrc_PACK_4_408E9A20_31F0_C4
+    btst #13,%d2
+    jbeq rsrc_PACK_4_408E9A20_31F0_DC
+    moveal %fp@(60),%a4
+    movew %a4@,%d2
+    jbpl rsrc_PACK_4_408E9A20_31F0_DC
+    jbra rsrc_PACK_4_408E9A20_31F0_D2
+rsrc_PACK_4_408E9A20_31F0_C4:  /* test bit 13 of %d2 */
+    btst #13,%d2
+    jbne rsrc_PACK_4_408E9A20_31F0_D2
+    moveal %fp@(60),%a4
+    movew %a4@,%d2
+    jbmi rsrc_PACK_4_408E9A20_31F0_DC
+rsrc_PACK_4_408E9A20_31F0_D2:  /* set %d7 */
+    movew #-4,%d7
+    moveq #-1,%d4
+    moveq #-1,%d5
+    jbra rsrc_PACK_4_408E9A20_31F0_7A
+rsrc_PACK_4_408E9A20_31F0_DC:  /* set %d7 */
+    movew #-2,%d7
+    moveq #0,%d4
+    moveq #0,%d5
+    jbra rsrc_PACK_4_408E9A20_31F0_7A
+
+/* subroutine (92 instructions): calls rsrc_PACK_4_408E9A20_38CE, rsrc_PACK_4_408E9A20_3438, rsrc_PACK_4_408E9A20_378A, rsrc_PACK_4_408E9A20_37F0, rsrc_PACK_4_408E9A20_365C ... (mechanical summary) */
+rsrc_PACK_4_408E9A20_32D6:
+    moveq #0,%d4
+    moveq #0,%d5
+    moveq #0,%d6
+    tstw %d1
+    jbgt rsrc_PACK_4_408E9A20_32D6_10
+    movew %a3@+,%d4
+    swap %d4
+    rts
+rsrc_PACK_4_408E9A20_32D6_10:  /* set %d4 */
+    movel %a3@+,%d4
+    subqw #2,%d1
+    jbgt rsrc_PACK_4_408E9A20_32D6_20
+    jblt rsrc_PACK_4_408E9A20_32D6_B2
+    movew %a3@+,%d5
+    swap %d5
+    rts
+rsrc_PACK_4_408E9A20_32D6_20:  /* set %d5 */
+    movel %a3@+,%d5
+    subqw #2,%d1
+    jbgt rsrc_PACK_4_408E9A20_32D6_30
+    jblt rsrc_PACK_4_408E9A20_32D6_B2
+    movew %a3@+,%d6
+    swap %d6
+    rts
+rsrc_PACK_4_408E9A20_32D6_30:  /* set %d6 */
+    movel %a3@+,%d6
+    rts
+rsrc_PACK_4_408E9A20_32D6_34:  /* loop: move */
+    movew %d1,%d4
+    cmpw %d3,%d1
+    jbge rsrc_PACK_4_408E9A20_32D6_3C
+    movew %d3,%d4
+rsrc_PACK_4_408E9A20_32D6_3C:  /* test %d4 */
+    tstw %d4
+    jbeq rsrc_PACK_4_408E9A20_32D6_76
+    lea %a1@(2),%a2
+    lea %a3@(2),%a4
+    moveq #0,%d2
+rsrc_PACK_4_408E9A20_32D6_4A:  /* loop: addq */
+    addqw #1,%d2
+    cmpw %d2,%d1
+    jbge rsrc_PACK_4_408E9A20_32D6_52
+    clrw %a2@
+rsrc_PACK_4_408E9A20_32D6_52:  /* test %d2,%d3 */
+    cmpw %d2,%d3
+    jbge rsrc_PACK_4_408E9A20_32D6_58
+    clrw %a4@
+rsrc_PACK_4_408E9A20_32D6_58:  /* test %a4@+,%a2@+ */
+    cmpmw %a4@+,%a2@+
+    jbne rsrc_PACK_4_408E9A20_32D6_76
+    cmpw %d2,%d4
+    jbgt rsrc_PACK_4_408E9A20_32D6_4A
+    jbra rsrc_PACK_4_408E9A20_32D6_76
+rsrc_PACK_4_408E9A20_32D6_62:  /* call rsrc_PACK_4_408E9A20_38CE */
+    jbsr rsrc_PACK_4_408E9A20_38CE
+    jbsr rsrc_PACK_4_408E9A20_3438
+    jbsr rsrc_PACK_4_408E9A20_378A
+    moveal %a4,%a3
+    moveq #4,%d6
+    cmpw %a3@,%d0
+    jbeq rsrc_PACK_4_408E9A20_32D6_34
+rsrc_PACK_4_408E9A20_32D6_76:  /* from here: jbhi rsrc_PACK_4_408E9A20_32D6_7E */
+    jbhi rsrc_PACK_4_408E9A20_32D6_7E
+    addqw #1,%d3
+    clrw %a3@-
+    moveq #5,%d6
+rsrc_PACK_4_408E9A20_32D6_7E:  /* set %d2 */
+    movew %d3,%d2
+    aslw #4,%d2
+    subw %d7,%d2
+    addiw #16382,%d2
+    movew %d2,%sp@-
+    jbsr rsrc_PACK_4_408E9A20_37F0
+    moveq #0,%d6
+    movew %a3@,%d0
+    jbra rsrc_PACK_4_408E9A20_32D6_98
+rsrc_PACK_4_408E9A20_32D6_94:  /* loop: addq */
+    addqw #1,%d6
+    lslw #1,%d0
+rsrc_PACK_4_408E9A20_32D6_98:  /* from here: jbpl rsrc_PACK_4_408E9A20_32D6_94 */
+    jbpl rsrc_PACK_4_408E9A20_32D6_94
+    movew %sp@+,%d7
+    moveal %d7,%a1
+    subw %d6,%d7
+    jbmi rsrc_PACK_4_408E9A20_33AA_16
+    addiw #63,%d6
+    moveq #-1,%d5
+    jbsr rsrc_PACK_4_408E9A20_365C
+    movel %a1,%d7
+    jbsr rsrc_PACK_4_408E9A20_32D6
+rsrc_PACK_4_408E9A20_32D6_B2:  /* test %d4 */
+    tstl %d4
+    jbmi rsrc_PACK_4_408E9A20_32D6_C0
+rsrc_PACK_4_408E9A20_32D6_B6:  /* loop: subq */
+    subqw #1,%d7
+    asll #1,%d6
+    roxll #1,%d5
+    roxll #1,%d4
+    jbpl rsrc_PACK_4_408E9A20_32D6_B6
+rsrc_PACK_4_408E9A20_32D6_C0:  /* set %a0 */
+    moveal %fp@(60),%a0
+    aslw #1,%d7
+    aslw %a0@
+    roxrw #1,%d7
+    movew %d7,%a0@+
+    movel %d4,%a0@+
+    movel %d5,%a0@
+    jbra rsrc_PACK_4_408E9A20_34C6
+
+/* subroutine (56 instructions): traps FP68K; calls rsrc_PACK_4_408E9A20_33AA, rsrc_PACK_4_408E9A20_365C, rsrc_PACK_4_408E9A20_32D6 (mechanical summary) */
+rsrc_PACK_4_408E9A20_33AA:
+    tstw %d0
+    jbge rsrc_PACK_4_408E9A20_33AA_14
+    clrw %a3@-
+    addqw #1,%d1
+    addiw #16,%d6
+    subiw #16,%d7
+    addiw #16,%d0
+rsrc_PACK_4_408E9A20_33AA_14:  /* return */
+    rts
+rsrc_PACK_4_408E9A20_33AA_16:  /* set %d0 */
+    movel %a1,%d0
+    cmpiw #-66,%d0
+    jbpl rsrc_PACK_4_408E9A20_33AA_26
+    movew #-66,%d7
+    movew %d7,%d0
+    subw %d6,%d7
+rsrc_PACK_4_408E9A20_33AA_26:  /* from here: addw %d7,%d6 */
+    addw %d7,%d6
+    jbsr rsrc_PACK_4_408E9A20_33AA
+    jbsr rsrc_PACK_4_408E9A20_33AA
+    jbsr rsrc_PACK_4_408E9A20_33AA
+    jbsr rsrc_PACK_4_408E9A20_33AA
+    jbsr rsrc_PACK_4_408E9A20_33AA
+    addiw #63,%d6
+    movew %d0,%sp@-
+    moveq #-1,%d5
+    moveal %a3,%a1
+    jbsr rsrc_PACK_4_408E9A20_365C
+    moveal %a1,%a3
+    movew %sp@+,%d7
+    jbsr rsrc_PACK_4_408E9A20_32D6
+    tstl %d4
+    jbmi rsrc_PACK_4_408E9A20_33AA_5A
+rsrc_PACK_4_408E9A20_33AA_4C:  /* loop: tst */
+    tstw %d7
+    jble rsrc_PACK_4_408E9A20_33AA_5A
+    subqw #1,%d7
+    asll #1,%d6
+    roxll #1,%d5
+    roxll #1,%d4
+    jbpl rsrc_PACK_4_408E9A20_33AA_4C
+rsrc_PACK_4_408E9A20_33AA_5A:  /* set %a0 */
+    moveal %fp@(60),%a0
+    aslw #1,%d7
+    aslw %a0@
+    roxrw #1,%d7
+    movew %d7,%a0@+
+    movel %d4,%a0@+
+    movel %d5,%a0@
+    tstl %d4
+    jbmi rsrc_PACK_4_408E9A20_33AA_8A
+    movew #1,%sp@-
+    pea %sp@
+    movew #21,%sp@-
+    _FP68K
+    movew #4,%sp@
+    pea %sp@
+    movew #21,%sp@-
+    _FP68K
+    lea %sp@(2),%sp
+rsrc_PACK_4_408E9A20_33AA_8A:  /* continue at rsrc_PACK_4_408E9A20_34C6 */
+    jbra rsrc_PACK_4_408E9A20_34C6
+
+/* subroutine (31 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3438:
+    moveq #0,%d3
+    moveal %fp@(-16),%a3
+    subql #2,%a3
+    clrw %a3@+
+    moveal %fp@(56),%a0
+    moveal %fp@(60),%a4
+    tstb %a0@
+    jbeq rsrc_PACK_4_408E9A20_3438_1C
+    bset #7,%a4@
+    jbra rsrc_PACK_4_408E9A20_3438_20
+rsrc_PACK_4_408E9A20_3438_1C:  /* clear bit 7 of %a4@ */
+    bclr #7,%a4@
+rsrc_PACK_4_408E9A20_3438_20:  /* add 4 to %a0 */
+    addql #4,%a0
+    moveq #0,%d0
+    moveb %a0@+,%d0
+    jbra rsrc_PACK_4_408E9A20_3438_48
+rsrc_PACK_4_408E9A20_3438_28:  /* loop: moveq */
+    moveq #15,%d7
+    andb %a0@+,%d7
+    moveal %a3,%a4
+    movew %d3,%d4
+rsrc_PACK_4_408E9A20_3438_30:  /* loop: move */
+    movew %a4@-,%d6
+    muluw #10,%d6
+    addl %d6,%d7
+    movew %d7,%a4@
+    clrw %d7
+    swap %d7
+    dbf %d4,rsrc_PACK_4_408E9A20_3438_30
+    jbeq rsrc_PACK_4_408E9A20_3438_48
+    movew %d7,%a4@-
+    addqw #1,%d3
+rsrc_PACK_4_408E9A20_3438_48:  /* count down */
+    dbf %d0,rsrc_PACK_4_408E9A20_3438_28
+    rts
+
+/* subroutine (43 instructions): calls rsrc_PACK_4_408E9A20_38E2, rsrc_PACK_4_408E9A20_35C2, rsrc_PACK_4_408E9A20_38CE, rsrc_PACK_4_408E9A20_376C, rsrc_PACK_4_408E9A20_37B6 ... (mechanical summary) */
+rsrc_PACK_4_408E9A20_3486:
+    moveml %d0-%d7/%a1-%a4,%sp@-
+    linkw %fp,#-160
+    moveal %fp@(56),%a0
+    addqw #2,%a0
+    movew %a0@,%d0
+    jble rsrc_PACK_4_408E9A20_3486_1C
+    jbsr rsrc_PACK_4_408E9A20_38E2
+    jbsr rsrc_PACK_4_408E9A20_35C2
+    jbra rsrc_PACK_4_408E9A20_3486_2E
+rsrc_PACK_4_408E9A20_3486_1C:  /* call rsrc_PACK_4_408E9A20_38CE */
+    jbsr rsrc_PACK_4_408E9A20_38CE
+    jbsr rsrc_PACK_4_408E9A20_376C
+    jbsr rsrc_PACK_4_408E9A20_37B6
+    moveq #0,%d5
+    jbsr rsrc_PACK_4_408E9A20_365C
+rsrc_PACK_4_408E9A20_3486_2E:  /* call rsrc_PACK_4_408E9A20_3518 */
+    bsrw rsrc_PACK_4_408E9A20_3518
+rsrc_PACK_4_408E9A20_3486_32:  /* return */
+    unlk %fp
+    moveml %sp@+,%d0-%d7/%a1-%a4
+    moveal %sp@+,%a0
+    lea %sp@(8),%sp
+    jmp %a0@
+
+rsrc_PACK_4_408E9A20_34C6:  /* from here: pea %fp@(-20) */
+    pea %fp@(-20)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    lea %fp@(-20),%a0
+    movew %a0@,%d4
+    andiw #96,%d4
+    jbeq rsrc_PACK_4_408E9A20_3486_32
+    pea %pc@(rsrc_PACK_4_408E9A20_3AB6)
+    movel %fp@(60),%sp@-
+    movew #8196,%sp@-
+    jbsr rsrc_PACK_4_408E9A20
+    pea %fp@(-20)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    lea %fp@(-20),%a0
+    movew %a0@,%d4
+    andiw #-97,%d4
+    movew %d4,%a0@
+    pea %fp@(-20)
+    jbsr rsrc_PACK_4_408E9A20_21E0
+    pea %pc@(rsrc_PACK_4_408E9A20_3AB6)
+    movel %fp@(60),%sp@-
+    movew #8196,%sp@-
+    jbsr rsrc_PACK_4_408E9A20
+    jbra rsrc_PACK_4_408E9A20_3486_32
+
+/* subroutine (57 instructions): calls rsrc_PACK_4_408E9A20_359E (mechanical summary) */
+rsrc_PACK_4_408E9A20_3518:
+    moveal %fp@(-12),%a1
+    clrl %a1@
+    moveq #0,%d3
+    tstw %d6
+    moveal %a1,%a2
+    jbmi rsrc_PACK_4_408E9A20_3518_7A
+    addqw #1,%d1
+rsrc_PACK_4_408E9A20_3518_10:  /* loop: moveq */
+    moveq #15,%d5
+    cmpw %d5,%d6
+    jbge rsrc_PACK_4_408E9A20_3518_18
+    movew %d6,%d5
+rsrc_PACK_4_408E9A20_3518_18:  /* subtract 1 to %d1 */
+    subqw #1,%d1
+    jblt rsrc_PACK_4_408E9A20_3518_1E
+    movew %a3@+,%d2
+rsrc_PACK_4_408E9A20_3518_1E:  /* loop: movea */
+    moveal %a1,%a2
+    addw %d2,%d2
+    movel %d3,%d7
+    lea %a2@(4),%a2
+rsrc_PACK_4_408E9A20_3518_28:  /* loop: move */
+    movel %a2@-,%d0
+    abcd %d0,%d0
+    rorl #8,%d0
+    abcd %d0,%d0
+    rorl #8,%d0
+    abcd %d0,%d0
+    rorl #8,%d0
+    abcd %d0,%d0
+    rorl #8,%d0
+    movel %d0,%a2@
+    dbf %d7,rsrc_PACK_4_408E9A20_3518_28
+    moveq #0,%d0
+    abcd %d0,%d0
+    jbeq rsrc_PACK_4_408E9A20_3518_4A
+    addql #1,%d3
+    movel %d0,%a2@-
+rsrc_PACK_4_408E9A20_3518_4A:  /* count down */
+    dbf %d5,rsrc_PACK_4_408E9A20_3518_1E
+    subiw #16,%d6
+    jbge rsrc_PACK_4_408E9A20_3518_10
+    moveal %fp@(56),%a0
+    addqw #4,%a0
+    lea %a0@(1),%a1
+    moveq #0,%d5
+    moveb %a0@,%d5
+rsrc_PACK_4_408E9A20_3518_62:  /* call rsrc_PACK_4_408E9A20_359E (loop) */
+    jbsr rsrc_PACK_4_408E9A20_359E
+    jbsr rsrc_PACK_4_408E9A20_359E
+    jbsr rsrc_PACK_4_408E9A20_359E
+    jbsr rsrc_PACK_4_408E9A20_359E
+    dbf %d3,rsrc_PACK_4_408E9A20_3518_62
+    movew %a1,%d0
+    subw %a0,%d0
+    subqb #1,%d0
+    jbeq rsrc_PACK_4_408E9A20_3518_7A
+    moveb %d0,%a0@
+    rts
+rsrc_PACK_4_408E9A20_3518_7A:  /* set %a0 */
+    moveal %fp@(56),%a0
+    addqw #4,%a0
+    movew #304,%a0@
+    rts
+
+/* subroutine (5 instructions): calls rsrc_PACK_4_408E9A20_35A8 (mechanical summary) */
+rsrc_PACK_4_408E9A20_359E:
+    moveq #0,%d1
+    moveb %a2@+,%d1
+    rorw #4,%d1
+    jbsr rsrc_PACK_4_408E9A20_35A8
+    rolw #4,%d1
+
+/* subroutine (12 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_35A8:
+    tstw %d6
+    jbpl rsrc_PACK_4_408E9A20_35A8_A
+    tstb %d1
+    jbeq rsrc_PACK_4_408E9A20_35A8_18
+    moveq #0,%d6
+rsrc_PACK_4_408E9A20_35A8_A:  /* subtract 1 to %d5 */
+    subql #1,%d5
+    jbmi rsrc_PACK_4_408E9A20_35A8_14
+    orib #48,%d1
+    moveb %d1,%a1@
+rsrc_PACK_4_408E9A20_35A8_14:  /* add 1 to %a1 */
+    addql #1,%a1
+    subb %d1,%d1
+rsrc_PACK_4_408E9A20_35A8_18:  /* return */
+    rts
+
+/* subroutine (64 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_35C2:
+    moveal %fp@(56),%a0
+    addqw #2,%a0
+    movew %a0@,%d6
+    moveal %fp@(60),%a0
+    movew %a0@+,%d7
+    bclr #15,%d7
+    subiw #16447,%d7
+    addw %d6,%d7
+    movew %a0@+,%d3
+    movew %a0@+,%d4
+    movew %a0@+,%d5
+    movew %a0@+,%d6
+    moveal %fp@(-4),%a3
+    addaw #16,%a3
+    moveal %fp@(-4),%a1
+    subql #2,%a1
+    moveal %fp@(-12),%a4
+    subql #2,%a4
+    movew %a1@,%d0
+    movew %d0,%d2
+    muluw %d6,%d2
+    movel %d2,%a3@
+    movew %d0,%d2
+    muluw %d4,%d2
+    movel %d2,%a3@-
+    clrw %a3@-
+    lea %a3@(4),%a3
+    movew %d0,%d2
+    muluw %d5,%d2
+    addl %d2,%a3@
+    muluw %d3,%d0
+    movel %d0,%a4@+
+    addxl %a4@-,%a3@-
+    moveal %d1,%a2
+    subqw #1,%d1
+    jbmi rsrc_PACK_4_408E9A20_35C2_8C
+rsrc_PACK_4_408E9A20_35C2_5A:  /* loop: lea */
+    lea %a3@(4),%a3
+    movew %a1@-,%d0
+    movew %d0,%d2
+    muluw %d6,%d2
+    addl %d2,%a3@
+    movew %d0,%d2
+    muluw %d4,%d2
+    movel %d2,%a4@+
+    addxl %a4@-,%a3@-
+    jbcc rsrc_PACK_4_408E9A20_35C2_76
+    movew #1,%a3@-
+    jbra rsrc_PACK_4_408E9A20_35C2_78
+rsrc_PACK_4_408E9A20_35C2_76:  /* clear %a3@- */
+    clrw %a3@-
+rsrc_PACK_4_408E9A20_35C2_78:  /* address %a3@(4) */
+    lea %a3@(4),%a3
+    movew %d0,%d2
+    muluw %d5,%d2
+    addl %d2,%a3@
+    muluw %d3,%d0
+    movel %d0,%a4@+
+    addxl %a4@-,%a3@-
+    dbf %d1,rsrc_PACK_4_408E9A20_35C2_5A
+rsrc_PACK_4_408E9A20_35C2_8C:  /* set %d1 */
+    movel %a2,%d1
+    addqw #4,%d1
+    movew %d1,%d6
+    addqw #1,%d6
+    aslw #4,%d6
+    addw %d7,%d6
+    moveq #0,%d5
+
+/* subroutine (74 instructions): calls rsrc_PACK_4_408E9A20_372A, rsrc_PACK_4_408E9A20_265C, rsrc_PACK_4_408E9A20_215E (mechanical summary) */
+rsrc_PACK_4_408E9A20_365C:
+    tstw %d6
+    jbge rsrc_PACK_4_408E9A20_365C_18
+    cmpiw #-66,%d6
+    jbpl rsrc_PACK_4_408E9A20_365C_E
+    movew #-66,%d6
+rsrc_PACK_4_408E9A20_365C_E:  /* loop: clr */
+    clrw %a3@-
+    addqw #1,%d1
+    addiw #16,%d6
+    jblt rsrc_PACK_4_408E9A20_365C_E
+rsrc_PACK_4_408E9A20_365C_18:  /* call rsrc_PACK_4_408E9A20_372A */
+    jbsr rsrc_PACK_4_408E9A20_372A
+    tstw %d5
+    jbeq rsrc_PACK_4_408E9A20_365C_A4
+    movew %d6,%d2
+    lsrw #4,%d2
+    lslw #1,%d2
+    lea %a3@(0x0,%d2:w),%a2
+    movew %a2@,%d4
+    movew %d6,%d3
+    andiw #15,%d3
+    movew #-32768,%d0
+    rorw %d3,%d0
+    andw %d0,%d4
+    jbeq rsrc_PACK_4_408E9A20_365C_40
+    addqw #1,%d5
+rsrc_PACK_4_408E9A20_365C_40:  /* set %sp@- */
+    movew #4,%sp@-
+    pea %sp@
+    jbsr rsrc_PACK_4_408E9A20_265C
+    lea %sp@(2),%sp
+    pea %fp@(-20)
+    jbsr rsrc_PACK_4_408E9A20_215E
+    lea %fp@(-20),%a0
+    movew %a0@,%d2
+    bclr #7,%d2
+    tstb 0xa4b
+    jbpl rsrc_PACK_4_408E9A20_365C_6A
+    bset #7,%d2
+rsrc_PACK_4_408E9A20_365C_6A:  /* set %d4 */
+    movew %d2,%d4
+    andiw #224,%d4
+    jbeq rsrc_PACK_4_408E9A20_365C_76
+    orw %d0,%a2@
+    jbra rsrc_PACK_4_408E9A20_365C_A4
+rsrc_PACK_4_408E9A20_365C_76:  /* test bit 14 of %d2 */
+    btst #14,%d2
+    jbne rsrc_PACK_4_408E9A20_365C_B4
+    btst #13,%d2
+    jbne rsrc_PACK_4_408E9A20_365C_C4
+    cmpiw #5,%d5
+    jblt rsrc_PACK_4_408E9A20_365C_A4
+rsrc_PACK_4_408E9A20_365C_88:  /* loop: add */
+    addw %d0,%a2@
+    jbcc rsrc_PACK_4_408E9A20_365C_A4
+rsrc_PACK_4_408E9A20_365C_8C:  /* loop: cmpa */
+    cmpal %a2,%a3
+    jbeq rsrc_PACK_4_408E9A20_365C_96
+    addqw #1,%a2@-
+    jbcs rsrc_PACK_4_408E9A20_365C_8C
+    jbra rsrc_PACK_4_408E9A20_365C_A4
+rsrc_PACK_4_408E9A20_365C_96:  /* set %a3@- */
+    movew #1,%a3@-
+    addqw #1,%d1
+    addiw #16,%d6
+    lea %a1@(16),%a1
+rsrc_PACK_4_408E9A20_365C_A4:  /* loop: tst */
+    tstw %a3@
+    jbne rsrc_PACK_4_408E9A20_365C_B2
+    lea %a3@(2),%a3
+    subqw #1,%d1
+    subiw #16,%d6
+rsrc_PACK_4_408E9A20_365C_B2:  /* return */
+    rts
+rsrc_PACK_4_408E9A20_365C_B4:  /* test bit 13 of %d2 */
+    btst #13,%d2
+    jbne rsrc_PACK_4_408E9A20_365C_A4
+    moveal %fp@(60),%a4
+    movew %a4@,%d2
+    jbmi rsrc_PACK_4_408E9A20_365C_88
+    jbra rsrc_PACK_4_408E9A20_365C_A4
+rsrc_PACK_4_408E9A20_365C_C4:  /* set %a4 */
+    moveal %fp@(60),%a4
+    movew %a4@,%d2
+    jbpl rsrc_PACK_4_408E9A20_365C_88
+    jbra rsrc_PACK_4_408E9A20_365C_A4
+
+/* subroutine (29 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_372A:
+    clrw %d5
+    movew %d6,%d3
+    addqw #1,%d3
+    movel %d3,%d4
+    lsrw #4,%d4
+    cmpw %d1,%d4
+    jble rsrc_PACK_4_408E9A20_372A_10
+    rts
+rsrc_PACK_4_408E9A20_372A_10:  /* from here: andiw #15,%d3 */
+    andiw #15,%d3
+    movew #-32768,%d0
+    rorw %d3,%d0
+    movew %d4,%d2
+    lslw #1,%d2
+    lea %a3@(0x0,%d2:w),%a2
+    andw %a2@,%d0
+    jbeq rsrc_PACK_4_408E9A20_372A_28
+    moveq #4,%d5
+rsrc_PACK_4_408E9A20_372A_28:  /* set %d0 */
+    movew #32767,%d0
+    lsrw %d3,%d0
+    andw %a2@+,%d0
+    jbeq rsrc_PACK_4_408E9A20_372A_3A
+rsrc_PACK_4_408E9A20_372A_32:  /* loop: addq */
+    addqw #2,%d5
+    rts
+rsrc_PACK_4_408E9A20_372A_36:  /* loop: tst */
+    tstw %a2@+
+    jbne rsrc_PACK_4_408E9A20_372A_32
+rsrc_PACK_4_408E9A20_372A_3A:  /* add 1 to %d4 */
+    addqw #1,%d4
+    cmpw %d1,%d4
+    jble rsrc_PACK_4_408E9A20_372A_36
+    rts
+
+/* subroutine (9 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_376C:
+    moveal %fp@(60),%a0
+    movew %a0@+,%d6
+    bclr #15,%d6
+    subiw #16396,%d6
+    moveal %fp@(-16),%a3
+    subaw #52,%a3
+    movel %a0@+,%a3@
+    movel %a0@+,%a3@(4)
+    moveq #3,%d3
+
+/* subroutine (18 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_378A:
+    movew %d1,%d7
+    aslw #4,%d7
+    moveal %fp@(56),%a0
+    addqw #2,%a0
+    subw %a0@,%d7
+    movew %d1,%d5
+    aslw #1,%d5
+    movew %a1@,%d0
+    jbmi rsrc_PACK_4_408E9A20_378A_2A
+rsrc_PACK_4_408E9A20_378A_14:  /* loop: subq */
+    subqw #1,%d7
+    movew %d1,%d4
+    lea %a1@(0x2,%d5:w),%a0
+    movew #0,%ccr
+rsrc_PACK_4_408E9A20_378A_20:  /* loop: rox */
+    roxlw %a0@-
+    dbf %d4,rsrc_PACK_4_408E9A20_378A_20
+    jbpl rsrc_PACK_4_408E9A20_378A_14
+    movew %a1@,%d0
+rsrc_PACK_4_408E9A20_378A_2A:  /* return */
+    rts
+
+/* subroutine (22 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_37B6:
+    subw %d7,%d6
+    jble rsrc_PACK_4_408E9A20_37F0_5A
+    movew %d6,%d4
+    asrw #4,%d6
+    andiw #15,%d4
+    jbeq rsrc_PACK_4_408E9A20_37B6_2E
+    addqw #1,%d3
+    clrw %a3@-
+    subqw #1,%d4
+rsrc_PACK_4_408E9A20_37B6_16:  /* loop: as */
+    aslw %a3@(8)
+    roxlw %a3@(6)
+    roxlw %a3@(4)
+    roxlw %a3@(2)
+    roxlw %a3@
+    dbf %d4,rsrc_PACK_4_408E9A20_37B6_16
+    jbra rsrc_PACK_4_408E9A20_37F0
+rsrc_PACK_4_408E9A20_37B6_2E:  /* test %a3@,%d0 */
+    cmpw %a3@,%d0
+    jbhi rsrc_PACK_4_408E9A20_37B6_38
+    addqw #1,%d3
+    clrw %a3@-
+    jbra rsrc_PACK_4_408E9A20_37F0
+rsrc_PACK_4_408E9A20_37B6_38:  /* subtract 1 to %d6 */
+    subqw #1,%d6
+
+/* subroutine (42 instructions): calls rsrc_PACK_4_408E9A20_3850, rsrc_PACK_4_408E9A20_386E, rsrc_PACK_4_408E9A20_388E (mechanical summary) */
+rsrc_PACK_4_408E9A20_37F0:
+    jbsr rsrc_PACK_4_408E9A20_3850
+    moveal %a3,%a0
+rsrc_PACK_4_408E9A20_37F0_4:  /* loop: move */
+    movel %a0@,%d2
+    divuw %d0,%d2
+    jbvs rsrc_PACK_4_408E9A20_388E_1E
+    swap %d2
+    movel %d2,%a0@
+    swap %d2
+    lea %a0@(2),%a0
+    cmpiw #2,%d5
+    jblt rsrc_PACK_4_408E9A20_37F0_4A
+    jbeq rsrc_PACK_4_408E9A20_37F0_36
+    movew %d5,%d7
+    bclr #1,%d7
+    jbsr rsrc_PACK_4_408E9A20_386E
+    moveq #0,%d4
+    movew %a4@-,%d1
+    subxw %d4,%d1
+    movew %d1,%a4@
+    negxw %d7
+    tstw %d7
+    jbne rsrc_PACK_4_408E9A20_37F0_36
+    jbsr rsrc_PACK_4_408E9A20_388E
+rsrc_PACK_4_408E9A20_37F0_36:  /* set %d7 */
+    movew %d5,%d7
+    btst #1,%d7
+    jbne rsrc_PACK_4_408E9A20_37F0_40
+    subqw #2,%d7
+rsrc_PACK_4_408E9A20_37F0_40:  /* call rsrc_PACK_4_408E9A20_386E */
+    jbsr rsrc_PACK_4_408E9A20_386E
+    negxw %d7
+    tstw %d7
+    jbne rsrc_PACK_4_408E9A20_37F0_4A
+    jbsr rsrc_PACK_4_408E9A20_388E
+rsrc_PACK_4_408E9A20_37F0_4A:  /* count down (loop) */
+    dbf %d6,rsrc_PACK_4_408E9A20_37F0_4
+rsrc_PACK_4_408E9A20_37F0_4E:  /* loop: suba */
+    subal %a3,%a0
+    movew %a0,%d6
+    movew %d3,%d1
+    aslw #3,%d6
+    subqw #3,%d6
+    rts
+rsrc_PACK_4_408E9A20_37F0_5A:  /* set %a0 */
+    moveal %a3,%a0
+    clrw %a3@-
+    jbra rsrc_PACK_4_408E9A20_37F0_4E
+
+/* subroutine (13 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3850:
+    movew %d1,%d7
+    addw %d6,%d7
+    addqw #1,%d7
+    subw %d3,%d7
+    jble rsrc_PACK_4_408E9A20_3850_1C
+    movew %d3,%d2
+    aslw #1,%d2
+    lea %a3@(0x2,%d2:w),%a2
+    addw %d7,%d3
+    asrw #1,%d7
+rsrc_PACK_4_408E9A20_3850_16:  /* loop: clr */
+    clrl %a2@+
+    dbf %d7,rsrc_PACK_4_408E9A20_3850_16
+rsrc_PACK_4_408E9A20_3850_1C:  /* return */
+    rts
+
+/* subroutine (12 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_386E:
+    lea %a1@(0x2,%d7:w),%a2
+    lea %a0@(0x2,%d7:w),%a4
+    subqw #2,%d7
+    asrw #2,%d7
+    movew #0,%ccr
+rsrc_PACK_4_408E9A20_386E_10:  /* loop: move */
+    movel %a2@-,%d4
+    muluw %d2,%d4
+    movel %a4@-,%d1
+    subxl %d4,%d1
+    movel %d1,%a4@
+    dbf %d7,rsrc_PACK_4_408E9A20_386E_10
+    rts
+
+/* subroutine (22 instructions): calls rsrc_PACK_4_408E9A20_388E (mechanical summary) */
+rsrc_PACK_4_408E9A20_388E:
+    subqw #1,%a0@(-2)
+    movel %d5,%d1
+    lea %a1@(0x2,%d1:w),%a2
+    lea %a0@(0x2,%d1:w),%a4
+    asrw #1,%d1
+    movew #0,%ccr
+rsrc_PACK_4_408E9A20_388E_14:  /* loop: addx */
+    addxw %a2@-,%a4@-
+    dbf %d1,rsrc_PACK_4_408E9A20_388E_14
+    jbcc rsrc_PACK_4_408E9A20_388E
+    rts
+rsrc_PACK_4_408E9A20_388E_1E:  /* clear %a0@+ */
+    clrw %a0@+
+    movew %d5,%d7
+    jbeq rsrc_PACK_4_408E9A20_388E
+    lea %a1@(0x2,%d7:w),%a2
+    lea %a0@(0x0,%d7:w),%a4
+    asrw #1,%d7
+    subqw #1,%d7
+    movew #0,%ccr
+rsrc_PACK_4_408E9A20_388E_34:  /* loop: subx */
+    subxw %a2@-,%a4@-
+    dbf %d7,rsrc_PACK_4_408E9A20_388E_34
+    jbsr rsrc_PACK_4_408E9A20_388E
+    jbra rsrc_PACK_4_408E9A20_37F0_4A
+
+/* subroutine (8 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_38CE:
+    negw %d0
+    cmpiw #5208,%d0
+    jbcs rsrc_PACK_4_408E9A20_38E2_C
+    movew #5207,%d0
+    movew %d0,%d1
+    negw %d1
+    movew %d1,%a0@
+    jbra rsrc_PACK_4_408E9A20_38E2_C
+
+/* subroutine (75 instructions): traps StackSpace, SysError; calls rsrc_PACK_4_408E9A20_3A08, rsrc_PACK_4_408E9A20_3A1C, rsrc_PACK_4_408E9A20_39B0 (mechanical summary) */
+rsrc_PACK_4_408E9A20_38E2:
+    cmpiw #5008,%d0
+    jbcs rsrc_PACK_4_408E9A20_38E2_C
+    movew #5007,%d0
+    movew %d0,%a0@
+rsrc_PACK_4_408E9A20_38E2_C:  /* clear %d4 */
+    moveq #0,%d4
+    movew %d0,%d4
+    addiw #527,%d4
+    andib #0xf8,%d4
+    cmpiw #3136,%d4
+    jbcs rsrc_PACK_4_408E9A20_38E2_22
+    movew #3136,%d4
+rsrc_PACK_4_408E9A20_38E2_22:  /* set up and call _StackSpace */
+    movew %d4,%d5
+    asrw #2,%d5
+    movel %d0,%d1
+    _StackSpace
+    cmpl %d4,%d0
+    jbpl rsrc_PACK_4_408E9A20_38E2_32
+    moveq #28,%d0
+    _SysError
+rsrc_PACK_4_408E9A20_38E2_32:  /* set %d0 */
+    movel %d1,%d0
+    moveal %sp@+,%a1
+    subaw %d4,%sp
+    movel %a1,%sp@-
+    lea %fp@(-40),%a1
+    movel %a1,%fp@(-4)
+    subaw %d4,%a1
+    movel %a1,%fp@(-16)
+    addaw %d5,%a1
+    movel %a1,%fp@(-12)
+    addaw %d5,%a1
+    movel %a1,%fp@(-8)
+    moveal %fp@(-4),%a1
+    moveq #0,%d2
+    movew %d0,%d2
+    divuw #21,%d2
+    movew %d2,%d0
+    swap %d2
+    cmpiw #7,%d2
+    jblt rsrc_PACK_4_408E9A20_38E2_94
+    cmpiw #14,%d2
+    jbge rsrc_PACK_4_408E9A20_38E2_80
+    moveq #1,%d1
+    lea %pc@(rsrc_PACK_4_408E9A20_3AC4),%a2
+    subqw #7,%d2
+    aslw #2,%d2
+    movel %a2@(0x0,%d2:w),%a1@-
+    jbra rsrc_PACK_4_408E9A20_38E2_A0
+rsrc_PACK_4_408E9A20_38E2_80:  /* set %d1 */
+    moveq #2,%d1
+    lea %pc@(rsrc_PACK_4_408E9A20_3AE0),%a2
+    subiw #14,%d2
+    muluw #6,%d2
+    movel %a2@(0x2,%d2:w),%a1@-
+    jbra rsrc_PACK_4_408E9A20_38E2_9C
+rsrc_PACK_4_408E9A20_38E2_94:  /* clear %d1 */
+    moveq #0,%d1
+    lea %pc@(rsrc_PACK_4_408E9A20_3AB6),%a2
+    aslw #1,%d2
+rsrc_PACK_4_408E9A20_38E2_9C:  /* set %a1@- */
+    movew %a2@(0x0,%d2:w),%a1@-
+rsrc_PACK_4_408E9A20_38E2_A0:  /* test %d0 */
+    tstw %d0
+    jbne rsrc_PACK_4_408E9A20_38E2_A6
+    rts
+rsrc_PACK_4_408E9A20_38E2_A6:  /* call rsrc_PACK_4_408E9A20_3A08 */
+    jbsr rsrc_PACK_4_408E9A20_3A08
+    moveq #3,%d2
+    moveal %fp@(-8),%a2
+    subql #4,%a2
+    movel #1299066613,%a2@
+    movel #111022,%a2@-
+    jbra rsrc_PACK_4_408E9A20_38E2_C2
+rsrc_PACK_4_408E9A20_38E2_BE:  /* call rsrc_PACK_4_408E9A20_3A08 (loop) */
+    jbsr rsrc_PACK_4_408E9A20_3A08
+rsrc_PACK_4_408E9A20_38E2_C0:  /* call rsrc_PACK_4_408E9A20_3A1C (loop) */
+    jbsr rsrc_PACK_4_408E9A20_3A1C
+rsrc_PACK_4_408E9A20_38E2_C2:  /* from here: asrw #1,%d0 */
+    asrw #1,%d0
+    jbcc rsrc_PACK_4_408E9A20_38E2_C0
+    jbsr rsrc_PACK_4_408E9A20_39B0
+    tstw %d0
+    jbgt rsrc_PACK_4_408E9A20_38E2_BE
+    rts
+
+/* subroutine (36 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_39B0:
+    movew %d2,%d1
+    addw %d3,%d1
+    addqw #1,%d1
+    movew %d3,%d7
+    addqw #1,%d7
+    lsrw #1,%d7
+    moveal %fp@(-4),%a1
+rsrc_PACK_4_408E9A20_39B0_10:  /* loop: clr */
+    clrl %a1@-
+    dbf %d7,rsrc_PACK_4_408E9A20_39B0_10
+    moveal %fp@(-4),%a4
+    subql #2,%a4
+    moveal %fp@(-8),%a2
+    subql #2,%a2
+    movew %d2,%d5
+    jbra rsrc_PACK_4_408E9A20_39B0_2C
+rsrc_PACK_4_408E9A20_39B0_26:  /* loop: clr */
+    clrw %a1@-
+    subql #2,%a2
+    subql #2,%a4
+rsrc_PACK_4_408E9A20_39B0_2C:  /* set %a1 */
+    moveal %a4,%a1
+    moveal %fp@(-12),%a3
+    movew %d3,%d6
+rsrc_PACK_4_408E9A20_39B0_34:  /* loop: move */
+    movew %a3@-,%d7
+    muluw %a2@,%d7
+    subqw #2,%a1
+    addl %d7,%a1@
+    jbcc rsrc_PACK_4_408E9A20_39B0_44
+    moveal %a1,%a0
+rsrc_PACK_4_408E9A20_39B0_40:  /* loop: addq */
+    addql #1,%a0@-
+    jbcs rsrc_PACK_4_408E9A20_39B0_40
+rsrc_PACK_4_408E9A20_39B0_44:  /* count down */
+    dbf %d6,rsrc_PACK_4_408E9A20_39B0_34
+    dbf %d5,rsrc_PACK_4_408E9A20_39B0_26
+    tstw %a1@
+    jbne rsrc_PACK_4_408E9A20_39B0_56
+    lea %a1@(2),%a1
+    subqw #1,%d1
+rsrc_PACK_4_408E9A20_39B0_56:  /* return */
+    rts
+
+/* subroutine (7 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3A08:
+    movew %d1,%d3
+    moveal %fp@(-4),%a1
+    moveal %fp@(-12),%a3
+    lsrw #1,%d1
+rsrc_PACK_4_408E9A20_3A08_C:  /* loop: move */
+    movel %a1@-,%a3@-
+    dbf %d1,rsrc_PACK_4_408E9A20_3A08_C
+    rts
+
+/* subroutine (54 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3A1C:
+    movew %d2,%d1
+    movew %d1,%d7
+    aslw #1,%d1
+    addqw #1,%d1
+    moveal %fp@(-4),%a1
+rsrc_PACK_4_408E9A20_3A1C_C:  /* loop: clr */
+    clrl %a1@-
+    dbf %d7,rsrc_PACK_4_408E9A20_3A1C_C
+    movew %d2,%d5
+    subqw #1,%d5
+    jbmi rsrc_PACK_4_408E9A20_3A1C_5A
+    moveal %fp@(-4),%a4
+    subql #4,%a4
+    moveal %fp@(-8),%a2
+    subql #2,%a2
+    jbra rsrc_PACK_4_408E9A20_3A1C_2A
+rsrc_PACK_4_408E9A20_3A1C_26:  /* loop: subq */
+    subqw #2,%a2
+    subqw #4,%a4
+rsrc_PACK_4_408E9A20_3A1C_2A:  /* set %a1 */
+    moveal %a4,%a1
+    moveal %a2,%a3
+    movew %d5,%d6
+rsrc_PACK_4_408E9A20_3A1C_30:  /* loop: move */
+    movew %a3@-,%d7
+    muluw %a2@,%d7
+    subqw #2,%a1
+    addl %d7,%a1@
+    jbcc rsrc_PACK_4_408E9A20_3A1C_42
+    moveal %a1,%a0
+rsrc_PACK_4_408E9A20_3A1C_3C:  /* loop: addq */
+    addql #1,%a1@-
+    jbcs rsrc_PACK_4_408E9A20_3A1C_3C
+    moveal %a0,%a1
+rsrc_PACK_4_408E9A20_3A1C_42:  /* count down */
+    dbf %d6,rsrc_PACK_4_408E9A20_3A1C_30
+    dbf %d5,rsrc_PACK_4_408E9A20_3A1C_26
+    moveal %fp@(-4),%a1
+    movew #0,%ccr
+    movew %d1,%d7
+rsrc_PACK_4_408E9A20_3A1C_54:  /* loop: rox */
+    roxlw %a1@-
+    dbf %d7,rsrc_PACK_4_408E9A20_3A1C_54
+rsrc_PACK_4_408E9A20_3A1C_5A:  /* set %a1 */
+    moveal %fp@(-4),%a1
+    moveal %fp@(-8),%a2
+rsrc_PACK_4_408E9A20_3A1C_62:  /* loop: move */
+    movew %a2@-,%d7
+    muluw %d7,%d7
+    addl %d7,%a1@-
+    jbcc rsrc_PACK_4_408E9A20_3A1C_72
+    moveal %a1,%a0
+rsrc_PACK_4_408E9A20_3A1C_6C:  /* loop: addq */
+    addql #1,%a1@-
+    jbcs rsrc_PACK_4_408E9A20_3A1C_6C
+    moveal %a0,%a1
+rsrc_PACK_4_408E9A20_3A1C_72:  /* count down */
+    dbf %d2,rsrc_PACK_4_408E9A20_3A1C_62
+    tstw %a1@
+    jbne rsrc_PACK_4_408E9A20_3A1C_80
+    lea %a1@(2),%a1
+    subqw #1,%d1
+rsrc_PACK_4_408E9A20_3A1C_80:  /* test %d0 */
+    tstw %d0
+    jbne rsrc_PACK_4_408E9A20_3AA2
+    rts
+
+/* subroutine (7 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3AA2:
+    movew %d1,%d2
+    moveal %fp@(-4),%a1
+    moveal %fp@(-8),%a2
+    lsrw #1,%d1
+rsrc_PACK_4_408E9A20_3AA2_C:  /* loop: move */
+    movel %a1@-,%a2@-
+    dbf %d1,rsrc_PACK_4_408E9A20_3AA2_C
+    rts
+
+/* subroutine (0 instructions) (mechanical summary) */
+rsrc_PACK_4_408E9A20_3AB6:
+    .short  0x0001, 0x0005, 0x0019, 0x007D, 0x0271	| 408ED4D6
+    .long   0x0C353D09	| 408ED4E0
+rsrc_PACK_4_408E9A20_3AC4:  /* (data) */
+    .long   0x0001312D, 0x0005F5E1, 0x001DCD65	| 408ED4E4
+    .long   0x009502F9, 0x02E90EDD, 0x0E8D4A51, 0x48C27395	| 408ED4F0
+rsrc_PACK_4_408E9A20_3AE0:  /* (data) */
+    .long   0x00016BCC, 0x41E90007, 0x1AFD498D, 0x002386F2	| 408ED500
+    .long   0x6FC100B1, 0xA2BC2EC5, 0x03782DAC, 0xE9D91158	| 408ED510
+    .short  0xE460, 0x913D, 0x56BC, 0x75E2, 0xD631	| 408ED520
+    .fill   0x746, 1, 0x00

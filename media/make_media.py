@@ -5,13 +5,13 @@ Everything here is original work made for this project (no Apple material): the 
 synthesized, the icons are drawn below as text. Run it to regenerate the files:
 
   python3 media/make_media.py        writes media/chime.wav, alert.wav, beeps.txt,
-                                     media/icons/*/*.png, media/fonts/*.bdf and
-                                     media/picture.png
+                                     media/icons/*/*.png, media/fonts/*.bdf,
+                                     media/picture.png and media/picts/*.png
 
 The fonts are rendered from free fonts installed on the system: DejaVu Sans (2.37; see
 fonts/LICENSE-DejaVu.txt) and the public domain X11 misc-fixed 6x10 terminal font.
 
-Build a ROM with them:  make -C src rom FREE_MEDIA=1
+The default build uses them.
 """
 import gzip
 import math
@@ -579,6 +579,54 @@ def picture(happy_icon, path):
     im.point(lambda v: 255 if v >= 128 else 0).save(path)
 
 
+def pictures(out):
+    """The 'PICT' resources: SCSI Disk Mode's ID digits, arrows, battery and drive, and 501."""
+    from PIL import ImageDraw, ImageFont
+    os.makedirs(out, exist_ok=True)
+
+    def canvas(w, h):
+        im = Image.new('L', (w, h), 255)
+        draw = ImageDraw.Draw(im)
+        draw.fontmode = '1'                   # no anti-aliasing: one bit per pixel
+        return im, draw
+
+    def centred(draw, w, h, text, font, px):
+        f = ImageFont.truetype(TTF + font, px)
+        x0, y0, x1, y1 = draw.textbbox((0, 0), text, font=f)
+        draw.text(((w - (x1 - x0)) // 2 - x0, (h - (y1 - y0)) // 2 - y0), text, font=f, fill=0)
+
+    def store(im, rid):
+        im.point(lambda v: 255 if v >= 128 else 0).save(os.path.join(out, '%d.png' % rid))
+
+    for n in range(7):                        # 100..106: the SCSI ID
+        im, draw = canvas(28, 36)
+        centred(draw, 28, 36, str(n), 'DejaVuSans-Bold.ttf', 34)
+        store(im, 100 + n)
+    im, draw = canvas(33, 24)                 # 99: battery
+    draw.rectangle((1, 4, 28, 19), outline=0)
+    draw.rectangle((29, 9, 31, 14), fill=0)
+    for x in (4, 11, 18):
+        draw.rectangle((x, 7, x + 4, 16), fill=0)
+    store(im, 99)
+    for frame in range(3):                    # 96..98: arrow, three positions
+        im, draw = canvas(76, 27)
+        for x in range(4 + frame * 6, 54, 18):
+            draw.rectangle((x, 11, x + 9, 15), fill=0)
+        draw.polygon([(56, 3), (72, 13), (56, 23)], fill=0)
+        store(im, 96 + frame)
+    im, draw = canvas(150, 148)               # 95: a drive and its connector
+    draw.rectangle((10, 20, 139, 108), outline=0, width=3)
+    centred(draw, 150, 128, 'SCSI', 'DejaVuSans-Bold.ttf', 40)
+    draw.rectangle((50, 108, 99, 124), outline=0, width=2)
+    for x in range(56, 96, 8):
+        draw.rectangle((x, 124, x + 3, 140), fill=0)
+    store(im, 95)
+    im, draw = canvas(63, 24)                 # 501: a progress bar
+    draw.rectangle((2, 8, 60, 15), outline=0)
+    draw.rectangle((4, 10, 30, 13), fill=0)
+    store(im, 501)
+
+
 def main():
     chime(os.path.join(HERE, 'chime.wav'))
     alert(os.path.join(HERE, 'alert.wav'))
@@ -611,6 +659,7 @@ def main():
         save_cursor(art, hotspot, os.path.join(icons, 'cursors', name + '.png'))
     fonts(os.path.join(HERE, 'fonts'))
     picture(h, os.path.join(HERE, 'picture.png'))
+    pictures(os.path.join(HERE, 'picts'))
 
 
 if __name__ == '__main__':

@@ -15,7 +15,6 @@ The data at PICTUREDATA (0x408A0B60, 5542 bytes) is a version 1 PICT, compressed
            0 + 8 bits   literal byte, 9 bits
 
 Usage:
-  pict2s.py --rom ROM --png OUT.png               the original picture as PNG
   pict2s.py PNG --romsrc ROMSRC -o OUTDIR         OUTDIR/misc/picturedata.s with the
                                                   picture from PNG (the rest of the file
                                                   from ROMSRC/misc/picturedata.s)
@@ -134,7 +133,7 @@ def data_lines(data):
 
 def write_source(data, romsrc, outdir, png):
     lines = open(os.path.join(romsrc, FILE)).read().split('\n')
-    start = lines.index('PICTUREDATA:            /* (data) */')
+    start = next(i for i, l in enumerate(lines) if l.startswith('PICTUREDATA:'))
     end = next(i for i in range(start + 1, len(lines)) if not re.match(r'\s+\.(long|short|byte)\s', lines[i]))
     new = ['PICTUREDATA:            /* (data) the picture from %s (tools/pict2s.py) */'
            % os.path.basename(png)] + data_lines(data)
@@ -147,23 +146,13 @@ def write_source(data, romsrc, outdir, png):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('png', nargs='?', help='picture to put in the ROM')
-    ap.add_argument('--rom', help='original ROM image (with --png: export its picture)')
-    ap.add_argument('--png', dest='png_out', help='write the picture as PNG')
     ap.add_argument('--romsrc', help='romsrc directory (the rest of %s)' % FILE)
     ap.add_argument('--pict', help='write the uncompressed PICT')
     ap.add_argument('-o', dest='out', help='output directory for %s' % FILE)
     a = ap.parse_args()
     from PIL import Image
-    if a.rom:
-        import extract_applemedia
-        pict = unpack(open(a.rom, 'rb').read()[OFFSET:OFFSET + AREA])
-        if a.pict:
-            open(a.pict, 'wb').write(pict)
-        if a.png_out:
-            extract_applemedia.pict_to_png(pict, a.png_out)
-        return
     if not a.png:
-        ap.error('give a PNG or --rom')
+        ap.error('give a PNG')
     pict = pict_from_image(Image.open(a.png))
     data = pack(pict)
     if unpack(data) != pict:

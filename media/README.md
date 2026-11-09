@@ -2,7 +2,7 @@
 
 Sounds, icons, cursors, fonts and a picture made for this project, to use instead of Apple's
 copyrighted ones. They contain no Apple material: the sounds are synthesized or composed here, the images are
-drawn as text, the fonts are rendered from free fonts and the picture combines the two, all in `make_media.py`, which
+drawn as text, the fonts are rendered from free fonts and the pictures combine the two, all in `make_media.py`, which
 regenerates every file here.
 
 | File | Replaces | Description |
@@ -24,17 +24,12 @@ regenerates every file here.
 | `fonts/geneva12.bdf` | 'FONT' 396, Geneva 12 | DejaVu Sans, 12 pixels |
 | `picture.png` | the hidden start-up picture (the ROM team's names) | the happy monitor, the project's name and address, white on black, 324 x 300 |
 | `fonts/monaco9.bdf` | 'FONT' 521, Monaco 9 | X11 misc-fixed 6x10 (public domain), with a square period |
+| `picts/95.png` … `106.png` | 'PICT' 95-106, SCSI Disk Mode | a drive with its connector, three arrow positions, a battery, the SCSI ID digits 0-6 |
+| `picts/501.png` | 'PICT' 501 | a progress bar |
 
 The DejaVu-based fonts are bitmaps rendered from DejaVu Sans 2.37 (Bitstream Vera license
 plus public domain changes; see `fonts/LICENSE-DejaVu.txt`). The misc-fixed font is public
 domain. Regenerating the fonts needs those fonts installed (`/usr/share/fonts`).
 
-Build a ROM with all of them:
-
-```bash
-make -C src rom FREE_MEDIA=1
-```
-
-or pick some with `CHIME=`, `ALERT=`, `BEEPS=`, `ICONS=`, `FONTS=` and `PICTURE=` (see the main README).
-Apple's originals, for comparison: `make -C src applemedia` (writes `../applemedia/`, not in git). Edit `make_media.py` and
+The default build uses all of them. To use others, see "Using other media" in the main README. Edit `make_media.py` and
 run `python3 media/make_media.py` to change them.

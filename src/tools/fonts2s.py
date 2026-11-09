@@ -9,9 +9,7 @@
 
 Usage:
   fonts2s.py DIR -o OUTDIR          OUTDIR/<file> for every DIR/<key>.bdf
-  fonts2s.py --rom ROM -o OUTDIR    all four files, from an original ROM (byte for byte)
-  fonts2s.py --rom ROM --bdf DIR    the original fonts as BDF files (for reference)
-  fonts2s.py DIR --preview PNG      sample text in each font of DIR (and --rom ROM)
+  fonts2s.py DIR --preview PNG      sample text in each font of DIR
 
 BDF input: ENCODING is the Mac Roman character code (0-255). FONT_ASCENT and
 FONT_DESCENT must equal those of the font replaced (the line height does not change).
@@ -290,22 +288,11 @@ def preview(fonts, path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('dir', nargs='?', help='directory with <key>.bdf files')
-    ap.add_argument('--rom', help='original ROM image')
     ap.add_argument('-o', dest='out', help='directory to write the source files into')
-    ap.add_argument('--bdf', metavar='DIR', help='write the ROM fonts as BDF files into DIR')
     ap.add_argument('--preview', metavar='PNG', help='write a sample of the fonts')
     a = ap.parse_args()
-    rom = open(a.rom, 'rb').read() if a.rom else None
     written, samples = [], []
     for key, name, off, size, desc, (fa, fd, flead, first, last) in FONTS:
-        orig = rom[off:off + size] if rom else None
-        if orig and a.bdf:
-            os.makedirs(a.bdf, exist_ok=True)
-            h, g = glyphs_of(orig)
-            open(os.path.join(a.bdf, key + '.bdf'), 'w').write(to_bdf(key, h, g))
-        if orig and a.preview:
-            h, g = glyphs_of(orig)
-            samples.append(('original ' + key, (h['ascent'], h['descent'], g)))
         data, source = None, None
         bdf = os.path.join(a.dir, key + '.bdf') if a.dir else None
         if bdf and os.path.exists(bdf):
@@ -316,8 +303,6 @@ def main():
                 samples.append((key, (A, D, g)))
             data = build(g, A, D, flead, first, last, size)
             source = 'from %s' % os.path.basename(bdf)
-        elif orig and not a.dir:
-            data, source = orig, 'from the original ROM'
         if data and a.out:
             path = os.path.join(a.out, name)
             os.makedirs(os.path.dirname(path), exist_ok=True)

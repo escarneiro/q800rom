@@ -27,7 +27,7 @@ def fix_checksums(rom: bytearray) -> int:
 
     0x30..0x3F: four byte-lane sums (sum of the bytes at offset % 4 == lane, excluding
     0x00..0x03 and 0x30..0x3F). 0x00: 32-bit sum of all 16-bit words from offset 4.
-    Both formulas reproduce the original Quadra 800 ROM header.
+    Both formulas are the ones the Quadra 800 ROM header uses.
     """
     lanes = [0, 0, 0, 0]
     for i, b in enumerate(rom):

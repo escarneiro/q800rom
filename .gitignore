@@ -1,16 +1,35 @@
-.gitignore
+# Build output
+build/
+*.o
+__pycache__/
+*.kate-swp
+
+# Local files, not part of the repository
 QUADRA800.ROM
 coreboot-26.09.tar.xz
 /declrom
 docquadra800/
-docs/
 prompt_q800.txt
-*.o
-build/
-src/romsrc/
 applemedia/
-analysis/*.png
-build_process.odf
+analysis/
+build_process.*
 screen_boot_rebuilt.png
-*.kate-swp
-__pycache__/
+binutils_m68k_fmovex_inf_nan_bug.txt
+src/README.md
+src/traps/
+src/local.mk
+
+# docs/: only the project's own Markdown notes
+docs/*
+!docs/*.md
+
+# src/tools/: only what the build uses
+src/tools/*
+!src/tools/beeps2s.py
+!src/tools/fonts2s.py
+!src/tools/icons2s.py
+!src/tools/pict2s.py
+!src/tools/picts2s.py
+!src/tools/rom_checksum.py
+!src/tools/rom_postlink.py
+!src/tools/wav2snd.py

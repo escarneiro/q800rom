@@ -1,0 +1,1283 @@
+# Packed trap dispatch table at label trap_dispatch_table: one entry per line
+# w/b/l <target label> = word/byte/long encoded entry, u = unimplemented, end
+u
+l trap_SndDisposeChannel
+w trap_SndAddModifier
+w trap_SndDoCommand
+b trap_SndDoImmediate
+w trap_SndPlay
+w trap_SndControl
+w trap_SndNewChannel
+l trap_InitProcMenu
+w trap_GetCVariant
+w trap_GetWVariant
+w trap_PopUpMenuSelect
+w trap_RGetResource
+w trap_Count1Resources
+b trap_Get1IxResource
+b trap_Get1IxType
+b trap_Unique1ID
+l trap_TESelView
+w trap_TEPinScroll
+w trap_TEAutoView
+w trap_SetFractEnable
+l trap_SCSIDispatch
+l trap_Pack8
+l trap_CopyMask
+l trap_FixATan2
+w trap_XMunger
+u
+u
+w trap_Count1Types
+u
+u
+b trap_Get1Resource
+b trap_Get1NamedResource
+w trap_MaxSizeRsrc
+u
+u
+u
+u
+w trap_InsMenuItem
+w trap_HideDItem
+b trap_ShowDItem
+u
+u
+l trap_Pack9
+b trap_Pack10
+b trap_Pack11
+b trap_Pack12
+b trap_Pack13
+b trap_Pack14
+b trap_Pack15
+u
+l trap_ScrnBitMap
+w trap_SetFScaleDisable
+b trap_FontMetrics
+w trap_GetMaskTable
+w trap_MeasureText
+l trap_CalcMask
+w trap_SeedFill
+l trap_ZoomWindow
+b trap_TrackBox
+l trap_TEGetOffset
+w trap_TEDispatch
+w trap_TEStyleNew
+w trap_Long2Fix
+w trap_Fix2Long
+b trap_Fix2Frac
+w trap_Frac2Fix
+w trap_Fix2X
+b trap_X2Fix
+w trap_Frac2X
+b trap_X2Frac
+w trap_FracCos
+b trap_FracSin
+w trap_FracSqrt
+w trap_FracMul
+b trap_FracDiv
+u
+b trap_FixDiv
+w trap_GetItemCmd
+b trap_SetItemCmd
+l trap_InitCursor
+b trap_SetCursor
+b trap_HideCursor
+b trap_ShowCursor
+u
+b trap_ShieldCursor
+b trap_ObscureCursor
+u
+w trap_BitAnd
+b trap_BitXOr
+w trap_BitNot
+b trap_BitOr
+b trap_BitShift
+b trap_BitTst
+b trap_BitSet
+b trap_BitClr
+l trap_WaitNextEvent
+l trap_Random
+b trap_ForeColor
+b trap_BackColor
+b trap_ColorBit
+w trap_GetPixel
+w trap_StuffHex
+l trap_LongMul
+b trap_FixMul
+w trap_FixRatio
+b trap_HiWord
+w trap_LoWord
+b trap_FixRound
+l trap_InitPort
+w trap_InitGraf
+w trap_OpenPort
+w trap_LocalToGlobal
+b trap_GlobalToLocal
+b trap_GrafDevice
+w trap_SetPort
+b trap_GetPort
+b trap_SetPBits
+b trap_PortSize
+b trap_MovePortTo
+b trap_SetOrigin
+b trap_SetClip
+b trap_GetClip
+w trap_ClipRect
+w trap_BackPat
+w trap_ClosePort
+w trap_AddPt
+b trap_SubPt
+w trap_SetPt
+b trap_EqualPt
+l trap_StdText
+w trap_DrawChar
+b trap_DrawString
+b trap_DrawText
+b trap_TextWidth
+w trap_TextFont
+w trap_TextFace
+b trap_TextMode
+b trap_TextSize
+w trap_GetFontInfo
+w trap_StringWidth
+w trap_CharWidth
+b trap_SpaceExtra
+u
+w trap_StdLine
+b trap_LineTo
+b trap_Line
+b trap_MoveTo
+b trap_Move
+l trap_ShutDown
+l trap_HidePen
+b trap_ShowPen
+b trap_GetPenState
+b trap_SetPenState
+b trap_GetPen
+b trap_PenSize
+b trap_PenMode
+b trap_PenPat
+b trap_PenNormal
+u
+w trap_StdRect
+w trap_FrameRect
+b trap_PaintRect
+b trap_EraseRect
+b trap_InverRect
+w trap_FillRect
+w trap_EqualRect
+w trap_SetRect
+b trap_OffsetRect
+b trap_InsetRect
+b trap_SectRect
+b trap_UnionRect
+b trap_Pt2Rect
+b trap_PtInRect
+w trap_EmptyRect
+w trap_StdRRect
+b trap_FrameRoundRect
+b trap_PaintRoundRect
+b trap_EraseRoundRect
+b trap_InverRoundRect
+b trap_FillRoundRect
+l trap_ScriptUtil
+l trap_StdOval
+b trap_FrameOval
+b trap_PaintOval
+b trap_EraseOval
+b trap_InvertOval
+b trap_FillOval
+w trap_SlopeFromAngle
+w trap_StdArc
+b trap_FrameArc
+b trap_PaintArc
+b trap_EraseArc
+b trap_InvertArc
+b trap_FillArc
+w trap_PtToAngle
+w trap_AngleFromSlope
+l trap_StdPoly
+b trap_FramePoly
+b trap_PaintPoly
+b trap_ErasePoly
+b trap_InvertPoly
+b trap_FillPoly
+b trap_OpenPoly
+b trap_ClosePgon
+b trap_KillPoly
+b trap_OffsetPoly
+w trap_PackBits
+b trap_UnpackBits
+w trap_StdRgn
+b trap_FrameRgn
+b trap_PaintRgn
+b trap_EraseRgn
+b trap_InverRgn
+b trap_FillRgn
+w trap_BitMapRgn
+w trap_NewRgn
+b trap_DisposRgn
+b trap_OpenRgn
+b trap_CloseRgn
+b trap_CopyRgn
+b trap_SetEmptyRgn
+b trap_SetRecRgn
+b trap_RectRgn
+b trap_OffsetRgn
+b trap_InsetRgn
+b trap_EmptyRgn
+b trap_EqualRgn
+b trap_SectRgn
+b trap_UnionRgn
+b trap_DiffRgn
+b trap_XOrRgn
+b trap_PtInRgn
+b trap_RectInRgn
+w trap_SetStdProcs
+w trap_StdBits
+w trap_CopyBits
+l trap_StdTxMeas
+l trap_StdGetPic
+w trap_ScrollRect
+w trap_StdPutPic
+w trap_StdComment
+w trap_PicComment
+b trap_OpenPicture
+w trap_ClosePicture
+b trap_KillPicture
+b trap_DrawPicture
+u
+w trap_ScalePt
+b trap_MapPt
+b trap_MapRect
+w trap_MapRgn
+w trap_MapPoly
+l trap_PrGlue
+w trap_InitFonts
+w trap_GetFName
+b trap_GetFNum
+w trap_FMSwapFont
+w trap_RealFont
+b trap_SetFontLock
+l trap_DrawGrowIcon
+w trap_DragGrayRgn
+w trap_NewString
+b trap_SetString
+w trap_ShowHide
+w trap_CalcVis
+b trap_CalcVBehind
+b trap_ClipAbove
+b trap_PaintOne
+w trap_PaintBehind
+b trap_SaveOld
+b trap_DrawNew
+b trap_GetWMgrPort
+b trap_CheckUpDate
+b trap_InitWindows
+w trap_NewWindow
+w trap_DisposWindow
+b trap_ShowWindow
+b trap_HideWindow
+b trap_GetWRefCon
+b trap_SetWRefCon
+b trap_GetWTitle
+b trap_SetWTitle
+b trap_MoveWindow
+w trap_HiliteWindow
+b trap_SizeWindow
+b trap_TrackGoAway
+b trap_SelectWindow
+b trap_BringToFront
+b trap_SendBehind
+b trap_BeginUpDate
+b trap_EndUpDate
+b trap_FrontWindow
+b trap_DragWindow
+b trap_DragTheRgn
+w trap_InvalRgn
+b trap_InvalRect
+b trap_ValidRgn
+b trap_ValidRect
+b trap_GrowWindow
+w trap_FindWindow
+w trap_CloseWindow
+w trap_SetWindowPic
+b trap_GetWindowPic
+w trap_InitMenus
+w trap_NewMenu
+w trap_DisposMenu
+w trap_AppendMenu
+w trap_ClearMenuBar
+b trap_InsertMenu
+b trap_DeleteMenu
+b trap_DrawMenuBar
+b trap_HiliteMenu
+b trap_EnableItem
+b trap_DisableItem
+w trap_GetMenuBar
+b trap_SetMenuBar
+w trap_MenuSelect
+w trap_MenuKey
+w trap_GetItmIcon
+b trap_SetItmIcon
+b trap_GetItmStyle
+b trap_SetItmStyle
+b trap_GetItmMark
+b trap_SetItmMark
+b trap_CheckItem
+w trap_GetItem
+w trap_SetItem
+w trap_CalcMenuSize
+w trap_GetMHandle
+b trap_SetMFlash
+w trap_PlotIcon
+w trap_FlashMenuBar
+w trap_AddResMenu
+l trap_PinRect
+l trap_DeltaPoint
+w trap_CountMItems
+w trap_InsertResMenu
+w trap_DelMenuItem
+w trap_UpdtControl
+w trap_NewControl
+w trap_DisposControl
+b trap_KillControls
+b trap_ShowControl
+b trap_HideControl
+b trap_MoveControl
+b trap_GetCRefCon
+b trap_SetCRefCon
+b trap_SizeControl
+b trap_HiliteControl
+b trap_GetCTitle
+b trap_SetCTitle
+b trap_GetCtlValue
+b trap_GetMinCtl
+b trap_GetMaxCtl
+b trap_SetCtlValue
+b trap_SetMinCtl
+b trap_SetMaxCtl
+b trap_TestControl
+b trap_DragControl
+b trap_TrackControl
+w trap_DrawControls
+w trap_GetCtlAction
+b trap_SetCtlAction
+w trap_FindControl
+w trap_Draw1Control
+l trap_Dequeue
+w trap_Enqueue
+l trap_GetNextEvent
+w trap_EventAvail
+w trap_GetMouse
+b trap_StillDown
+w trap_Button
+b trap_TickCount
+w trap_GetKeys
+b trap_WaitMouseUp
+w trap_UpdtDialog
+w trap_COULDDIALOG
+b trap_FREEDIALOG
+w trap_InitDialogs
+w trap_GetNewDialog
+b trap_NewDialog
+w trap_SelIText
+w trap_IsDialogEvent
+b trap_DialogSelect
+b trap_DrawDialog
+b trap_CloseDialog
+b trap_DisposDialog
+w trap_FindDItem
+w trap_Alert
+w trap_StopAlert
+b trap_NoteAlert
+b trap_CautionAlert
+w trap_COULDALERT
+b trap_FREEALERT
+b trap_ParamText
+b trap_ErrorSound
+b trap_GetDItem
+b trap_SetDItem
+b trap_SetIText
+w trap_GetIText
+w trap_ModalDialog
+w trap_DetachResource
+b trap_SetResPurge
+b trap_CurResFile
+w trap_InitResources
+w trap_RsrcZoneInit
+b trap_OpenResFile
+b trap_UseResFile
+b trap_UpdateResFile
+w trap_CloseResFile
+w trap_SetResLoad
+w trap_CountResources
+b trap_GetIndResource
+b trap_CountTypes
+b trap_GetIndType
+b trap_GetResource
+b trap_GetNamedResource
+w trap_LoadResource
+b trap_ReleaseResource
+b trap_HomeResFile
+w trap_SizeRsrc
+w trap_GetResAttrs
+b trap_SetResAttrs
+b trap_GetResInfo
+b trap_SetResInfo
+w trap_ChangedResource
+w trap_AddResource
+w trap_AddReference
+w trap_RmveResource
+w trap_RmveReference
+w trap_ResError
+w trap_WriteResource
+w trap_CreateResFile
+w trap_SystemEvent
+b trap_SystemClick
+b trap_SystemTask
+b trap_SystemMenu
+b trap_OpenDeskAcc
+b trap_CloseDeskAcc
+w trap_GetPattern
+b trap_GetCursor
+b trap_GetString
+b trap_GetIcon
+b trap_GetPicture
+b trap_GetNewWindow
+b trap_GetNewControl
+b trap_GetRMenu
+b trap_GetNewMBar
+w trap_UniqueID
+w trap_SysEdit
+l trap_KeyTrans
+l trap_OpenRFPerm
+w trap_RsrcMapEntry
+l trap_Secs2Date
+b trap_Date2Secs
+l trap_SysBeep
+w trap_SysError
+w trap_PutIcon
+l trap_TEGetText
+w trap_TEInit
+b trap_TEDispose
+b trap_TextBox
+b trap_TESetText
+w trap_TECalText
+b trap_TESetSelect
+b trap_TENew
+w trap_TEUpdate
+b trap_TEClick
+w trap_TECopy
+b trap_TECut
+b trap_TEDelete
+w trap_TEActivate
+b trap_TEDeactivate
+b trap_TEIdle
+b trap_TEPaste
+w trap_TEKey
+w trap_TEScroll
+w trap_TEInsert
+w trap_TESetJust
+l trap_Munger
+w trap_HandToHand
+b trap_PtrToXHand
+b trap_PtrToHand
+b trap_HandAndHand
+l trap_InitPack
+b trap_InitAllPacks
+b trap_Pack0
+b trap_Pack1
+b trap_Pack2
+b trap_Pack3
+w trap_FP68K
+b trap_Elems68K
+b trap_Pack6
+b trap_DECSTR68K
+l trap_PtrAndHand
+l trap_LoadSeg
+b trap_UnLoadSeg
+b trap_Launch
+w trap_Chain
+w trap_ExitToShell
+b trap_GetAppParms
+l trap_GetResFileAttrs
+b trap_SetResFileAttrs
+w trap_MethodDispatch
+l trap_InfoScrap
+b trap_UnlodeScrap
+b trap_LodeScrap
+b trap_ZeroScrap
+b trap_GetScrap
+b trap_PutScrap
+u
+l trap_OpenCPort
+b trap_InitCPort
+b trap_ClosePort
+w trap_NewPixMap
+b trap_DisposPixMap
+b trap_CopyPixMap
+w trap_SetPortPix
+w trap_NewPixPat
+b trap_DisposPixPat
+w trap_CopyPixPat
+w trap_PenPixPat
+b trap_BackPixPat
+w trap_GetPixPat
+w trap_MakeRGBPat
+w trap_FillCRect
+l trap_FillCOval
+w trap_FillCRoundRect
+w trap_FillCArc
+w trap_FillCRgn
+w trap_FillCPoly
+l trap_RGBForeColor
+b trap_RGBBackColor
+l trap_SetCPixel
+w trap_GetCPixel
+l trap_GetCTable
+w trap_GetForeColor
+b trap_GetBackColor
+l trap_GetCCursor
+l trap_SetCCursor
+w trap_AllocCursor
+l trap_GetCIcon
+b trap_PlotCIcon
+w trap_OpenCPicture
+w trap_OpColor
+w trap_HiliteColor
+w trap_CharExtra
+w trap_DisposCTable
+w trap_DisposCIcon
+w trap_DisposPixPat
+l trap_GetMaxDevice
+l trap_GetCTSeed
+l trap_GetDeviceList
+b trap_GetMainDevice
+b trap_GetNextDevice
+b trap_TestDeviceAttribute
+b trap_SetDeviceAttribute
+w trap_InitGDevice
+w trap_NewGDevice
+b trap_DisposGDevice
+w trap_SetGDevice
+w trap_GetGDevice
+l trap_Color2Index
+b trap_Index2Color
+b trap_InvertColor
+w trap_RealColor
+w trap_GetSubTable
+w trap_UpdatePixMap
+b trap_MakeITable
+w trap_AddSearch
+b trap_AddComp
+w trap_SetClientID
+w trap_ProtectEntry
+b trap_ReserveEntry
+w trap_SetEntries
+w trap_QDError
+l trap_SetWinColor
+w trap_GetAuxWin
+w trap_SetCtlColor
+b trap_GetAuxCtl
+w trap_NewCWindow
+l trap_GetNewCWindow
+l trap_SetDeskCPat
+w trap_GetCWMgrPort
+l trap_SaveEntries
+w trap_RestoreEntries
+l trap_NewCDialog
+l trap_DelSearch
+b trap_DelComp
+l trap_SetStdCProcs
+l trap_CalcCMask
+w trap_SeedCFill
+u
+u
+u
+u
+u
+u
+l DOCKINGMGR
+u
+u
+u
+u
+u
+u
+u
+u
+l trap_DelMCEntries
+w trap_GetMCInfo
+b trap_SetMCInfo
+b trap_DispMCInfo
+w trap_GetMCEntry
+w trap_SetMCEntries
+w trap_MenuChoice
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+l trap_InitPalettes
+w trap_NewPalette
+b trap_GetNewPalette
+w trap_DisposePalette
+w trap_ActivatePalette
+w trap_SetPalette
+b trap_GetPalette
+w trap_PmForeColor
+b trap_PmBackColor
+b trap_AnimateEntry
+w trap_AnimatePalette
+w trap_GetEntryColor
+w trap_SetEntryColor
+b trap_GetEntryUsage
+b trap_SetEntryUsage
+b trap_CTab2Palette
+b trap_Palette2CTab
+b trap_CopyPalette
+w trap_PaletteDispatch
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+l trap_CursorDeviceDispatch
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+l trap_BITBLT
+w trap_BITSTOMAP
+w trap_BITSTOPIX
+w trap_JACKSONPOLLOCK
+w trap_COLORMAP
+w trap_COPYHANDLE
+l trap_CULLPOINTS
+l trap_DPUTPICBYTE
+b trap_DPUTPICOP
+w trap_DRAWARC
+l trap_DRAWLINE
+w trap_DRAWSLAB
+w trap_FASTSLABMODE
+l trap_GETSEEK
+l trap_MAKESCALETBL
+w trap_CHECKPIC
+l trap_DOLINE
+w trap_OLDPATTONEW
+l trap_PACKRGN
+l trap_PATCONVERT
+w trap_PATDITHER
+w trap_PATEXPAND
+w trap_PINIT
+w trap_PORTTOMAP
+w trap_PUSHVERB
+w trap_PUTLINE
+l trap_PUTOVAL
+w trap_PUTRGN
+l trap_NEWTEMPBUFFER
+l trap_QDExtensions
+l trap_DISPOSETEMPBUFFER
+w trap_RGNBLT
+l trap_RGNOP
+l trap_RSECT
+l trap_SEEKRGN
+w trap_SETFILLPAT
+w trap_SETUPSTRETCH
+l trap_SLABMODE
+l trap_SORTPOINTS
+w trap_STRETCHBITS
+l trap_STDDEVLOOP
+l trap_TRIMRECT
+w trap_XORSLAB
+l trap_EXTBL
+u
+w trap_NEWTEMPHANDLE
+w trap_PATEXTBL
+u
+l trap_BMAIN0
+b trap_BMAIN1
+b trap_BMAIN2
+b trap_BMAIN3
+w trap_BSETUP8
+b trap_BMAIN9
+b trap_BSETUP10
+b trap_BMAIN11
+b trap_BXMAIN8
+b trap_BXMAIN9
+b trap_BXMAIN10
+b trap_BXMAIN11
+w trap_BCMAIN0
+b trap_BCMAIN1
+w trap_BHILITE
+w trap_BCMAIN3
+w trap_BEND0
+b trap_BEND1
+b trap_BEND2
+b trap_BEND3
+b trap_BLONG8
+w trap_BEND9
+b trap_BEND10
+b trap_BEND11
+b trap_BXLONG8
+b trap_BXEND9
+b trap_BXEND10
+b trap_BXEND11
+w trap_BCEND0
+b trap_BCEND1
+w trap_BSLOHILITE
+w trap_BCEND3
+w trap_BAVG
+w trap_BADDPIN
+w trap_BADDOVER
+w trap_BSUBPIN
+w trap_BTRANSPARENT
+w trap_BMAX
+w trap_BSUBOVER
+w trap_BMIN
+w trap_BSETUP0
+w trap_BLEFT0
+w trap_RMASK0
+w trap_RMASK1
+b trap_RMASK2
+b trap_RMASK3
+w trap_RMASK8
+b trap_RMASK9
+b trap_RMASK10
+b trap_RMASK11
+b trap_RXMASK8
+b trap_RXMASK9
+b trap_RXMASK10
+b trap_RXMASK11
+w trap_RAVG
+w trap_RADDPIN
+w trap_RADDOVER
+w trap_RSUBPIN
+w trap_RTRANSPARENT
+w trap_RMAX
+w trap_RSUBOVER
+w trap_RMIN
+w trap_RCMASK0
+b trap_RCMASK1
+w trap_RSLOWHILITE
+w trap_RCMASK3
+w trap_RHILITE
+l trap_STMASK0
+b trap_STMASK1
+b trap_STMASK2
+b trap_STMASK3
+w trap_STAVG
+w trap_STADDPIN
+w trap_STADDOVER
+w trap_STSUBPIN
+w trap_STTRANSPARENT
+w trap_STMAX
+w trap_STSUBOVER
+w trap_STMIN
+w trap_STHILITE
+l trap_SLMASK8
+b trap_SLMASK9
+b trap_SLMASK10
+b trap_SLMASK11
+b trap_SLXMASK8
+b trap_SLXMASK9
+b trap_SLXMASK10
+b trap_SLXMASK11
+w trap_SLAVG
+w trap_SLADDPIN
+w trap_SLADDOVER
+w trap_SLSUBPIN
+w trap_SLTRANSPARENT
+w trap_SLMAX
+w trap_SLSUBOVER
+w trap_SLMIN
+w trap_SLHILITE
+l trap_ITABMATCH
+w trap_COLORTHING2INDEX
+u
+w trap_ALLOCRUNBUF
+w trap_INITRGN
+w trap_SCALEBLT
+w trap_STNOSTACK
+w trap_BLITCASE
+w trap_STSCANLOOP
+w trap_PICITEM1
+l trap_MAKEGRAYITAB
+l trap_FASTLINE
+w trap_FASTSLANT
+l trap_BITSDEVLOOP
+u
+l trap_RARITH16TAB
+b trap_RARITH32TAB
+b trap_RHILITETAB
+l trap_GSRUNTBL
+b trap_GSEXPTBL
+b trap_GSSEEKTBL
+w trap_STARITH16TAB
+b trap_STARITH32TAB
+w trap_STCOLORTAB
+b trap_STGRAYTAB
+b trap_STSEARCHTAB
+w trap_SCALEINDEXEDTOINDEXED
+w trap_SCINDTAB1
+b trap_SCINDTAB2
+b trap_SCINDTAB4
+b trap_SCINDTAB8
+b trap_SCINDTAB16
+b trap_SCINDTAB32
+w trap_SCDIRTAB1
+b trap_SCDIRTAB2
+b trap_SCDIRTAB4
+b trap_SCDIRTAB8
+b trap_SCDIRTAB16
+b trap_SCDIRTAB32
+l trap_BARITH16TAB
+b trap_BARITH32TAB
+b trap_BHILITETAB
+w trap_BARITH16SETUP
+w trap_BARITH32SETUP
+w trap_SLARITH16TAB
+b trap_SLARITH32TAB
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+u
+w trap_StdOpcodeProc
+u
+u
+u
+u
+u
+u
+u
+l trap_Open
+w trap_Close
+b trap_Read
+b trap_Write
+b trap_Control
+b trap_Status
+b trap_KillIO
+w trap_GetVolInfo
+w trap_Create
+w trap_Delete
+w trap_OpenRF
+w trap_Rename
+w trap_GetFileInfo
+w trap_SetFileInfo
+w trap_UnmountVol
+w trap_MountVol
+w trap_Allocate
+w trap_GetEOF
+w trap_SetEOF
+w trap_FlushVol
+w trap_GetVol
+b trap_SetVol
+w trap_FInitQueue
+w trap_Eject
+w trap_GetFPos
+w trap_InitZone
+w trap_GetZone
+b trap_SetZone
+b trap_FreeMem
+b trap_MaxMem
+w trap_NewPtr
+b trap_DisposPtr
+b trap_SetPtrSize
+w trap_GetPtrSize
+b trap_NewHandle
+b trap_DisposHandle
+b trap_SetHandleSize
+w trap_GetHandleSize
+b trap_HandleZone
+b trap_ReallocHandle
+w trap_RecoverHandle
+w trap_HLock
+b trap_HUnlock
+w trap_EmptyHandle
+w trap_InitApplZone
+w trap_SetApplLimit
+w BLOCKMOVE68020
+w trap_PostEvent
+b trap_OSEventAvail
+b trap_GetOSEvent
+b trap_FlushEvents
+w trap_VInstall
+b trap_VRemove
+w trap_OffLine
+w trap_MoreMasters
+w trap_READPARAM
+b trap_WriteParam
+b trap_ReadDateTime
+b trap_SetDateTime
+b trap_Delay
+b trap_CmpString
+w trap_DrvrInstall
+b trap_DrvrRemove
+w trap_InitUtil
+w trap_ResrvMem
+w trap_SetFilLock
+b trap_RstFilLock
+w trap_SetFilType
+w trap_SetFPos
+w trap_FlushFile
+l trap_GetTrapAddress
+b trap_SetTrapAddress
+w trap_PtrZone
+w trap_HPurge
+b trap_HNoPurge
+w trap_SetGrowZone
+w trap_CompactMem
+b trap_PurgeMem
+w trap_AddDrive
+w trap_RDrvrInstall
+w trap_RelString
+w trap_ReadXPRam
+b trap_WriteXPRam
+l trap_CLKNOMEM
+l trap_UprString
+w trap_StripAddress
+w trap_LwrString
+w trap_SetApplBase
+w trap_InsTime
+w trap_RmvTime
+b trap_PrimeTime
+w trap_PowerOff
+w trap_MemoryDispatch
+u
+l trap_NMInstall
+b trap_NMRemove
+l trap_FSDispatch
+w trap_MaxBlock
+b trap_PurgeSpace
+w trap_MaxApplZone
+w trap_MoveHHi
+w trap_StackSpace
+w trap_NewEmptyHandle
+w trap_HSetRBit
+b trap_HClrRBit
+b trap_HGetState
+b trap_HSetState
+l trap_USTSTRT1
+l trap_InitFS
+l trap_InitEvents
+w trap_SlotManager
+w trap_SlotVInstall
+b trap_SlotVRemove
+b trap_AttachVBL
+b trap_DoVBLTask
+u
+w trap_CACHETRAP
+w trap_SIntInstall
+b trap_SIntRemove
+w trap_CountADBs
+b trap_GetIndADB
+b trap_GetADBInfo
+b trap_SetADBInfo
+w trap_ADBReInit
+w trap_ADBOp
+l trap_GetDefaultStartup
+b trap_SetDefaultStartup
+b trap_InternalWait
+w trap_GetVideoDefault
+b trap_SetVideoDefault
+l trap_DTInstall
+l trap_SetOSDefault
+w trap_GetOSDefault
+l PMGROP
+l IOPMGR
+w IOPMSGREQUEST
+b IOPMOVEDATA
+u
+l GOTOSLEEP
+u
+u
+l trap_DebugUtil
+u
+u
+w trap_SysEnvirons
+l trap_Translate24To32
+l trap_EgretDispatch
+u
+u
+u
+u
+u
+l trap_HWPriv
+u
+u
+u
+u
+u
+u
+l POWERDISPATCH
+u
+u
+u
+u
+u
+u
+l trap_VRMGRSTDENTRY
+b trap_VRMGRSTDEXIT
+u
+u
+u
+u
+u
+w trap_Gestalt
+u
+w trap_VMTCHECK
+w trap_VCHECKREMOUNT
+w trap_VDTRMV2
+w trap_VFINDDRIVE
+w trap_VFCLOSE
+w trap_VFLUSHMDB
+w trap_VGODRIVER
+w trap_VWAITUNTIL
+b trap_VSYNCWAIT
+l trap_SNDAPPDEAD
+l trap_VDISPTCH
+w trap_VIAZINIT
+w trap_VIAZPOSTINIT
+w trap_VLAUNCHINIT
+w VCACHEFLUSH
+w trap_SYSUTIL
+w trap_VLG2PHYS
+w trap_VFLUSHCACHE
+b trap_VGETBLOCK
+w trap_VMARKBLOCK
+b trap_VRELBLOCK
+b trap_VTRASHBLOCKS
+w trap_VTRASHVBLKS
+b trap_VCACHEWRIP
+w trap_VCACHERDIP
+b trap_VBASICIO
+b trap_VRDBLOCKS
+b trap_VWRBLOCKS
+b trap_VSETUPTAGS
+w trap_VBTCLOSE
+b trap_VBTDELETE
+w trap_VBTFLUSH
+b trap_VBTGETRECORD
+b trap_VBTINSERT
+w trap_VBTOPEN
+b trap_VBTSEARCH
+b trap_VBTUPDATE
+w trap_VGETNODE
+w trap_VRELNODE
+w trap_VALLOCNODE
+w trap_VFREENODE
+w trap_VEXTBTFILE
+w trap_VDEALLOCFILE
+b trap_VEXTENDFILE
+w trap_VTRUNCATEFILE
+w trap_VCMSETUP
+u
+w trap_VDTRMV1
+w trap_VBLKALLOC
+w trap_VBLKDEALLOC
+w trap_VFILEOPEN
+w trap_VPERMSSNCHK
+w trap_VFNDFILNAME
+w trap_VRFNCALL
+w trap_VADJEOF
+l trap_VPIXEL2CHAR
+w trap_VCHAR2PIXEL
+u
+l trap_VFILECLOSE
+w trap_VFILEREAD
+w trap_VFILEWRITE
+u
+w trap_VUPDALTMDB
+w trap_VCKEXTFS
+b trap_VDTRMV3
+w trap_VBMCHK
+w trap_VTSTMOD
+w trap_VLOCCREC
+w trap_VTREESEARCH
+w trap_VMAPFBLOCK
+w trap_VXFSEARCH
+w trap_VREADBM
+w trap_DOEJECT
+w trap_VSEGSTACK
+l trap_VSUPERLOAD
+w trap_VCMPFRM
+w trap_VNEWMAP
+w trap_VCHECKLOAD
+w trap_XTRIMMEASURE
+w trap_TEFindWord
+w trap_TEFindLine
+end
