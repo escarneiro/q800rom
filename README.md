@@ -28,63 +28,11 @@ The Macintosh Quadra 800 (1993) is powered by a **Motorola 68040 CPU running at 
 * **NuBus slot space**: `$F9000000` - `$FEFFFFFF` (slots 9 to E; the built-in video uses
   slot 9's space)
 
----
-
-## 2. Boot & Initialization Sequence
-
-1. **Hardware Power-On Reset**:
-   * At power-on the ROM also appears at address `0x00000000` (overlay). The 68040 fetches the
-     initial SSP from `0x00000000` (`0xF1ACAD13`, which is also the ROM checksum) and the initial
-     PC from `0x00000004` (`0x0000002A`).
-   * The instruction at `0x0000002A` (`jmp %pc@(0x60)`) jumps to `0x0000008C`, `STARTBOOT`,
-     still in the low copy of the ROM; the code moves to the ROM's real addresses later
-     (`JUMPINTOROM`, step 3).
-
-2. **CPU Setup (`STARTBOOT`, `0x4080008C`, and `early_cpu_detect`, `0x40804052`)**:
-   * `STARTBOOT` puts the CPU in supervisor mode with interrupts masked (`move.w #$2700, %sr`)
-     and calls `early_cpu_detect`, which:
-     * sets bit 31 of `CACR` and reads it back, to tell a 68040 from a 68030;
-     * on a 68040, invalidates the caches (`cinva bc`), clears `CACR` (caches off) and `TC`
-       (MMU off), and sets the transparent translation registers: `DTT0` = `0x807FC040`
-       ($80000000-$FFFFFFFF, non-cacheable, serialized) and `DTT1` = `0x500FC040`
-       ($50000000-$5FFFFFFF, the I/O space).
-   * Back in `STARTBOOT`, the `reset` instruction resets the external devices.
-
-3. **Into the ROM (`JUMPINTOROM`, `0x40802E00`)**:
-   * Sets a temporary stack pointer (`%sp = $2600`) and makes `GOTBUSERROR` the bus error
-     handler (`BusErrorVector`, used while probing the hardware).
-
-4. **Hardware Identification & RAM Sizing**:
-   * Identifies the machine with the Universal ROM's decoder and product tables (the list at
-     `0x4080322C` starts with `UNKNOWNDECODERTABLE`). The Quadra 800 is box flag 35 (`0x23`).
-   * The ROM overlay is turned off, so that RAM appears at address `0x00000000` (where exactly
-     in the code has not been traced).
-   * Sizes the RAM banks and sets up the memory controller.
-
-5. **Low-Memory Globals & Exception Vectors**:
-   * Sets `CPUFlag` ($012F) = `4` (Motorola 68040) and `BoxFlag` ($0CB3) = the machine's box
-     flag (35 for the Quadra 800).
-   * Sets `MemTop` ($0108) = top of detected RAM and `BufPtr` ($010C) = bottom of the
-     video/sound buffers.
-   * Sets `ROMBase` ($02AE) = `0x40800000`.
-   * Sets `SysZone` ($02A6) and `ApplZone` ($02AA).
-
-6. **Trap Dispatcher Installation & Unpacking (`0x40809A96`)**:
-   * Installs `trap_dispatcher` (`0x408099B0`) at Vector 10 (`$0028`, Line 1010 Emulator).
-   * Reads relative table offset at ROM header byte 34 (`$0022` -> `$000D3370`).
-   * Unpacks 1,024 Toolbox Traps into `ToolboxTable` ($0E00).
-   * Unpacks 256 OS Traps into `OSTable` ($0400).
-
-7. **Subsystem Launch**:
-   * Calls `_SwapMMUMode` (`$A05D`) to enter 32-bit addressing mode.
-   * Initializes Color QuickDraw (`_InitGraf` at `0x40831530`), cursor, fonts, windows, menus, and Dialog Manager.
-   * Traverses NuBus Declaration ROM and mounts ROM Resource Map (`ROMMapHndl` at `$0B06`).
-   * Looks for a startup disk (SCSI, floppy) and reads its boot blocks, which load the System.
-
+The boot sequence is described in [docs/boot_sequence.md](docs/boot_sequence.md), and the build steps in [docs/build_process.md](docs/build_process.md).
 
 ---
 
-## 3. Directory Layout
+## 2. Directory Layout
 
 ```
 media/                     - Default sounds, icons, cursors, fonts and pictures
@@ -105,7 +53,7 @@ src/
 
 ---
 
-## 4. Building the ROM
+## 3. Building the ROM
 
 ### Prerequisites
 * **Motorola 68000 cross binutils**: GNU `as`, `ld`, `objcopy`, `nm`. The Makefile defaults to openSUSE's `m68k-suse-linux-*`; for another toolchain, set `M68K_AS`, `M68K_LD`, `M68K_NM` and `M68K_OBJCOPY` on the command line.
@@ -201,7 +149,7 @@ Code can be inserted or grown anywhere and every reference follows. Whether the 
 * **Keeping Mac OS 8.1 compatibility:** nothing before `0x408EDCE6` may change size. Change code in place with the same size, or replace the first instructions of a routine by a jump to new code in `romsrc/patches/hooks.s`, in the free space before the fixed region at `0xF0000`.
 * **Free changes** (other systems, or a ROM that no longer identifies itself as this one, so that Mac OS does not install its patches for it): insert code anywhere. Only the free space before `0xF0000` limits how much code can be added.
 
-## 5. Testing the Built ROM
+## 4. Testing the Built ROM
 
 ### A. QEMU
 
